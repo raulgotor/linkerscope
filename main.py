@@ -1,14 +1,9 @@
 import copy
-
-import svgwrite
-from svgwrite import Drawing
 import argparse
 import yaml
 
 from map_drawer import Map
 from map_file_parser import MapFileParser
-from map_parser import MapParser
-from area import Section
 from sectionsview import SectionsView, Sections
 
 parser = argparse.ArgumentParser()
