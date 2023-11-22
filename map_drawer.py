@@ -13,6 +13,7 @@ class Style:
     label_size: int
     area_fill_color: int
 
+
 class Map:
     dwg: Drawing
     area_width: 200
@@ -35,8 +36,8 @@ class Map:
         self.style.label_size='16px'
         self.style.area_fill_color='#CCCCFF'
 
-    def draw_maps(self):
-        dwg = svgwrite.Drawing('rectangles.svg',
+    def draw_maps(self, file):
+        dwg = svgwrite.Drawing(file,
                                profile='full',
                                size=('200%', '200%')
                                )
@@ -58,8 +59,6 @@ class Map:
         for diagram in self.magnified_diagram:
             draw_map(diagram)
 
-
-
         dwg.save()
 
     def make_main_frame(self, dwg, diagram):
@@ -75,7 +74,6 @@ class Map:
         section.size_y = diagram.to_pixels(section.size)
         section.pos_y = diagram.to_pixels(diagram.end_address - section.size - section.address)
         section.pos_x = 0
-        print('dh', hex(diagram.highest_memory))
         rectangle = dwg.rect((section.pos_x, section.pos_y), (section.size_x, section.size_y))
         rectangle.fill(self.style.box_fill_color)
         rectangle.stroke(self.style.box_stroke_color, width=self.style.link_stroke_weight)
@@ -143,9 +141,6 @@ class Map:
             right_block_x = diagram.pos_x
             right_block_x2 = right_block_x - 30
             right_block_y = right_block_view.pos_y + right_block_view.to_pixels_relative(address)
-
-            print(left_block_y, right_block_y)
-            #0 and syze_y ok
 
             hlines.add(dwg.line(start=(left_block_x, left_block_y),
                                 end=(left_block_x2, left_block_y)))

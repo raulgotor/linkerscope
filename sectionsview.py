@@ -62,6 +62,7 @@ class Sections:
         return Sections(self.sections) if parent is None \
             else Sections(list(filter(lambda item: item.parent == parent, self.sections)))
 
+
 class SectionsView(Sections):
     pos_y: int
     pos_x: int
@@ -88,7 +89,6 @@ class SectionsView(Sections):
         self.size_x = size_x if size_x is not None else 200
         self.size_y = size_y if size_y is not None else 500
 
-        print(self.start_address, start_address)
         if self.end_address == 'auto':
             self.end_address = self.highest_memory
         else:
@@ -105,5 +105,4 @@ class SectionsView(Sections):
 
     def to_pixels_relative(self, value):
         a = self.size_y - ((value - self.start_address) / self.address_to_pxl)
-        print(a, self.size_y)
         return a
