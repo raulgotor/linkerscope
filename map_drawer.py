@@ -35,8 +35,8 @@ class Map:
         self.style.label_size='16px'
         self.style.area_fill_color='#CCCCFF'
 
-    def draw_maps(self):
-        dwg = svgwrite.Drawing('rectangles.svg',
+    def draw_maps(self, file):
+        dwg = svgwrite.Drawing(file,
                                profile='full',
                                size=('200%', '200%')
                                )

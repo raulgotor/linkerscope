@@ -2,46 +2,40 @@ import copy
 
 import svgwrite
 from svgwrite import Drawing
+import argparse
 import yaml
 
 from map_drawer import Map
+from map_file_parser import MapFileParser
 from map_parser import MapParser
 from area import Section
 from sectionsview import SectionsView, Sections
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--output',
+                    '-o',
+                    help='Name for the generated .svg file',
+                    default='map.svg')
+parser.add_argument('--input',
+                    '-i',
+                    help='Name of the map file, can be either linker .map files or .yaml descriptor',
+                    default='map.yaml')
+parser.add_argument('--configuration',
+                    '-c',
+                    help='Configuration file (.yml). If not specified, will use config.yaml as default',
+                    default='config.yaml')
 
+args = parser.parse_args()
 
-
-#a = MapParser()
-
-def parse_yaml(file_name='map.yaml'):
-    sections=[]
-
-    address_max = 0x60000
-    with open("map2.yaml", 'r') as file:
-        y = yaml.safe_load(file)
-
-    for element in y['map']:
-        sections.append(Section(address=element['address'],
-                            size=element['size'],
-                            name=element['name'],
-                            parent=element.get('parent') if element.get('parent') is not None else 'none',
-                            type=element.get('type') if element.get('type') is not None else 'area',
-                            ))
-
-    return sections
-
-sec = parse_yaml()
+sec = MapFileParser(args.input).parse()
 sec2 = copy.deepcopy(sec)
 sec3 = copy.deepcopy(sec)
 
 config = []
-with open('config.yaml', 'r') as file:
+with open(args.configuration, 'r') as file:
     config = yaml.safe_load(file)
 
 m = config['main']
-
-
 
 z = config.get('zoomed')
 zoomed_diagrams = []
@@ -96,5 +90,5 @@ a = Map(main_diagram=SectionsView(sections=big.get_sections(),
         force=l.get('force')
         )
 
-a.draw_maps()
+a.draw_maps(args.output)
 
