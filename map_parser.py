@@ -23,9 +23,9 @@ class MapParser:
                     else:
                         continue
 
-                process_areas(self, prev_line)
+                self.process_areas(prev_line)
                 multiple_line = prev_line + line
-                process_sections(self, multiple_line)
+                self.process_sections(multiple_line)
                 prev_line = line
 
         my_dict = {'map': []}

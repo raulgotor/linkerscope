@@ -1,0 +1,67 @@
+main:
+  # total map area
+  map:
+    # start and end addresses are optional
+    # They can be specified to force drawing a region
+    # that doesn't contain any segments
+    # start: 0x20000000
+    # end:   0x20004000
+
+    # Specify the position of the map and its size here
+    x: 30
+    y: 30
+    size_x: 200
+    size_y: 700
+
+  # starting addresses of the sections to parse
+  address:
+    lowest: 0x0
+    highest: 0x200000000
+
+  # Maximum and minimum size in bytes of the sections to parse
+  size:
+    max: 100000
+    #min: 10000
+
+zoomed:
+- map:
+    start: 0x8000000
+    end:   0x8008000
+    x: 400
+    y: 30
+    size_x: 200
+    size_y: 700
+
+    # FLASH:
+    address:
+      lowest: 0x8000000
+      highest: 0x8008000
+    # size in bytes of the sections to parse [optional]
+    size:
+      max: 1000000
+      #min: 10000
+
+- map:
+    # start: 0x20000000
+    # end:   0x20004000
+    x: 800
+    y: 30
+    size_x: 200
+    size_y: 700
+
+    # RAM:
+    address:
+      lowest: 0x20000000
+      highest: 0x20002000
+    # size in bytes of the sections to parse [optional]
+    size:
+      max: 100000
+      #min: 10000
+
+links:
+  force: true
+  addresses: [0x8000000, 0x8008000]
+  sections: [HAL_RCC_OscConfig]
+
+
+

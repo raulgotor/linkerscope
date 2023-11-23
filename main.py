@@ -37,19 +37,31 @@ zoomed_diagrams = []
 
 if z is not None:
     for diagram in z:
-        zoomed_diagrams.append(
-            SectionsView(sections=(Sections(sections=sec2)
-                                   .address_higher_than(diagram.get('address').get('lowest'))
-                                   .address_lower_than(diagram.get('address').get('highest'))
-                                   .size_bigger_than(diagram.get('size').get('min'))
-                                   .size_smaller_than(diagram.get('size').get('max'))
-                                   ).get_sections(),
-                         pos_x=diagram.get('map').get('x'),
-                         pos_y=diagram.get('map').get('y'),
-                         size_x=diagram.get('map').get('size_x'),
-                         size_y=diagram.get('map').get('size_y'),
-                         start_address=diagram.get('map').get('start'),
-                         end_address=diagram.get('map').get('end')))
+        map = diagram.get('map')
+        filtered_sections = (Sections(sections=sec2).address_higher_than(map.get('address', {}).get('lowest')))
+
+        filtered_sections = (Sections(sections=sec2)
+         .address_higher_than(map.get('address', {}).get('lowest'))
+         .address_lower_than(map.get('address', {}).get('highest'))
+         .size_bigger_than(map.get('size', {}).get('min'))
+         .size_smaller_than(map.get('size', {}).get('max'))
+         )
+
+        if len(filtered_sections.sections) == 0:
+            print("Filtered sections produced no results")
+            continue
+        sections_view = SectionsView(sections=filtered_sections.get_sections(),
+                     pos_x=map.get('x'),
+                     pos_y=map.get('y'),
+                     size_x=map.get('size_x'),
+                     size_y=map.get('size_y'),
+                     start_address=map.get('start'),
+                     end_address=map.get('end'))
+
+        if len(sections_view.sections) == 0:
+            print("Current view doesn't show any section")
+            continue
+        zoomed_diagrams.append(sections_view)
 
 
 l = config.get('links')
@@ -66,20 +78,31 @@ if l is not None:
                 addresses.append(element.address + element.size)
 
 big = (Sections(sections=sec3)
-       .address_higher_than(m.get('address').get('lowest'))
-       .address_lower_than(m.get('address').get('highest'))
-       .size_bigger_than(m.get('size').get('min'))
-       .size_smaller_than(m.get('size').get('max'))
+       .address_higher_than(m.get('address', {}).get('lowest'))
+       .address_lower_than(m.get('address', {}).get('highest'))
+       .size_bigger_than(m.get('size', {}).get('min'))
+       .size_smaller_than(m.get('size', {}).get('max'))
        )
 
-a = Map(main_diagram=SectionsView(sections=big.get_sections(),
-                                  pos_x=m.get('map').get('x'),
-                                  pos_y=m.get('map').get('y'),
-                                  size_x=m.get('map').get('size_x'),
-                                  size_y=m.get('map').get('size_y'),
-                                  start_address=m.get('map').get('start'),
-                                  end_address=m.get('map').get('end'),
-                                  ),
+if len(big.sections) == 0:
+    print("Filtered sections produced no results on main map")
+    exit(-1)
+
+main_sections_view = SectionsView(sections=big.get_sections(),
+                                  pos_x=m.get('map', {}).get('x'),
+                                  pos_y=m.get('map', {}).get('y'),
+                                  size_x=m.get('map', {}).get('size_x'),
+                                  size_y=m.get('map', {}).get('size_y'),
+                                  start_address=m.get('map', {}).get('start'),
+                                  end_address=m.get('map', {}).get('end'),
+                                  )
+
+if len(main_sections_view.sections) == 0:
+    print("Current view produced no results on main map")
+    exit(-1)
+
+
+a = Map(main_diagram=main_sections_view,
         magnified_diagram=zoomed_diagrams,
         addresses=addresses,
         force=l.get('force')
