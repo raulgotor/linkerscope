@@ -1,3 +1,5 @@
+import copy
+
 import svgwrite
 from svgwrite import Drawing
 
@@ -13,28 +15,45 @@ class Style:
     label_size: int
     area_fill_color: int
 
+    def __init__(self, style=None):
+        self.box_fill_color = '#CCE5FF'
+        self.label_color = 'blue'
+        self.box_stroke_color = '#3399FF'
+        self.box_stroke_width = 2
+        self.link_stroke_width = 1
+        self.link_stroke_color = 'grey'
+        self.label_size = '16px'
+        self.area_fill_color = '#CCCCFF'
+        self.label_stroke_width = 1
+
+        if style is not None:
+            for key, value in style.items():
+                setattr(self, key, style.get(key, value))
+
 
 class Map:
     dwg: Drawing
     area_width: 200
     pointer_y: int
 
-    def __init__(self, main_diagram, magnified_diagram=[], addresses=[], force=False):
+    def __init__(self, main_diagram, magnified_diagram=[], addresses=[], force=False, **kwargs):
+
+        self.style = kwargs.get('style')
+
         self.type = type
         self.main_diagram = main_diagram
         self.magnified_diagram = magnified_diagram
         self.addresses = addresses
         self.force = force
-        self.style = Style()
-        self.style.box_fill_color='#CCE5FF'
-        self.style.label_color='blue'
-        self.style.box_stroke_color='#3399FF'
-        self.style.box_stroke_weight=2
-        self.style.link_stroke_weight=1
-        self.style.link_stroke_color='grey'
-        self.style.label_font="Courier New",
-        self.style.label_size='16px'
-        self.style.area_fill_color='#CCCCFF'
+        self.current_style = Style()
+
+    def configure_current_style(self, diagram):
+        members = [attr for attr in dir(diagram.style) if not callable(getattr(diagram.style, attr)) and not attr.startswith("__") and getattr(diagram.style, attr) is not None]
+        self.current_style = copy.deepcopy(self.style)
+
+        for member in members:
+            value = getattr(diagram.style, member)
+            setattr(self.current_style, member, value)
 
     def draw_maps(self, file):
         dwg = svgwrite.Drawing(file,
@@ -46,6 +65,8 @@ class Map:
             group3.add(self.make_expand_lines(address, dwg))
 
         def draw_map(diagram):
+            self.configure_current_style(diagram)
+            print(self.current_style.box_fill_color)
             group = dwg.add(dwg.g())
             group.add(self.make_main_frame(dwg, diagram))
             for section in diagram.sections:
@@ -75,19 +96,19 @@ class Map:
         section.pos_y = diagram.to_pixels(diagram.end_address - section.size - section.address)
         section.pos_x = 0
         rectangle = dwg.rect((section.pos_x, section.pos_y), (section.size_x, section.size_y))
-        rectangle.fill(self.style.box_fill_color)
-        rectangle.stroke(self.style.box_stroke_color, width=self.style.link_stroke_weight)
+        rectangle.fill(self.current_style.box_fill_color)
+        rectangle.stroke(self.current_style.box_stroke_color, width=self.current_style.box_stroke_width)
         return rectangle
 
     def make_text(self, dwg, text, pos_x, pos_y, anchor, baseline='middle',small=False):
         return dwg.text(text, insert=(pos_x, pos_y),
-                        stroke=self.style.label_color,
+                        stroke='white',
                         #focusable='true',
-                        fill=self.style.label_color,
-                        stroke_width=0,
-                        font_size='12px' if small else self.style.label_size,
+                        fill=self.current_style.label_color,
+                        stroke_width=self.current_style.label_stroke_width,
+                        font_size='12px' if small else self.current_style.label_size,
                         font_weight="normal",
-                        font_family="Courier New",
+                        font_family=self.current_style.label_font,
                         text_anchor=anchor,
                         alignment_baseline=baseline
                         )

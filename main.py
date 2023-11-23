@@ -2,9 +2,22 @@ import copy
 import argparse
 import yaml
 
-from map_drawer import Map
+from map_drawer import Map, Style
 from map_file_parser import MapFileParser
 from sectionsview import SectionsView, Sections
+
+#todo cleanme
+
+default_style = Style()
+default_style.box_fill_color = '#CCE5FF'
+default_style.label_color = 'blue'
+default_style.box_stroke_color = '#3399FF'
+default_style.box_stroke_width = 2
+default_style.link_stroke_width = 1
+default_style.link_stroke_color = 'grey'
+default_style.label_size = '16px'
+default_style.area_fill_color = '#CCCCFF'
+default_style.label_stroke_width = 1
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--output',
@@ -50,13 +63,15 @@ if z is not None:
         if len(filtered_sections.sections) == 0:
             print("Filtered sections produced no results")
             continue
+
         sections_view = SectionsView(sections=filtered_sections.get_sections(),
                      pos_x=map.get('x'),
                      pos_y=map.get('y'),
                      size_x=map.get('size_x'),
                      size_y=map.get('size_y'),
                      start_address=map.get('start'),
-                     end_address=map.get('end'))
+                     end_address=map.get('end'),
+                     style=map.get('style'))
 
         if len(sections_view.sections) == 0:
             print("Current view doesn't show any section")
@@ -101,11 +116,15 @@ if len(main_sections_view.sections) == 0:
     print("Current view produced no results on main map")
     exit(-1)
 
+#todo cleanme
+for key, value in config.get('style').items():
+    setattr(default_style, key, value)
 
 a = Map(main_diagram=main_sections_view,
         magnified_diagram=zoomed_diagrams,
         addresses=addresses,
-        force=l.get('force')
+        force=l.get('force'),
+        style=default_style
         )
 
 a.draw_maps(args.output)
