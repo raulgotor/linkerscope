@@ -126,7 +126,7 @@ class Map:
         hlines = dwg.g(id='hlines', stroke='grey')
         main_diagram = self.diagrams[0]
 
-        for diagram in self.diagrams:
+        for diagram in self.diagrams[1:]:
             if not diagram.has_address(address) and not self.force:
                 continue
 
