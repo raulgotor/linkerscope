@@ -2,7 +2,9 @@ import copy
 import argparse
 import yaml
 
-from map_drawer import Map, Style
+from map_drawer import Map
+from style import Style
+
 from map_file_parser import MapFileParser
 from sectionsview import SectionsView, Sections
 

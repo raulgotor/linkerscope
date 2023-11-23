@@ -1,6 +1,8 @@
 import copy
 import svgwrite
 from svgwrite import Drawing
+from style import Style
+
 
 class Map:
     dwg: Drawing
@@ -16,28 +18,17 @@ class Map:
         _links = links.get('addresses')
         for section in self.diagrams[0].sections:
             if section.name in links.get('sections'):
-                print(_links)
                 _links.append(section.address)
                 _links.append(section.address + section.size)
         self.links = _links
 
     def draw_maps(self, file):
-        dwg = svgwrite.Drawing(file,
-                               profile='full',
-                               size=('200%', '200%')
-                               )
-
-        lines_group = dwg.add(dwg.g())
-
-        for address in self.links:
-            lines_group.add(self._make_links(address, dwg))
-
         def _configure_current_style(diagram):
             members = [attr for attr in dir(diagram.style) if
                        not callable(getattr(diagram.style, attr)) and not attr.startswith("__") and getattr(
                            diagram.style, attr) is not None]
-            self.current_style = copy.deepcopy(self.style)
 
+            self.current_style = copy.deepcopy(self.style)
             for member in members:
                 value = getattr(diagram.style, member)
                 setattr(self.current_style, member, value)
@@ -52,6 +43,16 @@ class Map:
                 pass
             group.translate(diagram.pos_x,
                             diagram.pos_y)
+
+        dwg = svgwrite.Drawing(file,
+                               profile='full',
+                               size=('200%', '200%')
+                               )
+
+        lines_group = dwg.add(dwg.g())
+
+        for address in self.links:
+            lines_group.add(self._make_links(address, dwg))
 
         for diagram in self.diagrams:
             _draw_map(diagram)
@@ -140,13 +141,21 @@ class Map:
             right_block_x2 = right_block_x - 30
             right_block_y = right_block_view.pos_y + right_block_view.to_pixels_relative(address)
 
-            hlines.add(dwg.line(start=(left_block_x, left_block_y),
-                                end=(left_block_x2, left_block_y)))
+            def _make_line(dwg, x1, y1, x2, y2):
+                return dwg.line(start=(x1, y1), end=(x2, y2),
+                                stroke_width=self.style.link_stroke_width,
+                                stroke=self.style.link_stroke_color)
 
-            hlines.add(dwg.line(start=(right_block_x2, right_block_y),
-                                end=(right_block_x, right_block_y)))
+            hlines.add(_make_line(dwg,
+                                  x1=left_block_x, y1=left_block_y,
+                                  x2=left_block_x2, y2=left_block_y))
 
-            hlines.add(dwg.line(start=(left_block_x2, left_block_y),
-                                end=(right_block_x2, right_block_y)))
+            hlines.add(_make_line(dwg,
+                                  x1=right_block_x2, y1=right_block_y,
+                                  x2=right_block_x, y2=right_block_y))
+
+            hlines.add(_make_line(dwg,
+                                  x1=left_block_x2, y1=left_block_y,
+                                  x2=right_block_x2, y2=right_block_y))
 
         return hlines

@@ -3,12 +3,12 @@ style:
   label_color: 'blue'
   box_stroke_color: '#3399FF'
   box_stroke_width: 2
-  link_stroke_width: 1
+  link_stroke_width: 2
   link_stroke_color: 'grey'
   label_font: 'Helvetica Bold'
-  label_size: '20px'
+  label_size: '16px'
   label_stroke_width: 0.5px
-  area_fill_color: '#CCCCFF'
+  area_fill_color: 'lightgrey'
 
 maps:
 # total map area

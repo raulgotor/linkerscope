@@ -1,6 +1,6 @@
 import yaml
 from area import Section
-from map_drawer import Style
+from style import Style
 
 
 class Sections:
