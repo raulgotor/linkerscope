@@ -1,10 +1,10 @@
 style:
   box_fill_color: '#CCE5FF'
-  label_color: 'blue'
   box_stroke_color: '#3399FF'
   box_stroke_width: 2
   link_stroke_width: 2
   link_stroke_color: 'grey'
+  label_color: 'blue'
   label_font: 'Helvetica Bold'
   label_size: '16px'
   label_stroke_width: 0.5px
@@ -27,8 +27,8 @@ maps:
 
     # starting addresses of the sections to parse
     address:
-      lowest: 0x0
-      highest: 0x200000000
+      lowest: 0x80000c0
+      highest: 0x80045d4
 
     # Maximum and minimum size in bytes of the sections to parse
     size:
@@ -36,49 +36,45 @@ maps:
       #min: 10000
 
 - map:
-    start: 0x8000000
-    end:   0x8008000
     x: 400
     y: 30
-    size_x: 200
+    size_x: 300
     size_y: 700
 
     # FLASH:
     address:
-      lowest: 0x8000000
-      highest: 0x8008000
+      lowest: 0x80000c0
+      highest: 0x8000bd0
     # size in bytes of the sections to parse [optional]
     size:
       max: 1000000
       #min: 10000
     style:
-      #box_fill_color: 'brown'
-      label_color: 'red'
+      box_fill_color: '#CCE5FF'
+      box_stroke_color: '#3399FF'
 
 - map:
-    # start: 0x20000000
-    # end:   0x20004000
-    x: 800
+    x: 900
     y: 30
     size_x: 200
     size_y: 700
 
     # RAM:
     address:
-      lowest: 0x20000000
-      highest: 0x20002000
+      lowest: 0x8002490
+      highest: 0x8003490
     # size in bytes of the sections to parse [optional]
     size:
       max: 100000
       #min: 10000
     style:
-      #box_fill_color: 'brown'
+      box_fill_color: '#CCFFEE'
+      box_stroke_color: '#009966'
       label_color: 'green'
-
 links:
   force: true
   addresses: [ 0x80045d4, 0x20000910, 0x200004e8]
-  sections: [HAL_RCC_OscConfig, __malloc_av_]
+  sections: [up_down_draw, HAL_GPIO_Init, __malloc_av_, operation_mode_change]
 
 
 

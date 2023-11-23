@@ -20,6 +20,12 @@ class Map:
             if section.name in links.get('sections'):
                 _links.append(section.address)
                 _links.append(section.address + section.size)
+
+        self.lsections = []
+        for section in self.diagrams[0].sections:
+            if section.name in links.get('sections'):
+                self.lsections.append([section.address, section.address + section.size])
+
         self.links = _links
 
     def draw_maps(self, file):
@@ -52,7 +58,15 @@ class Map:
         lines_group = dwg.add(dwg.g())
 
         for address in self.links:
-            lines_group.add(self._make_links(address, dwg))
+            #lines_group.add(self._make_links(address, dwg))
+            pass
+
+
+        lsectionsgroup = dwg.add(dwg.g())
+        for lsection in self.lsections:
+            for diagram in self.diagrams[1:]:
+                if lsection[0] > diagram.lowest_memory and lsection[1] <= diagram.highest_memory:
+                    lsectionsgroup.add(self._make_poly(dwg, diagram, lsection[0], lsection[1]))
 
         for diagram in self.diagrams:
             _draw_map(diagram)
@@ -122,40 +136,59 @@ class Map:
             group.add(self._make_size_label(dwg, section))
         return group
 
+    def _get_points_for_address(self, address, diagram):
+        left_block_view = self.diagrams[0]
+        right_block_view = diagram
+
+        left_block_x = left_block_view.size_x + left_block_view.pos_x
+        left_block_x2 = left_block_x + 30
+        left_block_y = left_block_view.pos_y + left_block_view.to_pixels_relative(address)
+
+        right_block_x = diagram.pos_x
+        right_block_x2 = right_block_x - 30
+        right_block_y = right_block_view.pos_y + right_block_view.to_pixels_relative(address)
+
+        return [(left_block_x, left_block_y),
+                (left_block_x2, left_block_y),
+                (right_block_x2, right_block_y),
+                (right_block_x, right_block_y),
+                ]
+
+    def _make_poly(self, dwg, diagram, start_address, end_address):
+
+        points = []
+        reversed = self._get_points_for_address(end_address, diagram)
+        reversed.reverse()
+        points.extend(self._get_points_for_address(start_address, diagram))
+        points.extend(reversed)
+
+        return dwg.polyline(points,
+                            stroke='darkgrey',
+                            fill='lightgrey')
+
     def _make_links(self, address, dwg: Drawing):
         hlines = dwg.g(id='hlines', stroke='grey')
-        main_diagram = self.diagrams[0]
 
         for diagram in self.diagrams[1:]:
             if not diagram.has_address(address) and not self.force:
                 continue
-
-            left_block_view = main_diagram
-            right_block_view = diagram
-
-            left_block_x = main_diagram.size_x + main_diagram.pos_x
-            left_block_x2 = left_block_x + 30
-            left_block_y = left_block_view.pos_y + left_block_view.to_pixels_relative(address)
-
-            right_block_x = diagram.pos_x
-            right_block_x2 = right_block_x - 30
-            right_block_y = right_block_view.pos_y + right_block_view.to_pixels_relative(address)
 
             def _make_line(dwg, x1, y1, x2, y2):
                 return dwg.line(start=(x1, y1), end=(x2, y2),
                                 stroke_width=self.style.link_stroke_width,
                                 stroke=self.style.link_stroke_color)
 
-            hlines.add(_make_line(dwg,
-                                  x1=left_block_x, y1=left_block_y,
-                                  x2=left_block_x2, y2=left_block_y))
+            points = self._get_points_for_address(address, diagram)
 
             hlines.add(_make_line(dwg,
-                                  x1=right_block_x2, y1=right_block_y,
-                                  x2=right_block_x, y2=right_block_y))
+                                  x1=points[0][0], y1=points[0][1],
+                                  x2=points[1][0], y2=points[1][1]))
 
             hlines.add(_make_line(dwg,
-                                  x1=left_block_x2, y1=left_block_y,
-                                  x2=right_block_x2, y2=right_block_y))
+                                  x1=points[1][0], y1=points[1][1],
+                                  x2=points[2][0], y2=points[2][1]))
 
+            hlines.add(_make_line(dwg,
+                                  x1=points[2][0], y1=points[2][1],
+                                  x2=points[3][0], y2=points[3][1]))
         return hlines
