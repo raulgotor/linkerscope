@@ -3,8 +3,23 @@ import argparse
 import yaml
 
 from map_drawer import Map
+from style import Style
+
 from map_file_parser import MapFileParser
 from sectionsview import SectionsView, Sections
+
+#todo cleanme
+
+default_style = Style()
+default_style.box_fill_color = '#CCE5FF'
+default_style.label_color = 'blue'
+default_style.box_stroke_color = '#3399FF'
+default_style.box_stroke_width = 2
+default_style.link_stroke_width = 1
+default_style.link_stroke_color = 'grey'
+default_style.label_size = '16px'
+default_style.area_fill_color = '#CCCCFF'
+default_style.label_stroke_width = 1
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--output',
@@ -30,13 +45,10 @@ config = []
 with open(args.configuration, 'r') as file:
     config = yaml.safe_load(file)
 
-m = config['main']
-
-z = config.get('zoomed')
-zoomed_diagrams = []
-
-if z is not None:
-    for diagram in z:
+_maps = config['maps']
+maps = []
+if _maps is not None:
+    for diagram in _maps:
         map = diagram.get('map')
         filtered_sections = (Sections(sections=sec2).address_higher_than(map.get('address', {}).get('lowest')))
 
@@ -50,62 +62,28 @@ if z is not None:
         if len(filtered_sections.sections) == 0:
             print("Filtered sections produced no results")
             continue
+
         sections_view = SectionsView(sections=filtered_sections.get_sections(),
                      pos_x=map.get('x'),
                      pos_y=map.get('y'),
                      size_x=map.get('size_x'),
                      size_y=map.get('size_y'),
                      start_address=map.get('start'),
-                     end_address=map.get('end'))
+                     end_address=map.get('end'),
+                     style=map.get('style'))
 
         if len(sections_view.sections) == 0:
             print("Current view doesn't show any section")
             continue
-        zoomed_diagrams.append(sections_view)
+        maps.append(sections_view)
 
+#todo cleanme
+for key, value in config.get('style').items():
+    setattr(default_style, key, value)
 
-l = config.get('links')
-addresses = []
-if l is not None:
-    a = l.get('addresses')
-    s = l.get('sections')
-    if a is not None:
-        addresses = a
-    if s is not None:
-        for element in sec:
-            if element.name in s:
-                addresses.append(element.address)
-                addresses.append(element.address + element.size)
-
-big = (Sections(sections=sec3)
-       .address_higher_than(m.get('address', {}).get('lowest'))
-       .address_lower_than(m.get('address', {}).get('highest'))
-       .size_bigger_than(m.get('size', {}).get('min'))
-       .size_smaller_than(m.get('size', {}).get('max'))
-       )
-
-if len(big.sections) == 0:
-    print("Filtered sections produced no results on main map")
-    exit(-1)
-
-main_sections_view = SectionsView(sections=big.get_sections(),
-                                  pos_x=m.get('map', {}).get('x'),
-                                  pos_y=m.get('map', {}).get('y'),
-                                  size_x=m.get('map', {}).get('size_x'),
-                                  size_y=m.get('map', {}).get('size_y'),
-                                  start_address=m.get('map', {}).get('start'),
-                                  end_address=m.get('map', {}).get('end'),
-                                  )
-
-if len(main_sections_view.sections) == 0:
-    print("Current view produced no results on main map")
-    exit(-1)
-
-
-a = Map(main_diagram=main_sections_view,
-        magnified_diagram=zoomed_diagrams,
-        addresses=addresses,
-        force=l.get('force')
+a = Map(diagrams=maps,
+        links=config.get('links'),
+        style=default_style
         )
 
 a.draw_maps(args.output)

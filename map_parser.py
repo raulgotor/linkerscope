@@ -3,6 +3,7 @@ import re
 from area import Section
 import yaml
 
+
 class MapParser:
     def __init__(self, input_filename, output_filename):
         self.areas = []

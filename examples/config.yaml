@@ -1,6 +1,18 @@
-main:
-  # total map area
-  map:
+style:
+  box_fill_color: '#CCE5FF'
+  label_color: 'blue'
+  box_stroke_color: '#3399FF'
+  box_stroke_width: 2
+  link_stroke_width: 2
+  link_stroke_color: 'grey'
+  label_font: 'Helvetica Bold'
+  label_size: '16px'
+  label_stroke_width: 0.5px
+  area_fill_color: 'lightgrey'
+
+maps:
+# total map area
+- map:
     # start and end addresses are optional
     # They can be specified to force drawing a region
     # that doesn't contain any segments
@@ -13,17 +25,16 @@ main:
     size_x: 200
     size_y: 700
 
-  # starting addresses of the sections to parse
-  address:
-    lowest: 0x0
-    highest: 0x200000000
+    # starting addresses of the sections to parse
+    address:
+      lowest: 0x0
+      highest: 0x200000000
 
-  # Maximum and minimum size in bytes of the sections to parse
-  size:
-    max: 100000
-    #min: 10000
+    # Maximum and minimum size in bytes of the sections to parse
+    size:
+      max: 100000
+      #min: 10000
 
-zoomed:
 - map:
     start: 0x8000000
     end:   0x8008000
@@ -40,6 +51,9 @@ zoomed:
     size:
       max: 1000000
       #min: 10000
+    style:
+      #box_fill_color: 'brown'
+      label_color: 'red'
 
 - map:
     # start: 0x20000000
@@ -57,11 +71,14 @@ zoomed:
     size:
       max: 100000
       #min: 10000
+    style:
+      #box_fill_color: 'brown'
+      label_color: 'green'
 
 links:
   force: true
-  addresses: [0x8000000, 0x8008000]
-  sections: [HAL_RCC_OscConfig]
+  addresses: [ 0x80045d4, 0x20000910, 0x200004e8]
+  sections: [HAL_RCC_OscConfig, __malloc_av_]
 
 
 
