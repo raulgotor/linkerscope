@@ -1,5 +1,4 @@
 import copy
-
 import svgwrite
 from svgwrite import Drawing
 
@@ -36,16 +35,19 @@ class Map:
     area_width: 200
     pointer_y: int
 
-    def __init__(self, main_diagram, magnified_diagram=[], addresses=[], force=False, **kwargs):
-
+    def __init__(self, diagrams=[], links={}, force=False, **kwargs):
         self.style = kwargs.get('style')
-
         self.type = type
-        self.main_diagram = main_diagram
-        self.magnified_diagram = magnified_diagram
-        self.addresses = addresses
+        self.diagrams = diagrams
         self.force = force
         self.current_style = Style()
+        _links = links.get('addresses')
+        for section in self.diagrams[0].sections:
+            if section.name in links.get('sections'):
+                print(_links)
+                _links.append(section.address)
+                _links.append(section.address + section.size)
+        self.links = _links
 
     def configure_current_style(self, diagram):
         members = [attr for attr in dir(diagram.style) if not callable(getattr(diagram.style, attr)) and not attr.startswith("__") and getattr(diagram.style, attr) is not None]
@@ -60,9 +62,9 @@ class Map:
                                profile='full',
                                size=('200%', '200%')
                                )
-        group3 = dwg.add(dwg.g())
-        for address in self.addresses:
-            group3.add(self.make_expand_lines(address, dwg))
+        lines_group = dwg.add(dwg.g())
+        for address in self.links:
+            lines_group.add(self.make_expand_lines(address, dwg))
 
         def draw_map(diagram):
             self.configure_current_style(diagram)
@@ -75,9 +77,7 @@ class Map:
             group.translate(diagram.pos_x,
                             diagram.pos_y)
 
-        draw_map(self.main_diagram)
-
-        for diagram in self.magnified_diagram:
+        for diagram in self.diagrams:
             draw_map(diagram)
 
         dwg.save()
@@ -147,15 +147,16 @@ class Map:
 
     def make_expand_lines(self, address, dwg: Drawing):
         hlines = dwg.g(id='hlines', stroke='grey')
+        main_diagram = self.diagrams[0]
 
-        for diagram in self.magnified_diagram:
+        for diagram in self.diagrams:
             if not diagram.has_address(address) and not self.force:
                 continue
 
-            left_block_view = self.main_diagram
+            left_block_view = main_diagram
             right_block_view = diagram
 
-            left_block_x = self.main_diagram.size_x + self.main_diagram.pos_x
+            left_block_x = main_diagram.size_x + main_diagram.pos_x
             left_block_x2 = left_block_x + 30
             left_block_y = left_block_view.pos_y + left_block_view.to_pixels_relative(address)
 

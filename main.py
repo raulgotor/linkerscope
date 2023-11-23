@@ -43,13 +43,10 @@ config = []
 with open(args.configuration, 'r') as file:
     config = yaml.safe_load(file)
 
-m = config['main']
-
-z = config.get('zoomed')
-zoomed_diagrams = []
-
-if z is not None:
-    for diagram in z:
+_maps = config['maps']
+maps = []
+if _maps is not None:
+    for diagram in _maps:
         map = diagram.get('map')
         filtered_sections = (Sections(sections=sec2).address_higher_than(map.get('address', {}).get('lowest')))
 
@@ -76,54 +73,14 @@ if z is not None:
         if len(sections_view.sections) == 0:
             print("Current view doesn't show any section")
             continue
-        zoomed_diagrams.append(sections_view)
-
-
-l = config.get('links')
-addresses = []
-if l is not None:
-    a = l.get('addresses')
-    s = l.get('sections')
-    if a is not None:
-        addresses = a
-    if s is not None:
-        for element in sec:
-            if element.name in s:
-                addresses.append(element.address)
-                addresses.append(element.address + element.size)
-
-big = (Sections(sections=sec3)
-       .address_higher_than(m.get('address', {}).get('lowest'))
-       .address_lower_than(m.get('address', {}).get('highest'))
-       .size_bigger_than(m.get('size', {}).get('min'))
-       .size_smaller_than(m.get('size', {}).get('max'))
-       )
-
-if len(big.sections) == 0:
-    print("Filtered sections produced no results on main map")
-    exit(-1)
-
-main_sections_view = SectionsView(sections=big.get_sections(),
-                                  pos_x=m.get('map', {}).get('x'),
-                                  pos_y=m.get('map', {}).get('y'),
-                                  size_x=m.get('map', {}).get('size_x'),
-                                  size_y=m.get('map', {}).get('size_y'),
-                                  start_address=m.get('map', {}).get('start'),
-                                  end_address=m.get('map', {}).get('end'),
-                                  )
-
-if len(main_sections_view.sections) == 0:
-    print("Current view produced no results on main map")
-    exit(-1)
+        maps.append(sections_view)
 
 #todo cleanme
 for key, value in config.get('style').items():
     setattr(default_style, key, value)
 
-a = Map(main_diagram=main_sections_view,
-        magnified_diagram=zoomed_diagrams,
-        addresses=addresses,
-        force=l.get('force'),
+a = Map(diagrams=maps,
+        links=config.get('links'),
         style=default_style
         )
 
