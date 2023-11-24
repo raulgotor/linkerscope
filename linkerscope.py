@@ -13,15 +13,15 @@ from sectionsview import SectionsView, Sections
 #todo cleanme
 
 default_style = Style()
-default_style.box_fill_color = '#CCE5FF'
+default_style.section_fill_color = '#CCE5FF'
+default_style.section_stroke_color = '#3399FF'
+default_style.section_stroke_width = 2
 default_style.label_color = 'blue'
-default_style.box_stroke_color = '#3399FF'
-default_style.box_stroke_width = 2
+default_style.label_size = '16px'
+default_style.label_stroke_width = 1
 default_style.link_stroke_width = 1
 default_style.link_stroke_color = 'grey'
-default_style.label_size = '16px'
-default_style.area_fill_color = '#CCCCFF'
-default_style.label_stroke_width = 1
+default_style.map_background_color = '#CCCCFF'
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--output',
@@ -52,13 +52,13 @@ maps = []
 if _maps is not None:
     for diagram in _maps:
         map = diagram.get('map')
-        filtered_sections = (Sections(sections=sec2).address_higher_than(map.get('address', {}).get('lowest')))
+        filtered_sections = (Sections(sections=sec2).filter_address_min(map.get('address', {}).get('lowest')))
 
         filtered_sections = (Sections(sections=sec2)
-         .address_higher_than(map.get('address', {}).get('lowest'))
-         .address_lower_than(map.get('address', {}).get('highest'))
-         .size_bigger_than(map.get('size', {}).get('min'))
-         .size_smaller_than(map.get('size', {}).get('max'))
+         .filter_address_min(map.get('address', {}).get('min'))
+         .filter_address_max(map.get('address', {}).get('max'))
+         .filter_size_min(map.get('size', {}).get('min'))
+         .filter_size_max(map.get('size', {}).get('max'))
          )
 
         if len(filtered_sections.sections) == 0:
