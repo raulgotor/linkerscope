@@ -13,15 +13,15 @@ from sectionsview import SectionsView, Sections
 #todo cleanme
 
 default_style = Style()
-default_style.box_fill_color = '#CCE5FF'
+default_style.section_fill_color = '#CCE5FF'
+default_style.section_stroke_color = '#3399FF'
+default_style.section_stroke_width = 2
 default_style.label_color = 'blue'
-default_style.box_stroke_color = '#3399FF'
-default_style.box_stroke_width = 2
+default_style.label_size = '16px'
+default_style.label_stroke_width = 1
 default_style.link_stroke_width = 1
 default_style.link_stroke_color = 'grey'
-default_style.label_size = '16px'
-default_style.area_fill_color = '#CCCCFF'
-default_style.label_stroke_width = 1
+default_style.map_background_color = '#CCCCFF'
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--output',

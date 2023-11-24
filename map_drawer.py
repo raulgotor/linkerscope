@@ -72,8 +72,8 @@ class Map:
         section.pos_y = diagram.to_pixels(diagram.end_address - section.size - section.address)
         section.pos_x = 0
         rectangle = dwg.rect((section.pos_x, section.pos_y), (section.size_x, section.size_y))
-        rectangle.fill(self.current_style.box_fill_color)
-        rectangle.stroke(self.current_style.box_stroke_color, width=self.current_style.box_stroke_width)
+        rectangle.fill(self.current_style.section_fill_color)
+        rectangle.stroke(self.current_style.section_stroke_color, width=self.current_style.section_stroke_width)
         return rectangle
 
     def _make_text(self, dwg, text, pos_x, pos_y, anchor, baseline='middle', small=False):
