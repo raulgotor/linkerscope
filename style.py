@@ -8,7 +8,7 @@ class Style:
     label_color: int
     label_size: int
     label_stroke_width: int
-    area_fill_color: int
+    map_background_color: int
 
     def __init__(self, style=None):
         if style is not None:

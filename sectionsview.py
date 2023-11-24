@@ -39,19 +39,19 @@ class Sections:
                 return True
         return False
 
-    def size_bigger_than(self, size_bytes):
+    def filter_size_min(self, size_bytes):
         return Sections(self.sections) if size_bytes is None \
             else Sections(list(filter(lambda item: item.size > size_bytes, self.sections)))
 
-    def size_smaller_than(self, size_bytes):
+    def filter_size_max(self, size_bytes):
         return Sections(self.sections) if size_bytes is None \
             else Sections(list(filter(lambda item: item.size < size_bytes, self.sections)))
 
-    def address_lower_than(self, address_bytes):
+    def filter_address_max(self, address_bytes):
         return Sections(self.sections) if address_bytes is None \
             else Sections(list(filter(lambda item: (item.address + item.size) <= address_bytes, self.sections)))
 
-    def address_higher_than(self, address_bytes):
+    def filter_address_min(self, address_bytes):
         return Sections(self.sections) if address_bytes is None \
             else Sections(list(filter(lambda item: item.address >= address_bytes, self.sections)))
 

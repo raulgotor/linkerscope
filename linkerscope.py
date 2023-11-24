@@ -52,13 +52,13 @@ maps = []
 if _maps is not None:
     for diagram in _maps:
         map = diagram.get('map')
-        filtered_sections = (Sections(sections=sec2).address_higher_than(map.get('address', {}).get('lowest')))
+        filtered_sections = (Sections(sections=sec2).filter_address_min(map.get('address', {}).get('lowest')))
 
         filtered_sections = (Sections(sections=sec2)
-         .address_higher_than(map.get('address', {}).get('lowest'))
-         .address_lower_than(map.get('address', {}).get('highest'))
-         .size_bigger_than(map.get('size', {}).get('min'))
-         .size_smaller_than(map.get('size', {}).get('max'))
+         .filter_address_min(map.get('address', {}).get('min'))
+         .filter_address_max(map.get('address', {}).get('max'))
+         .filter_size_min(map.get('size', {}).get('min'))
+         .filter_size_max(map.get('size', {}).get('max'))
          )
 
         if len(filtered_sections.sections) == 0:

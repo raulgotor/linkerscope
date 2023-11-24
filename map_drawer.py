@@ -6,7 +6,6 @@ from style import Style
 
 class Map:
     dwg: Drawing
-    area_width: 200
     pointer_y: int
 
     def __init__(self, diagrams=[], links={}, force=False, **kwargs):
@@ -63,8 +62,8 @@ class Map:
         size_x = diagram.size_x
         size_y = diagram.size_y
         rectangle = dwg.rect((0, 0), (size_x, size_y))
-        rectangle.fill(self.style.area_fill_color)
-        rectangle.stroke(self.style.area_fill_color, width=1)
+        rectangle.fill(self.style.map_background_color)
+        rectangle.stroke(self.style.map_background_color, width=1)
         return rectangle
 
     def _make_box(self, dwg, section, diagram):
