@@ -6,6 +6,15 @@ __pycache__/
 # C extensions
 *.so
 
+# IDE
+.idea
+
+# OS
+.DS_Store
+
+# Artifacts
+*.svg
+
 # Distribution / packaging
 .Python
 build/
