@@ -7,4 +7,6 @@ and this project adheres to
 
 ## [Unreleased]
 
-* Initial CHANGELOG.md
+## [0.1.0] - 2023-11-24
+
+* Initial release
