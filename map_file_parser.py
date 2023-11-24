@@ -2,15 +2,19 @@ import yaml
 
 from area import Section
 from map_parser import MapParser
-
+import os
 
 class MapFileParser:
     def __init__(self, file):
         self.input_filename = file
-        self.parse()
 
     def parse(self):
-        if 1:
+        filename, file_extension = os.path.splitext(self.input_filename)
+
+        if file_extension == '.map':
+            self.parse_map(self.input_filename)
+            return self.parse_yaml('examples/map.yaml')
+        elif file_extension in ['.yaml', '.yml']:
             return self.parse_yaml(self.input_filename)
 
     @staticmethod
@@ -33,5 +37,5 @@ class MapFileParser:
 
     @staticmethod
     def parse_map(input_filename):
-        a = MapParser(input_filename=input, output_filename='temp.yaml')
+        MapParser(input_filename=input_filename, output_filename='examples/map.yaml').parse()
 

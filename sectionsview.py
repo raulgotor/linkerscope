@@ -1,5 +1,6 @@
 import yaml
 from area import Section
+from style import Style
 
 
 class Sections:
@@ -79,8 +80,10 @@ class SectionsView(Sections):
                  start_address='auto',
                  end_address='auto',
                  size_x=200,
-                 size_y=100):
+                 size_y=100, **kwargs):
         super().__init__(sections)
+
+        self.style = Style(style=kwargs.get('style'))
 
         self.start_address = start_address if start_address is not None else 'auto'
         self.end_address = end_address if end_address is not None else 'auto'
