@@ -1,15 +1,11 @@
 style:
   label_font: 'Helvetica Bold'
-  label_color: 'lightgrey'
   label_size: '16px'
-  label_stroke_width: 0px
+  label_stroke_width: 0.5px
   link_stroke_color: 'grey'
   link_stroke_width: 1
   area_background_color: 'lightgrey'
   section_stroke_width: 1
-  section_fill_color: '#99B898'
-  section_stroke_color: '#2A363B'
-  background_color: '#2A363B'
 
 areas:
 # total area area
@@ -23,101 +19,59 @@ areas:
     # Specify the position of the area and its size here
     x: 30
     y: 30
-    size_x: 300
-    size_y: 900
+    size_x: 100
+    size_y: 400
 
     # starting addresses of the sections to parse
     address:
       min: 0x0
-      max: 0x100000000
+      max: 0x200000000
 
     # Maximum and minimum size in bytes of the sections to parse
     size:
-      min: 0x02F00000
-    style:
-      overrrides:
-      - sections: [ Peripheral ]
-        section_fill_color: '#FF847C'
+      max: 100000
+      #min: 10000
+
 - area:
-    x: 500
+    start: 0x8000000
+    end:   0x8008000
+    x: 250
     y: 30
     size_x: 200
-    size_y: 200
+    size_y: 700
 
+    # FLASH:
     address:
-      min: 0xE8040000
-      max: 0xE8044000
+      min: 0x8000000
+      max: 0x8008000
+    # size in bytes of the sections to parse [optional]
+    size:
+      min: 0x200
     style:
-      link_stroke_color: 'grey'
-      link_stroke_width: 1
-      section_stroke_width: 0
-      overrrides: # Adding the 'regions' sub-level under 'style'
-        - sections: [ ROM Table ]
-          section_fill_color: '#99B898'
-        - sections: [ External PPB ]
-          section_fill_color: '#FECEA8'
-        - sections: [ ETM, Peripheral ]
-          section_fill_color: '#FF847C'
-        - sections: [ TPIU ]
-          section_fill_color: '#E84A5F'
+      label_color: 'darkblue'
 
 - area:
-    x: 500
-    y: 280
+    x: 600
+    y: 30
     size_x: 200
-    size_y: 400
+    size_y: 500
 
-    address:
-      min: 0xE0000000
-      max: 0xE00F0000
-
-    style:
-      link_stroke_color: 'grey'
-      link_stroke_width: 1
-      section_stroke_width: 3
-
-- area:
-    x: 500
-    y: 730
-    size_x: 200
-    size_y: 200
-
-    address:
-      min: 0x40000000
-      max: 0x43000000
-    style:
-      overrrides: # Adding the 'regions' sub-level under 'style'
-        - sections: [ Bit ]
-          section_fill_color: '#FECEA8'
-        - sections: [ Bit band region ]
-          section_fill_color: '#FF847C'
-
-- area:
-    x: 500
-    y: 980
-    size_x: 200
-    size_y: 200
-
+    # RAM:
     address:
       min: 0x20000000
-      max: 0x23000000
+      max: 0x20002000
+    # size in bytes of the sections to parse [optional]
+    size:
+      max: 1000000
+    style:
+        section_stroke_color: 'darkgreen'
+        section_fill_color: 'lightgreen'
+        label_color: 'green'
 
 links:
   force: true
-  addresses: [ 0x20000000,
-               0x23000000,
-               0x40000000,
-               0x43000000,
-               0xE0000000,
-               0xE00F0000,
-               0xE8040000,
-               0xE8044000,
-               0xe00e0000
-  ]
-  sections: []
-
-discontinuities: [Reserved]
-
+  addresses: [ 0x80045d4, 0x20000910, 0x200002e8]
+  sections: [HAL_RCC_OscConfig, __malloc_av_]
 
 
 

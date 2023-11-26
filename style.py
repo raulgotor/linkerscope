@@ -43,5 +43,5 @@ class Style:
         default_style.link_stroke_width = 1
         default_style.link_stroke_color = 'grey'
         default_style.map_background_color = '#CCCCFF'
-        default_style.background_color = '#CCCCFF'
+        default_style.background_color = 'white'
         return default_style
