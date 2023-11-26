@@ -49,17 +49,15 @@ TODO
 The configuration file is a `.yaml` file containing all the required information to tell LinkerScope what and how to draw the maps.
 All information there is optional.
 
-Normally, a configuration file contains style information, memory maps, and links.
+Normally, a configuration file contains style information, memory areas, and links.
 
 ```yaml
 style:
   ...
 
-maps:
-- map:
+areas:
+- area:
     style:
-      regions:
-        -
       ...
     
     address:
@@ -68,7 +66,7 @@ maps:
       
     size:
       ...
-- map:
+- area:
     ...
 
 links:
@@ -79,8 +77,9 @@ links:
 ```
 #### Styles
 
-The style can be defined at root level, where it will be applied to all elements, but also at map or even at section level.
-Specifying a style at map level will override the specified configuration for the map where it is defined.
+The style can be defined at map level, where it will be applied to all areas, but also at area or even at section level.
+Specifying a style at are level will override the specified configuration for the whole map where it was defined.
+Specifying it at section level, it will override style information from map and area. 
 
 ```yaml
 style:
@@ -113,30 +112,51 @@ style:
   - `link_stroke_width`
   - `link_stroke_color`
 
-#### Maps
+If the style at specific sections needs to be defined/overriden, it will be specified under `style -> overrides -> sections` property at
+area level, by specifying the names of the regions whose properties wants to be overriden, followed by the properties to override:
 
-There can be one or multiple maps. When multiple maps are declared,
-first map has a special status since all links will start on it and go to the corresponding sections on the other maps
+```yaml
+- area:
+    ...
+    address:
+      ...
+    style:
+      # Area style definition
+      link_stroke_color: 'grey'
+      link_stroke_width: 1
+      section_stroke_width: 0
+      section_fill_color: 'blue'
+      # Area style overrides for specified sections
+      overrrides:
+        - sections: [ ROM Table, Peripheral, External RAM ]
+          section_fill_color: '#99B898'
+        - sections: [ External PPB ]
+          section_fill_color: '#FECEA8'
+```
+#### Areas
+
+The diagram can have one or multiple areas. When multiple areas are declared,
+first area has a special status since all links will start on it and go to the corresponding sections on the other areas
 The following characteristics of a map can be defined
 - `x` and `y`: absolute position 
 - `size_x` and `size_y`: absolute size
-- `address`: range of addresses that must be included in the map
+- `address`: range of addresses that must be included in the area
     - `min`: minimum address to include
     - `max`: maximum address to include
-- `start`: force map to start in to a given address
-- `end`: force map to end in to a given address.
+- `start`: force area to start in to a given address
+- `end`: force area to end in to a given address.
 - `size`: size range for the sections to show
   - `max`: maximum size of a memory section to be shown
   - `min`: minimum size of a memory section to be shown
-- `style`: custom style for the given map, according to [Styles](####Styles) section.
+- `style`: custom style for the given area, according to [Styles](####Styles) section.
 
 #### Links
 
-A link between same sections or addresses drawn at different maps can be created for making, for instance, _zoom_ in effects.
+A link between same sections or addresses drawn at different areas can be created for making, for instance, _zoom_ in effects.
 For creating links between addresses, add the address value within a list under the `addresses` key.
 Do the same for creating links between sections.
 When specifying a section, both links for start and end of the section will be drawn. 
-If any map doesn't have one of the listed addresses or sections, the link will not be drawn for that section.
+If any area doesn't have one of the listed addresses or sections, the link will not be drawn for that section.
 
 ```yaml
 links:
