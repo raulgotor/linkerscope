@@ -8,11 +8,10 @@ class Map:
     dwg: Drawing
     pointer_y: int
 
-    def __init__(self, diagrams=[], links={}, force=False, **kwargs):
+    def __init__(self, diagrams=[], links={}, **kwargs):
         self.style = kwargs.get('style')
         self.type = type
         self.diagrams = diagrams
-        self.force = force
         self.current_style = Style()
         _links = links.get('addresses')
         for section in self.diagrams[0].sections:
@@ -22,23 +21,14 @@ class Map:
         self.links = _links
 
     def draw_maps(self, file):
-        def _configure_current_style(diagram):
-            members = [attr for attr in dir(diagram.style) if
-                       not callable(getattr(diagram.style, attr)) and not attr.startswith("__") and getattr(
-                           diagram.style, attr) is not None]
-
-            self.current_style = copy.deepcopy(self.style)
-            for member in members:
-                value = getattr(diagram.style, member)
-                setattr(self.current_style, member, value)
 
         def _draw_map(diagram):
-            _configure_current_style(diagram)
+            base_and_diagram_style = self.style.extend_style(diagram.style)
             group = dwg.add(dwg.g())
             group.add(self._make_main_frame(dwg, diagram))
 
             for section in diagram.sections:
-                self._make_section(group, dwg, section, diagram)
+                self._make_section(group, dwg, section, diagram, base_and_diagram_style)
                 pass
             group.translate(diagram.pos_x,
                             diagram.pos_y)
@@ -66,59 +56,72 @@ class Map:
         rectangle.stroke(self.style.map_background_color, width=1)
         return rectangle
 
-    def _make_box(self, dwg, section, diagram):
+    def _make_box(self, dwg, section, diagram, style):
         section.size_x = diagram.size_x
         section.size_y = diagram.to_pixels(section.size)
         section.pos_y = diagram.to_pixels(diagram.end_address - section.size - section.address)
         section.pos_x = 0
         rectangle = dwg.rect((section.pos_x, section.pos_y), (section.size_x, section.size_y))
-        rectangle.fill(self.current_style.section_fill_color)
-        rectangle.stroke(self.current_style.section_stroke_color, width=self.current_style.section_stroke_width)
+        rectangle.fill(style.section_fill_color)
+        rectangle.stroke(style.section_stroke_color, width=style.section_stroke_width)
         return rectangle
 
-    def _make_text(self, dwg, text, pos_x, pos_y, anchor, baseline='middle', small=False):
+    def _make_text(self, dwg, text, pos_x, pos_y, style, anchor, baseline='middle', small=False):
         return dwg.text(text, insert=(pos_x, pos_y),
                         stroke='white',
                         #focusable='true',
-                        fill=self.current_style.label_color,
-                        stroke_width=self.current_style.label_stroke_width,
-                        font_size='12px' if small else self.current_style.label_size,
+                        fill=style.label_color,
+                        stroke_width=style.label_stroke_width,
+                        font_size='12px' if small else style.label_size,
                         font_weight="normal",
-                        font_family=self.current_style.label_font,
+                        font_family=style.label_font,
                         text_anchor=anchor,
                         alignment_baseline=baseline
                         )
 
-    def _make_name(self, dwg, section):
+    def _make_name(self, dwg, section, style):
         return self._make_text(dwg,
                                section.name,
                                section.name_label_pos_x,
                                section.name_label_pos_y,
-                              'middle')
+                               style=style,
+                               anchor='middle',
+                               )
 
-    def _make_size_label(self, dwg, section):
+    def _make_size_label(self, dwg, section, style):
         return self._make_text(dwg,
                                hex(section.size),
                                section.size_label_pos[0],
                                section.size_label_pos[1],
-                              'start',
-                              'hanging',
-                               True)
+                               style,
+                               'start',
+                               'hanging',
+                               True,
+                               )
 
-    def _make_address(self, dwg, section):
+    def _make_address(self, dwg, section, style):
         return self._make_text(dwg,
                                hex(section.address),
                                section.addr_label_pos_x,
                                section.addr_label_pos_y,
-                              'start')
+                               anchor='start',
+                               style=style)
 
-    def _make_section(self, group, dwg, section, diagram):
+    def _make_section(self, group, dwg, section, diagram, style):
+        custom_styles = getattr(style, 'regions', None)
+        temp_style = None
+        if custom_styles:
+            for item in custom_styles:
+                if section.name in item.get('regions'):
+                    temp_style=Style(style=item)
 
-        group.add(self._make_box(dwg, section, diagram))
+        temp_style = style.extend_style(temp_style)
+
+        group.add(self._make_box(dwg, section, diagram, temp_style))
         if section.size_y > 20:
-            group.add(self._make_name(dwg, section))
-            group.add(self._make_address(dwg, section))
-            group.add(self._make_size_label(dwg, section))
+            group.add(self._make_name(dwg, section, temp_style))
+            group.add(self._make_address(dwg, section, temp_style))
+            group.add(self._make_size_label(dwg, section, temp_style))
         return group
 
     def _make_links(self, address, dwg: Drawing):
@@ -126,7 +129,7 @@ class Map:
         main_diagram = self.diagrams[0]
 
         for diagram in self.diagrams[1:]:
-            if not diagram.has_address(address) and not self.force:
+            if not diagram.has_address(address):
                 continue
 
             left_block_view = main_diagram

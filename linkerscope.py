@@ -65,14 +65,9 @@ if _maps is not None:
             print("Filtered sections produced no results")
             continue
 
-        sections_view = SectionsView(sections=filtered_sections.get_sections(),
-                     pos_x=map.get('x'),
-                     pos_y=map.get('y'),
-                     size_x=map.get('size_x'),
-                     size_y=map.get('size_y'),
-                     start_address=map.get('start'),
-                     end_address=map.get('end'),
-                     style=map.get('style'))
+        sections_view = SectionsView(
+            sections=filtered_sections.get_sections(),
+             map=map)
 
         if len(sections_view.sections) == 0:
             print("Current view doesn't show any section")

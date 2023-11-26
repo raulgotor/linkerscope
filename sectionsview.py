@@ -75,31 +75,17 @@ class SectionsView(Sections):
 
     def __init__(self,
                  sections,
-                 pos_x=10,
-                 pos_y=10,
-                 start_address='auto',
-                 end_address='auto',
-                 size_x=200,
-                 size_y=100, **kwargs):
+                 **kwargs):
         super().__init__(sections)
 
-        self.style = Style(style=kwargs.get('style'))
-
-        self.start_address = start_address if start_address is not None else 'auto'
-        self.end_address = end_address if end_address is not None else 'auto'
-        self.pos_x = pos_x if pos_x is not None else 10
-        self.pos_y = pos_y if pos_y is not None else 10
-        self.size_x = size_x if size_x is not None else 200
-        self.size_y = size_y if size_y is not None else 500
-
-        if self.end_address == 'auto':
-            self.end_address = self.highest_memory
-        else:
-            self.end_address = end_address
-        if self.start_address == 'auto':
-            self.start_address = self.lowest_memory
-        else:
-            self.start_address = start_address
+        self.map = kwargs.get('map')
+        self.style = Style(style=self.map.get('style'))
+        self.start_address = self.map.get('start', self.lowest_memory)
+        self.end_address = self.map.get('end', self.highest_memory)
+        self.pos_x = self.map.get('x', 10)
+        self.pos_y = self.map.get('y', 10)
+        self.size_x = self.map.get('size_x', 200)
+        self.size_y = self.map.get('size_y', 500)
 
         self.address_to_pxl = (self.end_address - self.start_address) / self.size_y
 
