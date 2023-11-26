@@ -20,9 +20,9 @@ class Map:
                 _links.append(section.address + section.size)
         self.links = _links
 
-    def draw_maps(self, file):
+    def draw(self, file):
 
-        def _draw_map(diagram):
+        def _draw_area(diagram):
             base_and_diagram_style = Style()
             base_and_diagram_style.override_properties_from(self.style)
             base_and_diagram_style.override_properties_from(diagram.style)
@@ -48,7 +48,7 @@ class Map:
             lines_group.add(self._make_links(address, dwg))
 
         for diagram in self.diagrams:
-            _draw_map(diagram)
+            _draw_area(diagram)
 
         dwg.save()
 
@@ -56,8 +56,8 @@ class Map:
         size_x = diagram.size_x
         size_y = diagram.size_y
         rectangle = dwg.rect((0, 0), (size_x, size_y))
-        rectangle.fill(self.style.map_background_color)
-        rectangle.stroke(self.style.map_background_color, width=1)
+        rectangle.fill(self.style.area_background_color)
+        rectangle.stroke(self.style.area_background_color, width=1)
         return rectangle
 
     def _make_box(self, dwg, section, diagram, style):

@@ -97,8 +97,8 @@ style:
 ```
 - Window:
   - `background_color`
-- Map background
-  - `map_background_color`
+- Area background
+  - `area_background_color`
 - Memory section rectangle
   - `box_fill_color`
   - `box_stroke_color`
@@ -112,8 +112,8 @@ style:
   - `link_stroke_width`
   - `link_stroke_color`
 
-If the style at specific sections needs to be defined/overriden, it will be specified under `style -> overrides -> sections` property at
-area level, by specifying the names of the regions whose properties wants to be overriden, followed by the properties to override:
+If the style at specific sections needs to be defined/overridden, it will be specified under `style -> overrides -> sections` property at
+area level, by specifying the names of the regions whose properties want to be overridden, followed by the properties to override:
 
 ```yaml
 - area:

@@ -47,18 +47,18 @@ config = []
 with open(args.configuration, 'r') as file:
     config = yaml.safe_load(file)
 
-_maps = config['maps']
-maps = []
-if _maps is not None:
-    for diagram in _maps:
-        map = diagram.get('map')
-        filtered_sections = (Sections(sections=sec2).filter_address_min(map.get('address', {}).get('lowest')))
+_areas = config['areas']
+areas = []
+if _areas is not None:
+    for element in _areas:
+        area = element.get('area')
+        filtered_sections = (Sections(sections=sec2).filter_address_min(area.get('address', {}).get('lowest')))
 
         filtered_sections = (Sections(sections=sec2)
-         .filter_address_min(map.get('address', {}).get('min'))
-         .filter_address_max(map.get('address', {}).get('max'))
-         .filter_size_min(map.get('size', {}).get('min'))
-         .filter_size_max(map.get('size', {}).get('max'))
+         .filter_address_min(area.get('address', {}).get('min'))
+         .filter_address_max(area.get('address', {}).get('max'))
+         .filter_size_min(area.get('size', {}).get('min'))
+         .filter_size_max(area.get('size', {}).get('max'))
          )
 
         if len(filtered_sections.sections) == 0:
@@ -67,21 +67,21 @@ if _maps is not None:
 
         sections_view = SectionsView(
             sections=filtered_sections.get_sections(),
-             map=map)
+             area=area)
 
         if len(sections_view.sections) == 0:
             print("Current view doesn't show any section")
             continue
-        maps.append(sections_view)
+        areas.append(sections_view)
 
 #todo cleanme
 for key, value in config.get('style').items():
     setattr(default_style, key, value)
 
-a = Map(diagrams=maps,
+a = Map(diagrams=areas,
         links=config.get('links'),
         style=default_style
         )
 
-a.draw_maps(args.output)
+a.draw(args.output)
 

@@ -75,17 +75,18 @@ class SectionsView(Sections):
 
     def __init__(self,
                  sections,
+                 area,
                  **kwargs):
         super().__init__(sections)
 
-        self.map = kwargs.get('map')
-        self.style = Style(style=self.map.get('style'))
-        self.start_address = self.map.get('start', self.lowest_memory)
-        self.end_address = self.map.get('end', self.highest_memory)
-        self.pos_x = self.map.get('x', 10)
-        self.pos_y = self.map.get('y', 10)
-        self.size_x = self.map.get('size_x', 200)
-        self.size_y = self.map.get('size_y', 500)
+        self.area = area
+        self.style = Style(style=self.area.get('style'))
+        self.start_address = self.area.get('start', self.lowest_memory)
+        self.end_address = self.area.get('end', self.highest_memory)
+        self.pos_x = self.area.get('x', 10)
+        self.pos_y = self.area.get('y', 10)
+        self.size_x = self.area.get('size_x', 200)
+        self.size_y = self.area.get('size_y', 500)
 
         self.address_to_pxl = (self.end_address - self.start_address) / self.size_y
 
