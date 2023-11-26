@@ -1,27 +1,11 @@
 #!/usr/bin/env python3
 
-import copy
 import argparse
 import yaml
-
 from map_drawer import Map
 from style import Style
-
 from map_file_parser import MapFileParser
 from sectionsview import SectionsView, Sections
-
-#todo cleanme
-
-default_style = Style()
-default_style.section_fill_color = '#CCE5FF'
-default_style.section_stroke_color = '#3399FF'
-default_style.section_stroke_width = 2
-default_style.label_color = 'blue'
-default_style.label_size = '16px'
-default_style.label_stroke_width = 1
-default_style.link_stroke_width = 1
-default_style.link_stroke_color = 'grey'
-default_style.map_background_color = '#CCCCFF'
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--output',
@@ -39,48 +23,47 @@ parser.add_argument('--configuration',
 
 args = parser.parse_args()
 
-sec = MapFileParser(args.input).parse()
-sec2 = copy.deepcopy(sec)
-sec3 = copy.deepcopy(sec)
+sections = MapFileParser(args.input).parse()
 
 config = []
+areas = []
+
 with open(args.configuration, 'r') as file:
     config = yaml.safe_load(file)
 
-_areas = config['areas']
-areas = []
-if _areas is not None:
-    for element in _areas:
-        area = element.get('area')
-        filtered_sections = (Sections(sections=sec2).filter_address_min(area.get('address', {}).get('lowest')))
+if config['areas'] is None:
+    print('No information to show on current configuration file')
+    exit(-1)
 
-        filtered_sections = (Sections(sections=sec2)
-         .filter_address_min(area.get('address', {}).get('min'))
-         .filter_address_max(area.get('address', {}).get('max'))
-         .filter_size_min(area.get('size', {}).get('min'))
-         .filter_size_max(area.get('size', {}).get('max'))
-         )
+for element in config['areas']:
+    area = element.get('area')
 
-        if len(filtered_sections.sections) == 0:
-            print("Filtered sections produced no results")
-            continue
+    filtered_sections = (Sections(sections=sections)
+     .filter_address_min(area.get('address', {}).get('min'))
+     .filter_address_max(area.get('address', {}).get('max'))
+     .filter_size_min(area.get('size', {}).get('min'))
+     .filter_size_max(area.get('size', {}).get('max'))
+     )
 
-        sections_view = SectionsView(
-            sections=filtered_sections.get_sections(),
-             area=area)
+    if len(filtered_sections.sections) == 0:
+        print("Filtered sections produced no results")
+        continue
 
-        if len(sections_view.sections) == 0:
-            print("Current view doesn't show any section")
-            continue
-        areas.append(sections_view)
+    sections_view = SectionsView(
+        sections=filtered_sections.get_sections(),
+         area=area)
 
-#todo cleanme
-for key, value in config.get('style').items():
-    setattr(default_style, key, value)
+    if len(sections_view.sections) == 0:
+        print("Current view doesn't show any section")
+        continue
+    areas.append(sections_view)
+
+base_style = Style().get_default()
+base_style.override_properties_from(Style(style=config.get('style')))
 
 a = Map(diagrams=areas,
         links=config.get('links'),
-        style=default_style
+        style=base_style
         )
 
 a.draw(args.output)
