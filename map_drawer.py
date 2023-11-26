@@ -23,13 +23,15 @@ class Map:
     def draw_maps(self, file):
 
         def _draw_map(diagram):
-            base_and_diagram_style = self.style.extend_style(diagram.style)
+            base_and_diagram_style = Style()
+            base_and_diagram_style.extend_style(self.style)
+            base_and_diagram_style.extend_style(diagram.style)
             group = dwg.add(dwg.g())
             group.add(self._make_main_frame(dwg, diagram))
 
             for section in diagram.sections:
                 self._make_section(group, dwg, section, diagram, base_and_diagram_style)
-                pass
+
             group.translate(diagram.pos_x,
                             diagram.pos_y)
 
@@ -37,6 +39,8 @@ class Map:
                                profile='full',
                                size=('200%', '200%')
                                )
+
+        dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), rx=None, ry=None, fill=self.style.background_color))
 
         lines_group = dwg.add(dwg.g())
 
@@ -109,19 +113,19 @@ class Map:
 
     def _make_section(self, group, dwg, section, diagram, style):
         custom_styles = getattr(style, 'regions', None)
-        temp_style = None
+        section_style = Style()
+        section_style.extend_style(style)
+
         if custom_styles:
             for item in custom_styles:
                 if section.name in item.get('regions'):
-                    temp_style=Style(style=item)
+                    section_style.extend_style(Style(style=item))
 
-        temp_style = style.extend_style(temp_style)
-
-        group.add(self._make_box(dwg, section, diagram, temp_style))
+        group.add(self._make_box(dwg, section, diagram, section_style))
         if section.size_y > 20:
-            group.add(self._make_name(dwg, section, temp_style))
-            group.add(self._make_address(dwg, section, temp_style))
-            group.add(self._make_size_label(dwg, section, temp_style))
+            group.add(self._make_name(dwg, section, section_style))
+            group.add(self._make_address(dwg, section, section_style))
+            group.add(self._make_size_label(dwg, section, section_style))
         return group
 
     def _make_links(self, address, dwg: Drawing):
