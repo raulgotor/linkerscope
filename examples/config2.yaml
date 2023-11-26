@@ -35,8 +35,8 @@ maps:
     size:
       min: 0x02F00000
     style:
-      regions:
-      - regions: [ Peripheral ]
+      overrrides:
+      - sections: [ Peripheral ]
         section_fill_color: '#FF847C'
 - map:
     x: 500
@@ -51,14 +51,14 @@ maps:
       link_stroke_color: 'grey'
       link_stroke_width: 1
       section_stroke_width: 0
-      regions: # Adding the 'regions' sub-level under 'style'
-        - regions: [ ROM Table ]
+      overrrides: # Adding the 'regions' sub-level under 'style'
+        - sections: [ ROM Table ]
           section_fill_color: '#99B898'
-        - regions: [ External PPB ]
+        - sections: [ External PPB ]
           section_fill_color: '#FECEA8'
-        - regions: [ ETM, Peripheral ]
+        - sections: [ ETM, Peripheral ]
           section_fill_color: '#FF847C'
-        - regions: [ TPIU ]
+        - sections: [ TPIU ]
           section_fill_color: '#E84A5F'
 
 - map:
@@ -86,10 +86,10 @@ maps:
       min: 0x40000000
       max: 0x43000000
     style:
-      regions: # Adding the 'regions' sub-level under 'style'
-        - regions: [ Bit ]
+      overrrides: # Adding the 'regions' sub-level under 'style'
+        - sections: [ Bit ]
           section_fill_color: '#FECEA8'
-        - regions: [ Bit band region ]
+        - sections: [ Bit band region ]
           section_fill_color: '#FF847C'
 
 - map:

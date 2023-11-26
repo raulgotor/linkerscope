@@ -18,7 +18,7 @@ class Style:
             for key, value in style.items():
                 setattr(self, key, style.get(key, value))
 
-    def extend_style(self, style):
+    def override_properties_from(self, style):
         '''
         Modify self by adding additional members available at the provided style
 

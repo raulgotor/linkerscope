@@ -24,8 +24,8 @@ class Map:
 
         def _draw_map(diagram):
             base_and_diagram_style = Style()
-            base_and_diagram_style.extend_style(self.style)
-            base_and_diagram_style.extend_style(diagram.style)
+            base_and_diagram_style.override_properties_from(self.style)
+            base_and_diagram_style.override_properties_from(diagram.style)
             group = dwg.add(dwg.g())
             group.add(self._make_main_frame(dwg, diagram))
 
@@ -112,14 +112,14 @@ class Map:
                                style=style)
 
     def _make_section(self, group, dwg, section, diagram, style):
-        custom_styles = getattr(style, 'regions', None)
+        overrides = getattr(style, 'overrrides', None)
         section_style = Style()
-        section_style.extend_style(style)
+        section_style.override_properties_from(style)
 
-        if custom_styles:
-            for item in custom_styles:
-                if section.name in item.get('regions'):
-                    section_style.extend_style(Style(style=item))
+        if overrides:
+            for item in overrides:
+                if section.name in item.get('sections'):
+                    section_style.override_properties_from(Style(style=item))
 
         group.add(self._make_box(dwg, section, diagram, section_style))
         if section.size_y > 20:

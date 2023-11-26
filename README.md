@@ -58,6 +58,8 @@ style:
 maps:
 - map:
     style:
+      regions:
+        -
       ...
     
     address:
@@ -94,7 +96,9 @@ style:
   label_stroke_width: 0.5px
   area_fill_color: 'lightgrey'
 ```
-- Map backround
+- Window:
+  - `background_color`
+- Map background
   - `map_background_color`
 - Memory section rectangle
   - `box_fill_color`
