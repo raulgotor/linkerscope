@@ -27,7 +27,9 @@ class Map:
             base_and_diagram_style.override_properties_from(self.style)
             base_and_diagram_style.override_properties_from(diagram.style)
             group = dwg.add(dwg.g())
+
             group.add(self._make_main_frame(dwg, diagram))
+            group.add(self._make_title(dwg, diagram, base_and_diagram_style))
 
             for section in diagram.sections:
                 self._make_section(group, dwg, section, diagram, base_and_diagram_style)
@@ -60,6 +62,18 @@ class Map:
         rectangle.stroke(self.style.area_background_color, width=1)
         return rectangle
 
+    def _make_title(self, dwg, diagram, style):
+        title_pos_x = diagram.size_x / 2
+        title_pos_y = -20
+        return self._make_text(dwg,
+                               diagram.area.get('title', ''),
+                               title_pos_x,
+                               title_pos_y,
+                               style=style,
+                               anchor='middle',
+                               title=True
+                               )
+
     def _make_box(self, dwg, section, diagram, style):
         section.size_x = diagram.size_x
         section.size_y = diagram.to_pixels(section.size)
@@ -70,13 +84,20 @@ class Map:
         rectangle.stroke(style.section_stroke_color, width=style.section_stroke_width)
         return rectangle
 
-    def _make_text(self, dwg, text, pos_x, pos_y, style, anchor, baseline='middle', small=False):
+    def _make_text(self, dwg, text, pos_x, pos_y, style, anchor, baseline='middle', small=False, title=False):
+        if title:
+            size = '24px'
+        elif small:
+            size = '12px'
+        else:
+            size = style.label_size
+
         return dwg.text(text, insert=(pos_x, pos_y),
                         stroke='white',
                         #focusable='true',
                         fill=style.label_color,
                         stroke_width=style.label_stroke_width,
-                        font_size='12px' if small else style.label_size,
+                        font_size=size,
                         font_weight="normal",
                         font_family=style.label_font,
                         text_anchor=anchor,
