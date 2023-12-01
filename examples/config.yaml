@@ -14,6 +14,7 @@ style:
 areas:
 # total area area
 - area:
+    title: 'Full Memory Map'
     # start and end addresses are optional
     # They can be specified to force drawing a region
     # that doesn't contain any segments
@@ -22,7 +23,7 @@ areas:
 
     # Specify the position of the area and its size here
     x: 30
-    y: 30
+    y: 50
     size_x: 300
     size_y: 900
 
@@ -39,8 +40,9 @@ areas:
       - sections: [ Peripheral ]
         section_fill_color: '#FF847C'
 - area:
+    title: 'RAM'
     x: 500
-    y: 30
+    y: 50
     size_x: 200
     size_y: 200
 
@@ -63,7 +65,7 @@ areas:
 
 - area:
     x: 500
-    y: 280
+    y: 300
     size_x: 200
     size_y: 400
 
@@ -78,7 +80,7 @@ areas:
 
 - area:
     x: 500
-    y: 730
+    y: 750
     size_x: 200
     size_y: 200
 
@@ -94,7 +96,7 @@ areas:
 
 - area:
     x: 500
-    y: 980
+    y: 1000
     size_x: 200
     size_y: 200
 
