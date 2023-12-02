@@ -3,8 +3,8 @@ style:
   label_color: 'lightgrey'
   label_size: '16px'
   label_stroke_width: 0px
-  link_stroke_color: 'gray'
-  link_fill_color: 'gray'
+  link_stroke_color: 'grey'
+  link_fill_color: 'grey'
   link_stroke_width: 1
   link_opacity: 0.5
   area_background_color: 'lightgrey'
