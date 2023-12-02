@@ -39,19 +39,19 @@ class Sections:
                 return True
         return False
 
-    def size_bigger_than(self, size_bytes):
+    def filter_size_min(self, size_bytes):
         return Sections(self.sections) if size_bytes is None \
             else Sections(list(filter(lambda item: item.size > size_bytes, self.sections)))
 
-    def size_smaller_than(self, size_bytes):
+    def filter_size_max(self, size_bytes):
         return Sections(self.sections) if size_bytes is None \
             else Sections(list(filter(lambda item: item.size < size_bytes, self.sections)))
 
-    def address_lower_than(self, address_bytes):
+    def filter_address_max(self, address_bytes):
         return Sections(self.sections) if address_bytes is None \
             else Sections(list(filter(lambda item: (item.address + item.size) <= address_bytes, self.sections)))
 
-    def address_higher_than(self, address_bytes):
+    def filter_address_min(self, address_bytes):
         return Sections(self.sections) if address_bytes is None \
             else Sections(list(filter(lambda item: item.address >= address_bytes, self.sections)))
 
@@ -75,31 +75,18 @@ class SectionsView(Sections):
 
     def __init__(self,
                  sections,
-                 pos_x=10,
-                 pos_y=10,
-                 start_address='auto',
-                 end_address='auto',
-                 size_x=200,
-                 size_y=100, **kwargs):
+                 area,
+                 **kwargs):
         super().__init__(sections)
 
-        self.style = Style(style=kwargs.get('style'))
-
-        self.start_address = start_address if start_address is not None else 'auto'
-        self.end_address = end_address if end_address is not None else 'auto'
-        self.pos_x = pos_x if pos_x is not None else 10
-        self.pos_y = pos_y if pos_y is not None else 10
-        self.size_x = size_x if size_x is not None else 200
-        self.size_y = size_y if size_y is not None else 500
-
-        if self.end_address == 'auto':
-            self.end_address = self.highest_memory
-        else:
-            self.end_address = end_address
-        if self.start_address == 'auto':
-            self.start_address = self.lowest_memory
-        else:
-            self.start_address = start_address
+        self.area = area
+        self.style = Style(style=self.area.get('style'))
+        self.start_address = self.area.get('start', self.lowest_memory)
+        self.end_address = self.area.get('end', self.highest_memory)
+        self.pos_x = self.area.get('x', 10)
+        self.pos_y = self.area.get('y', 10)
+        self.size_x = self.area.get('size_x', 200)
+        self.size_y = self.area.get('size_y', 500)
 
         self.address_to_pxl = (self.end_address - self.start_address) / self.size_y
 

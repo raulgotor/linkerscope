@@ -1,80 +1,127 @@
 style:
-  box_fill_color: '#CCE5FF'
-  box_stroke_color: '#3399FF'
-  box_stroke_width: 2
-  link_stroke_width: 2
-  link_stroke_color: 'grey'
-  label_color: 'blue'
   label_font: 'Helvetica Bold'
+  label_color: 'lightgrey'
   label_size: '16px'
-  label_stroke_width: 0.5px
-  area_fill_color: 'lightgrey'
+  label_stroke_width: 0px
+  link_stroke_color: 'grey'
+  link_stroke_width: 1
+  area_background_color: 'lightgrey'
+  section_stroke_width: 1
+  section_fill_color: '#99B898'
+  section_stroke_color: '#2A363B'
+  background_color: '#2A363B'
 
-maps:
-# total map area
-- map:
+areas:
+# total area area
+- area:
     # start and end addresses are optional
     # They can be specified to force drawing a region
     # that doesn't contain any segments
     # start: 0x20000000
     # end:   0x20004000
 
-    # Specify the position of the map and its size here
+    # Specify the position of the area and its size here
     x: 30
     y: 30
-    size_x: 200
-    size_y: 700
+    size_x: 300
+    size_y: 900
 
     # starting addresses of the sections to parse
     address:
-      lowest: 0x80000c0
-      highest: 0x80045d4
+      min: 0x0
+      max: 0x100000000
 
     # Maximum and minimum size in bytes of the sections to parse
     size:
-      max: 100000
-      #min: 10000
-
-- map:
-    x: 400
-    y: 30
-    size_x: 300
-    size_y: 700
-
-    # FLASH:
-    address:
-      lowest: 0x80000c0
-      highest: 0x8000bd0
-    # size in bytes of the sections to parse [optional]
-    size:
-      max: 1000000
-      #min: 10000
+      min: 0x02F00000
     style:
-      box_fill_color: '#CCE5FF'
-      box_stroke_color: '#3399FF'
-
-- map:
-    x: 900
+      overrrides:
+      - sections: [ Peripheral ]
+        section_fill_color: '#FF847C'
+- area:
+    x: 500
     y: 30
     size_x: 200
-    size_y: 700
+    size_y: 200
 
-    # RAM:
     address:
-      lowest: 0x8002490
-      highest: 0x8003490
-    # size in bytes of the sections to parse [optional]
-    size:
-      max: 100000
-      #min: 10000
+      min: 0xE8040000
+      max: 0xE8044000
     style:
-      box_fill_color: '#CCFFEE'
-      box_stroke_color: '#009966'
-      label_color: 'green'
+      link_stroke_color: 'grey'
+      link_stroke_width: 1
+      section_stroke_width: 0
+      overrrides: # Adding the 'regions' sub-level under 'style'
+        - sections: [ ROM Table ]
+          section_fill_color: '#99B898'
+        - sections: [ External PPB ]
+          section_fill_color: '#FECEA8'
+        - sections: [ ETM, Peripheral ]
+          section_fill_color: '#FF847C'
+        - sections: [ TPIU ]
+          section_fill_color: '#E84A5F'
+
+- area:
+    x: 500
+    y: 280
+    size_x: 200
+    size_y: 400
+
+    address:
+      min: 0xE0000000
+      max: 0xE00F0000
+
+    style:
+      link_stroke_color: 'grey'
+      link_stroke_width: 1
+      section_stroke_width: 1
+
+- area:
+    x: 500
+    y: 730
+    size_x: 200
+    size_y: 200
+
+    address:
+      min: 0x40000000
+      max: 0x43000000
+    style:
+      overrrides: # Adding the 'regions' sub-level under 'style'
+        - sections: [ Bit ]
+          section_fill_color: '#FECEA8'
+        - sections: [ Bit band region ]
+          section_fill_color: '#FF847C'
+
+- area:
+    x: 500
+    y: 980
+    size_x: 200
+    size_y: 200
+
+    address:
+      min: 0x20000000
+      max: 0x23000000
+
 links:
   force: true
-  addresses: [ 0x80045d4, 0x20000910, 0x200004e8]
-  sections: [up_down_draw, HAL_GPIO_Init, __malloc_av_, operation_mode_change]
+  addresses: [ 0x20000000,
+               0x23000000,
+               0x40000000,
+               0x43000000,
+               0xE0000000,
+               0xE00F0000,
+               0xE8040000,
+               0xE8044000,
+               0xe00e0000
+  ]
+  sections: [
+    ['TPIU', 'ROM Table'],
+    ['ITM', 'NVIC'],
+    ['Bit band region', 'Bit band alias'],
+    ['Bit band region', 'Bit band alias']]
+
+discontinuities: [Reserved]
+
 
 
 

@@ -6,47 +6,92 @@ from style import Style
 
 class Map:
     dwg: Drawing
-    area_width: 200
     pointer_y: int
 
-    def __init__(self, diagrams=[], links={}, force=False, **kwargs):
+    def __init__(self, diagrams=[], links={}, **kwargs):
         self.style = kwargs.get('style')
         self.type = type
         self.diagrams = diagrams
-        self.force = force
         self.current_style = Style()
-        _links = links.get('addresses')
-        for section in self.diagrams[0].sections:
-            if section.name in links.get('sections'):
-                _links.append(section.address)
-                _links.append(section.address + section.size)
+        self.links = links.get('addresses')
+        self.zooms = self._get_valid_linked_sections(links.get('sections'))
 
-        self.lsections = []
-        for section in self.diagrams[0].sections:
-            if section.name in links.get('sections'):
-                self.lsections.append([section.address, section.address + section.size])
+    def _get_valid_linked_sections(self, linked_sections):
+        """
+        Get a valid list of linked sections to draw, given a list of wished sections to be linked
 
-        self.links = _links
+        For a link to be valid, the starting and ending addresses of the linked section/s must be visible and available
+        inside of at least one single area
 
-    def draw_maps(self, file):
-        def _configure_current_style(diagram):
-            members = [attr for attr in dir(diagram.style) if
-                       not callable(getattr(diagram.style, attr)) and not attr.startswith("__") and getattr(
-                           diagram.style, attr) is not None]
+        :param linked_sections: List of sections or pair of sections to be linked
+        :return: List of valid (start, end) addresses for sections
+        """
 
-            self.current_style = copy.deepcopy(self.style)
-            for member in members:
-                value = getattr(diagram.style, member)
-                setattr(self.current_style, member, value)
+        l_sections = []
 
-        def _draw_map(diagram):
-            _configure_current_style(diagram)
+        # Iterate through all linked sections
+        for linked_section in linked_sections:
+            appended = False
+            multi_section = False
+
+            # Check if we are dealing with a link for a single section or for many of them. That is, user passed a
+            # string or a list of two strings
+            if isinstance(linked_section, list):
+                multi_section = True
+
+            # Iterate through all available areas checking if this is a valid link: i.e, the starting and ending
+            # addresses of the linked section/s is visible and available inside of a single area
+            for area in self.diagrams:
+                start = None
+                end = None
+
+                # Exit loop if we found that the link is valid
+                if appended:
+                    break
+
+                for section in area.sections:
+                    # If single section, the start and end address of the linked section equals those of the section
+                    if not multi_section:
+                        if section.name == linked_section:
+                            l_sections.append([section.address, section.address + section.size])
+                            appended = True
+                            break
+                    # If multiple section, the start and end address of the linked section are the start of the first
+                    # provided section and the end of the second provided section respectively
+                    else:
+                        if section.name == linked_section[0]:
+                            start = section.address
+                        elif section.name == linked_section[1]:
+                            end = section.address + section.size
+
+                        # If before finishing the iteration on this area, we found a valid start and end address,
+                        # we can append this linked section to the list
+                        if start is not None and end is not None:
+                            l_sections.append([start, end])
+                            appended = True
+                            break
+
+                # If we finish iterating the area, and we have a valid start (or end) address but the section was not
+                # appended, means that the other end of the section is at another area, and that is not valid
+                if multi_section and not appended and (start is not None or end is not None):
+                    print("WARNING: A multisection zoom region was specified for two sections of different areas,"
+                          "which is not supported")
+                    break
+
+        return l_sections
+
+    def draw(self, file):
+
+        def _draw_area(diagram):
+            base_and_diagram_style = Style()
+            base_and_diagram_style.override_properties_from(self.style)
+            base_and_diagram_style.override_properties_from(diagram.style)
             group = dwg.add(dwg.g())
             group.add(self._make_main_frame(dwg, diagram))
 
             for section in diagram.sections:
-                self._make_section(group, dwg, section, diagram)
-                pass
+                self._make_section(group, dwg, section, diagram, base_and_diagram_style)
+
             group.translate(diagram.pos_x,
                             diagram.pos_y)
 
@@ -55,21 +100,31 @@ class Map:
                                size=('200%', '200%')
                                )
 
+        dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), rx=None, ry=None, fill=self.style.background_color))
+
         lines_group = dwg.add(dwg.g())
 
         for address in self.links:
-            #lines_group.add(self._make_links(address, dwg))
+            lines_group.add(self._make_links(address, dwg))
             pass
 
-
-        lsectionsgroup = dwg.add(dwg.g())
-        for lsection in self.lsections:
+        linked_sections_group = dwg.add(dwg.g())
+        for zoom in self.zooms:
+            is_drawn = False
             for diagram in self.diagrams[1:]:
-                if lsection[0] > diagram.lowest_memory and lsection[1] <= diagram.highest_memory:
-                    lsectionsgroup.add(self._make_poly(dwg, diagram, lsection[0], lsection[1]))
+                if zoom[0] >= diagram.lowest_memory and \
+                        zoom[1] <= diagram.highest_memory and \
+                        zoom[0] >= self.diagrams[0].lowest_memory and \
+                        zoom[1] <= self.diagrams[0].highest_memory:
+
+                    linked_sections_group.add(self._make_poly(dwg, diagram, zoom[0], zoom[1]))
+                    is_drawn = True
+            if not is_drawn:
+                print("WARNING: Starting or ending point of the zoom region is outside the shown areas")
+
 
         for diagram in self.diagrams:
-            _draw_map(diagram)
+            _draw_area(diagram)
 
         dwg.save()
 
@@ -77,63 +132,76 @@ class Map:
         size_x = diagram.size_x
         size_y = diagram.size_y
         rectangle = dwg.rect((0, 0), (size_x, size_y))
-        rectangle.fill(self.style.area_fill_color)
-        rectangle.stroke(self.style.area_fill_color, width=1)
+        rectangle.fill(self.style.area_background_color)
+        rectangle.stroke(self.style.area_background_color, width=1)
         return rectangle
 
-    def _make_box(self, dwg, section, diagram):
+    def _make_box(self, dwg, section, diagram, style):
         section.size_x = diagram.size_x
         section.size_y = diagram.to_pixels(section.size)
         section.pos_y = diagram.to_pixels(diagram.end_address - section.size - section.address)
         section.pos_x = 0
         rectangle = dwg.rect((section.pos_x, section.pos_y), (section.size_x, section.size_y))
-        rectangle.fill(self.current_style.box_fill_color)
-        rectangle.stroke(self.current_style.box_stroke_color, width=self.current_style.box_stroke_width)
+        rectangle.fill(style.section_fill_color)
+        rectangle.stroke(style.section_stroke_color, width=style.section_stroke_width)
         return rectangle
 
-    def _make_text(self, dwg, text, pos_x, pos_y, anchor, baseline='middle', small=False):
+    def _make_text(self, dwg, text, pos_x, pos_y, style, anchor, baseline='middle', small=False):
         return dwg.text(text, insert=(pos_x, pos_y),
                         stroke='white',
-                        #focusable='true',
-                        fill=self.current_style.label_color,
-                        stroke_width=self.current_style.label_stroke_width,
-                        font_size='12px' if small else self.current_style.label_size,
+                        # focusable='true',
+                        fill=style.label_color,
+                        stroke_width=style.label_stroke_width,
+                        font_size='12px' if small else style.label_size,
                         font_weight="normal",
-                        font_family=self.current_style.label_font,
+                        font_family=style.label_font,
                         text_anchor=anchor,
                         alignment_baseline=baseline
                         )
 
-    def _make_name(self, dwg, section):
+    def _make_name(self, dwg, section, style):
         return self._make_text(dwg,
                                section.name,
                                section.name_label_pos_x,
                                section.name_label_pos_y,
-                              'middle')
+                               style=style,
+                               anchor='middle',
+                               )
 
-    def _make_size_label(self, dwg, section):
+    def _make_size_label(self, dwg, section, style):
         return self._make_text(dwg,
                                hex(section.size),
                                section.size_label_pos[0],
                                section.size_label_pos[1],
-                              'start',
-                              'hanging',
-                               True)
+                               style,
+                               'start',
+                               'hanging',
+                               True,
+                               )
 
-    def _make_address(self, dwg, section):
+    def _make_address(self, dwg, section, style):
         return self._make_text(dwg,
                                hex(section.address),
                                section.addr_label_pos_x,
                                section.addr_label_pos_y,
-                              'start')
+                               anchor='start',
+                               style=style)
 
-    def _make_section(self, group, dwg, section, diagram):
+    def _make_section(self, group, dwg, section, diagram, style):
+        overrides = getattr(style, 'overrrides', None)
+        section_style = Style()
+        section_style.override_properties_from(style)
 
-        group.add(self._make_box(dwg, section, diagram))
+        if overrides:
+            for item in overrides:
+                if section.name in item.get('sections'):
+                    section_style.override_properties_from(Style(style=item))
+
+        group.add(self._make_box(dwg, section, diagram, section_style))
         if section.size_y > 20:
-            group.add(self._make_name(dwg, section))
-            group.add(self._make_address(dwg, section))
-            group.add(self._make_size_label(dwg, section))
+            group.add(self._make_name(dwg, section, section_style))
+            group.add(self._make_address(dwg, section, section_style))
+            group.add(self._make_size_label(dwg, section, section_style))
         return group
 
     def _get_points_for_address(self, address, diagram):
@@ -164,13 +232,14 @@ class Map:
 
         return dwg.polyline(points,
                             stroke='darkgrey',
-                            fill='lightgrey')
+                            fill='lightgrey',
+                            opacity='0.1')
 
     def _make_links(self, address, dwg: Drawing):
         hlines = dwg.g(id='hlines', stroke='grey')
 
         for diagram in self.diagrams[1:]:
-            if not diagram.has_address(address) and not self.force:
+            if not diagram.has_address(address):
                 continue
 
             def _make_line(dwg, x1, y1, x2, y2):
