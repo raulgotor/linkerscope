@@ -63,6 +63,39 @@ class Sections:
         return Sections(self.sections) if parent is None \
             else Sections(list(filter(lambda item: item.parent == parent, self.sections)))
 
+    def split_sections_in_groups(self, discontinuities):
+        splitted_sections = []
+        prev_disc_sec_end_addr = self.lowest_memory
+
+        discontinuous_sections = self.get_discontinuities_sections(discontinuities)
+
+        for disc_sec in discontinuous_sections:
+            splitted_sections.append(Sections(sections=self.sections)
+                                     .filter_address_max(disc_sec.address)
+                                     .filter_address_min(prev_disc_sec_end_addr)
+                                     )
+            splitted_sections.append(Sections(sections=[disc_sec]))
+            prev_disc_sec_end_addr = disc_sec.address + disc_sec.size
+
+        splitted_sections.append(Sections(sections=self.sections)
+                                 .filter_address_max(self.highest_memory)
+                                 .filter_address_min(prev_disc_sec_end_addr)
+                                 )
+
+        return splitted_sections
+
+    def get_discontinuities_sections(self, discontinuities):
+        discontinuous_sections = []
+        for section in self.sections:
+            if self.is_discontinuous_section(section, discontinuities):
+                discontinuous_sections.append(section)
+        return discontinuous_sections
+
+    def is_discontinuous_section(self, section, discontinuities):
+        if section.name in discontinuities:
+            return True
+        return False
+
 
 class SectionsView(Sections):
     pos_y: int
@@ -96,3 +129,24 @@ class SectionsView(Sections):
     def to_pixels_relative(self, value):
         a = self.size_y - ((value - self.start_address) / self.address_to_pxl)
         return a
+
+    def get_discontinuities_size_total_px(self, discontinuities):
+        total_disc_size_px = 0
+
+        for discontinuity in self.get_discontinuities_sections(discontinuities):
+            total_disc_size_px += self.to_pixels(discontinuity.size)
+
+        return total_disc_size_px
+
+    def get_non_discontinuities_size_total_px(self, discontinuities):
+        total_sec_size_px = 0
+        for splitted_sec in self.split_sections_in_groups(discontinuities):
+            is_discontinuity = False
+            for sec in splitted_sec.sections:
+                if sec.name in discontinuities:
+                    is_discontinuity = True
+                    break
+                total_sec_size_px += self.to_pixels(sec.size)
+            if is_discontinuity:
+                continue
+        return total_sec_size_px
