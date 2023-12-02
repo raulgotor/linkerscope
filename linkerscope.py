@@ -38,9 +38,6 @@ if config['areas'] is None:
     # TODO: split_sections_in_groups returns empty groups when discontinuities are at the beginning or end
     # TODO: drawing of a discontinuity
     # TODO: linked sections compatibility
-    # TODO: Flag view as is discontinuous
-    # TODO: Refactor, function names
-
 
 for element in config['areas']:
     area = element.get('area')

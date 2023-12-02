@@ -65,38 +65,37 @@ class Sections:
         return Sections(self.sections) if parent is None \
             else Sections(list(filter(lambda item: item.parent == parent, self.sections)))
 
-    def split_sections_according_to(self, discontinuities):
-        splitted_sections = []
-        prev_disc_sec_end_addr = self.lowest_memory
+    def split_sections_around_gaps(self):
+        split_sections = []
+        previous_gap_end_address = self.lowest_memory
 
-        discontinuous_sections = self.get_gap_sections(discontinuities)
+        gaps = self.get_gap_sections()
 
-        for disc_sec in discontinuous_sections:
-            splitted_sections.append(Sections(sections=self.sections)
-                                     .filter_address_max(disc_sec.address)
-                                     .filter_address_min(prev_disc_sec_end_addr)
+        for gap in gaps:
+            split_sections.append(Sections(sections=self.sections)
+                                     .filter_address_max(gap.address)
+                                     .filter_address_min(previous_gap_end_address)
                                      )
-            splitted_sections.append(Sections(sections=[disc_sec]))
-            prev_disc_sec_end_addr = disc_sec.address + disc_sec.size
+            split_sections.append(Sections(sections=[gap]))
+            previous_gap_end_address = gap.address + gap.size
 
-        splitted_sections.append(Sections(sections=self.sections)
+        split_sections.append(Sections(sections=self.sections)
                                  .filter_address_max(self.highest_memory)
-                                 .filter_address_min(prev_disc_sec_end_addr)
+                                 .filter_address_min(previous_gap_end_address)
                                  )
 
-        return splitted_sections
+        return split_sections
 
-    def get_gap_sections(self, discontinuities):
-        discontinuous_sections = []
+    def get_gap_sections(self):
+        gap_sections = []
         for section in self.sections:
-            if self.is_gap_section(section, discontinuities):
-                discontinuous_sections.append(section)
-        return discontinuous_sections
+            if self.is_gap_section(section):
+                gap_sections.append(section)
+        return gap_sections
 
-    def is_gap_section(self, section, gaps):
-        if section.is_gap:
-            return True
-        return False
+    @staticmethod
+    def is_gap_section(section):
+        return True if section.is_gap else False
 
 
 class SectionsView(Sections):
@@ -133,10 +132,7 @@ class SectionsView(Sections):
 
     def flag_gaps(self):
         for section in self.sections:
-            if section.name in self.gaps:
-                section.is_gap = True
-            else:
-                section.is_gap = False
+            section.is_gap = True if section.name in self.gaps else False
 
     def process(self):
 
@@ -146,36 +142,28 @@ class SectionsView(Sections):
             print("Filtered sections produced no results")
             return
 
-        split_section_groups = self.split_sections_according_to(self.gaps)
+        split_section_groups = self.split_sections_around_gaps()
 
-        gap_sections = self.get_gap_sections(self.gaps)
-        gaps_count = len(gap_sections)
+        gaps_count = len(self.get_gap_sections())
+        area_has_gaps = gaps_count >= 1
         gaps_section_size_y_px = self.config.get('style').get('gaps_size', 20)
 
-        if gaps_count >= 1:
+        if area_has_gaps:
 
-            total_disc_size_px = self.get_gaps_total_size_px(self.gaps)
-            total_sec_size_px = self.get_non_gaps_total_size_px(self.gaps)
-            expandable_size_px = total_disc_size_px - (gaps_section_size_y_px * gaps_count)
+            total_gaps_size_y_px = self.get_gaps_total_size_px()
+            total_non_gaps_size_y_px = self.get_non_gaps_total_size_px(self.sections)
+            expandable_size_px = total_gaps_size_y_px - (gaps_section_size_y_px * gaps_count)
 
-            last_area_pos = self.area['y'] + self.area['size_y']
+            last_area_pos = self.pos_y + self.size_y
 
             for section_group in split_section_groups:
-                is_gap_view = False
-                split_section_size_px = 0
 
-                for section in section_group.get_sections():
-                    if section_group.is_gap_section(section, self.gaps):
-                        is_gap_view = True
-                        break
-
-                    split_section_size_px += self.to_pixels(section.size)
-
-                if is_gap_view:
+                if self.is_gap_section_group(section_group):
                     corrected_size = gaps_section_size_y_px
                 else:
-                    corrected_size = (split_section_size_px / total_sec_size_px) * (
-                                     total_sec_size_px + expandable_size_px)
+                    split_section_size_px = self.get_non_gaps_total_size_px(section_group.get_sections())
+                    corrected_size = (split_section_size_px / total_non_gaps_size_y_px) * (
+                            total_non_gaps_size_y_px + expandable_size_px)
 
                 new_area = copy.deepcopy(self.area)
                 new_area['size_y'] = corrected_size
@@ -200,25 +188,26 @@ class SectionsView(Sections):
         a = self.size_y - ((value - self.start_address) / self.address_to_pxl)
         return a
 
-    def get_gaps_total_size_px(self, gaps):
+    def get_gaps_total_size_px(self):
         total_gaps_size_px = 0
 
-        for gap in self.get_gap_sections(gaps):
+        for gap in self.get_gap_sections():
             total_gaps_size_px += self.to_pixels(gap.size)
 
         return total_gaps_size_px
 
-    def get_non_gaps_total_size_px(self, gaps):
+    @staticmethod
+    def is_gap_section_group(section_group):
+        for section in section_group.get_sections():
+            if section_group.is_gap_section(section):
+                return True
+        return False
+
+    def get_non_gaps_total_size_px(self, sections_list):
         total_no_gaps_size_px = 0
-        for split_section_groups in self.split_sections_according_to(gaps):
-            is_gap = False
-#            if self.is_gap_section_group(split_section_groups):
- #               continue
-            for section in split_section_groups.sections:
-                if self.is_gap_section(section, gaps):
-                    is_gap = True
-                    break
+
+        for section in sections_list:
+            if not self.is_gap_section(section):
                 total_no_gaps_size_px += self.to_pixels(section.size)
-            if is_gap:
-                continue
         return total_no_gaps_size_px
+
