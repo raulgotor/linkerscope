@@ -3,8 +3,10 @@ style:
   label_color: 'lightgrey'
   label_size: '16px'
   label_stroke_width: 0px
-  link_stroke_color: 'grey'
+  link_stroke_color: 'gray'
+  link_fill_color: 'gray'
   link_stroke_width: 1
+  link_opacity: 0.5
   area_background_color: 'lightgrey'
   section_stroke_width: 1
   section_fill_color: '#99B898'
@@ -49,8 +51,8 @@ areas:
       max: 0xE8044000
     style:
       link_stroke_color: 'grey'
-      link_stroke_width: 1
-      section_stroke_width: 0
+      link_stroke_width: 0
+      section_stroke_width: 1
       overrrides: # Adding the 'regions' sub-level under 'style'
         - sections: [ ROM Table ]
           section_fill_color: '#99B898'

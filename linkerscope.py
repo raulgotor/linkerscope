@@ -63,8 +63,9 @@ base_style.override_properties_from(Style(style=config.get('style')))
 
 a = Map(diagrams=areas,
         links=config.get('links'),
-        style=base_style
+        style=base_style,
+        file=args.output
         )
 
-a.draw(args.output)
+a.draw()
 
