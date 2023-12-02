@@ -4,7 +4,9 @@ style:
   label_size: '16px'
   label_stroke_width: 0px
   link_stroke_color: 'grey'
+  link_fill_color: 'grey'
   link_stroke_width: 1
+  link_opacity: 0.5
   area_background_color: 'lightgrey'
   section_stroke_width: 1
   section_fill_color: '#99B898'
@@ -49,8 +51,8 @@ areas:
       max: 0xE8044000
     style:
       link_stroke_color: 'grey'
-      link_stroke_width: 1
-      section_stroke_width: 0
+      link_stroke_width: 0
+      section_stroke_width: 1
       overrrides: # Adding the 'regions' sub-level under 'style'
         - sections: [ ROM Table ]
           section_fill_color: '#99B898'
@@ -74,7 +76,7 @@ areas:
     style:
       link_stroke_color: 'grey'
       link_stroke_width: 1
-      section_stroke_width: 3
+      section_stroke_width: 1
 
 - area:
     x: 500
@@ -114,7 +116,11 @@ links:
                0xE8044000,
                0xe00e0000
   ]
-  sections: []
+  sections: [
+    ['TPIU', 'ROM Table'],
+    ['ITM', 'NVIC'],
+    ['Bit band region', 'Bit band alias'],
+    ['Bit band region', 'Bit band alias']]
 
 discontinuities: [Reserved]
 
