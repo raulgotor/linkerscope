@@ -10,6 +10,7 @@ class Style:
     label_stroke_width: int
     map_background_color: int
     background_color: int
+    discontinuities_size: str
 
     def __init__(self, style=None):
         if style is not None:
@@ -38,10 +39,11 @@ class Style:
         default_style.section_stroke_color = '#3399FF'
         default_style.section_stroke_width = 2
         default_style.label_color = 'blue'
-        default_style.label_size = '16px'
+        default_style.label_size = '16'
         default_style.label_stroke_width = 1
         default_style.link_stroke_width = 1
         default_style.link_stroke_color = 'grey'
         default_style.map_background_color = '#CCCCFF'
         default_style.background_color = 'white'
+        default_style.discontinuities_size = 20
         return default_style

@@ -1,3 +1,5 @@
+import copy
+
 import yaml
 from area import Section
 from style import Style
@@ -63,11 +65,11 @@ class Sections:
         return Sections(self.sections) if parent is None \
             else Sections(list(filter(lambda item: item.parent == parent, self.sections)))
 
-    def split_sections_in_groups(self, discontinuities):
+    def split_sections_according_to(self, discontinuities):
         splitted_sections = []
         prev_disc_sec_end_addr = self.lowest_memory
 
-        discontinuous_sections = self.get_discontinuities_sections(discontinuities)
+        discontinuous_sections = self.get_gap_sections(discontinuities)
 
         for disc_sec in discontinuous_sections:
             splitted_sections.append(Sections(sections=self.sections)
@@ -84,15 +86,15 @@ class Sections:
 
         return splitted_sections
 
-    def get_discontinuities_sections(self, discontinuities):
+    def get_gap_sections(self, discontinuities):
         discontinuous_sections = []
         for section in self.sections:
-            if self.is_discontinuous_section(section, discontinuities):
+            if self.is_gap_section(section, discontinuities):
                 discontinuous_sections.append(section)
         return discontinuous_sections
 
-    def is_discontinuous_section(self, section, discontinuities):
-        if section.name in discontinuities:
+    def is_gap_section(self, section, gaps):
+        if section.is_gap:
             return True
         return False
 
@@ -111,7 +113,9 @@ class SectionsView(Sections):
                  area,
                  **kwargs):
         super().__init__(sections)
-
+        self.processed_section_views = []
+        self.config = kwargs.get('config')
+        self.gaps = self.config['gaps'] if self.config is not None else None
         self.area = area
         self.style = Style(style=self.area.get('style'))
         self.start_address = self.area.get('start', self.lowest_memory)
@@ -120,8 +124,74 @@ class SectionsView(Sections):
         self.pos_y = self.area.get('y', 10)
         self.size_x = self.area.get('size_x', 200)
         self.size_y = self.area.get('size_y', 500)
-
         self.address_to_pxl = (self.end_address - self.start_address) / self.size_y
+        if self.config is not None:
+            self.process()
+
+    def get_processed_section_views(self):
+        return self.processed_section_views
+
+    def flag_gaps(self):
+        for section in self.sections:
+            if section.name in self.gaps:
+                section.is_gap = True
+            else:
+                section.is_gap = False
+
+    def process(self):
+
+        self.flag_gaps()
+
+        if len(self.sections) == 0:
+            print("Filtered sections produced no results")
+            return
+
+        split_section_groups = self.split_sections_according_to(self.gaps)
+
+        gap_sections = self.get_gap_sections(self.gaps)
+        gaps_count = len(gap_sections)
+        gaps_section_size_y_px = self.config.get('style').get('gaps_size', 20)
+
+        if gaps_count >= 1:
+
+            total_disc_size_px = self.get_gaps_total_size_px(self.gaps)
+            total_sec_size_px = self.get_non_gaps_total_size_px(self.gaps)
+            expandable_size_px = total_disc_size_px - (gaps_section_size_y_px * gaps_count)
+
+            last_area_pos = self.area['y'] + self.area['size_y']
+
+            for section_group in split_section_groups:
+                is_gap_view = False
+                split_section_size_px = 0
+
+                for section in section_group.get_sections():
+                    if section_group.is_gap_section(section, self.gaps):
+                        is_gap_view = True
+                        break
+
+                    split_section_size_px += self.to_pixels(section.size)
+
+                if is_gap_view:
+                    corrected_size = gaps_section_size_y_px
+                else:
+                    corrected_size = (split_section_size_px / total_sec_size_px) * (
+                                     total_sec_size_px + expandable_size_px)
+
+                new_area = copy.deepcopy(self.area)
+                new_area['size_y'] = corrected_size
+                new_area['y'] = last_area_pos - corrected_size
+                last_area_pos = new_area['y']
+
+                self.processed_section_views.append(
+                    SectionsView(
+                        sections=section_group.get_sections(),
+                        area=new_area))
+
+        else:
+            if len(self.sections) == 0:
+                print("Current view doesn't show any section")
+                return
+            self.processed_section_views.append(self)
 
     def to_pixels(self, value):
         return value / self.address_to_pxl
@@ -130,23 +200,25 @@ class SectionsView(Sections):
         a = self.size_y - ((value - self.start_address) / self.address_to_pxl)
         return a
 
-    def get_discontinuities_size_total_px(self, discontinuities):
-        total_disc_size_px = 0
+    def get_gaps_total_size_px(self, gaps):
+        total_gaps_size_px = 0
 
-        for discontinuity in self.get_discontinuities_sections(discontinuities):
-            total_disc_size_px += self.to_pixels(discontinuity.size)
+        for gap in self.get_gap_sections(gaps):
+            total_gaps_size_px += self.to_pixels(gap.size)
 
-        return total_disc_size_px
+        return total_gaps_size_px
 
-    def get_non_discontinuities_size_total_px(self, discontinuities):
-        total_sec_size_px = 0
-        for splitted_sec in self.split_sections_in_groups(discontinuities):
-            is_discontinuity = False
-            for sec in splitted_sec.sections:
-                if sec.name in discontinuities:
-                    is_discontinuity = True
+    def get_non_gaps_total_size_px(self, gaps):
+        total_no_gaps_size_px = 0
+        for split_section_groups in self.split_sections_according_to(gaps):
+            is_gap = False
+#            if self.is_gap_section_group(split_section_groups):
+ #               continue
+            for section in split_section_groups.sections:
+                if self.is_gap_section(section, gaps):
+                    is_gap = True
                     break
-                total_sec_size_px += self.to_pixels(sec.size)
-            if is_discontinuity:
+                total_no_gaps_size_px += self.to_pixels(section.size)
+            if is_gap:
                 continue
-        return total_sec_size_px
+        return total_no_gaps_size_px

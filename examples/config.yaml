@@ -1,8 +1,9 @@
 style:
+  gaps_size: 40
   label_font: 'Helvetica Bold'
   label_color: 'lightgrey'
-  label_size: '16px'
-  label_stroke_width: 0px
+  label_size: '16'
+  label_stroke_width: 0
   link_stroke_color: 'grey'
   link_fill_color: 'grey'
   link_stroke_width: 1
@@ -122,7 +123,7 @@ links:
     ['Bit band region', 'Bit band alias'],
     ['Bit band region', 'Bit band alias']]
 
-discontinuities: [Reserved]
+gaps: [Reserved]
 
 
 
