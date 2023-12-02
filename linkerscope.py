@@ -53,15 +53,6 @@ for element in config['areas']:
         print("Filtered sections produced no results")
         continue
 
-
-
-    #dis = tamano total pixels discontinuitys - nuevos tamanos
-    #total = suma de splited sections en pixels
-
-    #splitsectpixels / total * dis es el nuevo size.
-    #nueva posicion es la misma
-    #|=====|==|===|
-
     splitted_secs = filtered_sections.split_sections_in_groups(config['discontinuities'])
     for i, group in enumerate(splitted_secs):
         #print('Section group', i)
@@ -73,6 +64,14 @@ for element in config['areas']:
     disc_sec = filtered_sections.get_discontinuities_sections(config['discontinuities'])
     disc_count = len(disc_sec)
     discontinuity_size_pixels = 40
+
+    # TODO: discontinuity size should be determined at config.py
+    # TODO: split_sections_in_groups returns empty groups when discontinuities are at the beginning or end
+    # TODO: drawing of a discontinuity
+    # TODO: linked sections compatibility
+    # TODO: Flag view as is discontinuous
+    # TODO: Refactor, function names and bring logic to classes
+
     if disc_count >= 1:
 
         sections_view = SectionsView(
