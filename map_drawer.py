@@ -18,7 +18,7 @@ class Map:
         self.file = file
         self.dwg = svgwrite.Drawing(file,
                                     profile='full',
-                                    size=('200%', '200%'))
+                                    size=('900', '1300'))
 
     def _get_valid_linked_sections(self, linked_sections):
         """

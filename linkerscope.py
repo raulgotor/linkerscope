@@ -34,14 +34,13 @@ if config['areas'] is None:
     print('No information to show on current configuration file')
     exit(-1)
 
-    # TODO: discontinuity size should be determined at config.py
-    # TODO: split_sections_in_groups returns empty groups when discontinuities are at the beginning or end
     # TODO: drawing of a discontinuity
     # TODO: linked sections compatibility
 
 for element in config['areas']:
     area = element.get('area')
 
+    # TODO: SectionsView should be more of an Area
     sections_view = SectionsView(
         sections=(Sections(sections=MapFileParser(args.input).parse())
                   .filter_address_min(area.get('address', {}).get('min'))
@@ -49,7 +48,9 @@ for element in config['areas']:
                   .filter_size_min(area.get('size', {}).get('min'))
                   .filter_size_max(area.get('size', {}).get('max'))
                   ).get_sections(),
+        # TODO: area parameter should be named as area configuration
         area=area,
+        # TODO: Passing config looks weird since all necessary things should be in area config
         config=config)
     areas.extend(sections_view.get_processed_section_views())
 

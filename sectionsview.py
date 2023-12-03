@@ -65,24 +65,40 @@ class Sections:
         return Sections(self.sections) if parent is None \
             else Sections(list(filter(lambda item: item.parent == parent, self.sections)))
 
-    def split_sections_around_gaps(self):
+    def split_sections_around_gaps(self) -> []:
+        """
+        Split a Sections object into different Sections objects having a gap section as delimiter
+
+        :return: A list of Section objects
+        """
         split_sections = []
         previous_gap_end_address = self.lowest_memory
 
         gaps = self.get_gap_sections()
 
         for gap in gaps:
-            split_sections.append(Sections(sections=self.sections)
-                                     .filter_address_max(gap.address)
-                                     .filter_address_min(previous_gap_end_address)
-                                     )
+
+            # Section that covers from previous gap till start of this gap
+            # If it was the first gap, will cover from begining of the whole area to this gap. Only append if search
+            # returns more than 0 counts
+            s = Sections(sections=self.sections)\
+                .filter_address_max(gap.address)\
+                .filter_address_min(previous_gap_end_address)
+            if len(s.sections) > 0:
+                split_sections.append(s)
+
+            # This section covers the gap itself
             split_sections.append(Sections(sections=[gap]))
             previous_gap_end_address = gap.address + gap.size
 
-        split_sections.append(Sections(sections=self.sections)
-                                 .filter_address_max(self.highest_memory)
-                                 .filter_address_min(previous_gap_end_address)
-                                 )
+        # Section that covers from the last gap end address to the end of the whole area. Only append if search returns
+        # more than 0 counts
+        last_group = Sections(sections=self.sections)\
+            .filter_address_max(self.highest_memory)\
+            .filter_address_min(previous_gap_end_address)
+
+        if len(last_group.sections) > 0:
+            split_sections.append(last_group)
 
         return split_sections
 
