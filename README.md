@@ -170,6 +170,10 @@ links:
 
 At the folder examples, there are a series of configurations and map `.yaml` files you can use to get a preview of what LinkerScope can do.
 
+## References
+
+- [YAML cheatsheet](https://quickref.me/yaml)
+
 ## License
 
 ---

@@ -1,3 +1,6 @@
+from style import Style
+
+
 class Section:
     size: int
     address: int
@@ -7,6 +10,7 @@ class Section:
     pos_x: int
     pos_y: int
     label_offset: int = 10
+    style: Style
 
     def __init__(self, size, address, name, type, parent):
         self.type = type
@@ -22,13 +26,13 @@ class Section:
         return 'break' in self.flags
 
     def is_address_hidden(self):
-        return 'hide_address' in self.flags
+        return 'hide-address' in self.flags
 
     def is_name_hidden(self):
-        return 'hide_name' in self.flags
+        return 'hide-name' in self.flags
 
     def is_size_hidden(self):
-        return 'hide_size' in self.flags
+        return 'hide-size' in self.flags
 
     @property
     def addr_label_pos_x(self):
@@ -49,6 +53,3 @@ class Section:
     @property
     def name_label_pos_y(self):
         return self.pos_y + (self.size_y / 2)
-
-
-

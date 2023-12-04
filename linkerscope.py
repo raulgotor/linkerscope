@@ -4,10 +4,12 @@ import argparse
 import copy
 
 import yaml
+
+from area_view import AreaView
 from map_drawer import Map
 from style import Style
 from map_file_parser import MapFileParser
-from sectionsview import SectionsView, Sections
+from sections import Sections
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--output',
@@ -36,25 +38,38 @@ if config['areas'] is None:
 
     # TODO: linked sections compatibility
 
-for element in config['areas']:
-    area = element.get('area')
 
-    # TODO: SectionsView should be more of an Area
-    sections_view = SectionsView(
-        sections=(Sections(sections=MapFileParser(args.input).parse())
-                  .filter_address_min(area.get('address', {}).get('min'))
-                  .filter_address_max(area.get('address', {}).get('max'))
-                  .filter_size_min(area.get('size', {}).get('min'))
-                  .filter_size_max(area.get('size', {}).get('max'))
-                  ).get_sections(),
-        # TODO: area parameter should be named as area configuration
-        area=area,
-        # TODO: Passing config looks weird since all necessary things should be in area config
-        config=config)
-    areas.extend(sections_view.get_processed_section_views())
+def safe_element_get(_list: [], index: int) -> int:
+    """
+    Get an element from a list checking if both the list and the element exist
+
+    :param _list: List to extract the element from
+    :param index: Index of the element in the list
+    :return: The expected element if exists, None if it doesn't
+    """
+
+    return _list[index] if _list is not None and len(_list) > index else None
+
 
 base_style = Style().get_default()
 base_style.override_properties_from(Style(style=config.get('style', None)))
 
-Map(diagrams=areas, links=config.get('links', None), style=base_style, file=args.output).draw()
+for element in config['areas']:
+    area_style = copy.deepcopy(base_style)
 
+    area = element.get('area')
+    section_size = area.get('section-size', {})
+    area_view = AreaView(
+        sections=(Sections(sections=MapFileParser(args.input).parse())
+                  .filter_address_min(area.get('range', {})[0])
+                  .filter_address_max(area.get('range', {})[1])
+                  .filter_size_min(safe_element_get(section_size, 0))
+                  .filter_size_max(safe_element_get(section_size, 1))
+                  ),
+        area_config=area,
+        global_config=config,
+        style=area_style.override_properties_from(Style(style=area.get('style')))
+    )
+    areas.extend(area_view.get_processed_section_views())
+
+Map(area_view=areas, links=config.get('links', None), style=base_style, file=args.output).draw()
