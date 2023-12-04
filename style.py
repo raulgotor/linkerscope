@@ -12,6 +12,7 @@ class Style:
     background_color: int
     discontinuities_size: str
     break_type: str
+    break_size: int
 
     def __init__(self, style=None):
         if style is not None:
@@ -33,6 +34,8 @@ class Style:
             value = getattr(style, member)
             setattr(self, member, value)
 
+        return self
+
     @staticmethod
     def get_default():
         default_style = Style()
@@ -48,4 +51,5 @@ class Style:
         default_style.background_color = 'white'
         default_style.discontinuities_size = 20
         default_style.break_type = '≈'
+        default_style.break_size = 20
         return default_style

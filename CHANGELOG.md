@@ -15,12 +15,15 @@ and this project adheres to
 * `background_color` style property that controls the document's background
 * Method at `Style` class to easily override properties from another object: `override_properties_from`
 * Method at `Style` class to get a default initialized object: `get_default`
+* Section has style now
 
 ### Changed
 * Naming of the memory domain: Area instead of Map
 * `map_background_color` property name to `area_background_color`
 * Refactored initialization of `SectionView` to pass parameters via `kwargs`
 * Refactored out parameter `dwg` at `map_drawer.py`
+* `size-x` and `size-y` moved to `[size]`, `x` and `y` to `[pos]`, `addresses` to `[range]`
+* overridden style for areas is constructed before class declaration, and not before drawing
 
 ## [0.1.0] - 2023-11-24
 

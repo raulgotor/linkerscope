@@ -21,7 +21,6 @@ class MapFileParser:
     def parse_yaml(filename):
         sections = []
 
-        address_max = 0x60000
         with open(filename, 'r') as file:
             y = yaml.safe_load(file)
 

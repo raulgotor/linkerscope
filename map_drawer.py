@@ -1,3 +1,4 @@
+import copy
 from math import cos
 import svgwrite
 from svgwrite import Drawing
@@ -20,7 +21,6 @@ class Map:
         self.dwg = svgwrite.Drawing(file,
                                     profile='full',
                                     size=('900', '1300'))
-
 
     def _get_valid_linked_sections(self, linked_sections):
         """
@@ -90,18 +90,15 @@ class Map:
 
         dwg = self.dwg
 
-        def _draw_area(area_view):
-            base_and_area_style = Style()
-            base_and_area_style.override_properties_from(self.style)
-            base_and_area_style.override_properties_from(area_view.style)
+        def _draw_area(_area_view):
             group = dwg.add(dwg.g())
-            group.add(self._make_main_frame(area_view))
+            group.add(self._make_main_frame(_area_view))
 
-            for section in area_view.sections.sections:
-                self._make_section(group, section, area_view, base_and_area_style)
+            for section in _area_view.sections.sections:
+                self._make_section(group, section, _area_view)
 
-            group.translate(area_view.pos_x,
-                            area_view.pos_y)
+            group.translate(_area_view.pos_x,
+                            _area_view.pos_y)
 
         dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), rx=None, ry=None, fill=self.style.background_color))
 
@@ -135,38 +132,37 @@ class Map:
                              stroke=self.style.area_background_color,
                              stroke_width=1)
 
-    def _make_box(self, section: Section, style):
+    def _make_box(self, section: Section):
         return self.dwg.rect((section.pos_x, section.pos_y),
                              (section.size_x, section.size_y),
-                             fill=style.section_fill_color,
-                             stroke=style.section_stroke_color,
-                             stroke_width=style.section_stroke_width)
+                             fill=section.style.section_fill_color,
+                             stroke=section.style.section_stroke_color,
+                             stroke_width=section.style.section_stroke_width)
 
-    def _make_break(self, section: Section, style: Style) -> svgwrite.container.Group:
+    def _make_break(self, section: Section) -> svgwrite.container.Group:
         """
         Make a break representation for a given section.
 
         Depending on the selected break type (at style/break_type), break can be wave (~), double wave(≈), diagonal(/)
         or dots(...)
         :param section: Section for which the break wants to be created
-        :param style: Style to apply to the new break
         :return: SVG group container with the breaks graphics
         """
         group = self.dwg.g()
         mid_point_x = (section.pos_x + section.size_x) / 2
         mid_point_y = (section.pos_y + section.size_y) / 2
+        style = section.style
 
-        def _make_break_dots(_section: Section, _style: Style) -> svgwrite.container.Group:
+        def _make_break_dots(_section: Section) -> svgwrite.container.Group:
             """
             Make a break representation using dot style
 
             :param _section: Section for which the break wants to be created
-            :param _style: Style to apply to the new break
             :return: SVG group container with the breaks graphics
             """
             rectangle = self.dwg.rect((_section.pos_x, _section.pos_y), (_section.size_x, _section.size_y))
-            rectangle.fill(_style.section_fill_color)
-            rectangle.stroke(_style.section_stroke_color, width=_style.section_stroke_width)
+            rectangle.fill(style.section_fill_color)
+            rectangle.stroke(style.section_stroke_color, width=style.section_stroke_width)
 
             group.add(rectangle)
 
@@ -177,16 +173,15 @@ class Map:
             ]
 
             for points_set in points_list:
-                group.add(self.dwg.circle(points_set, 3, fill=_style.label_color))
+                group.add(self.dwg.circle(points_set, 3, fill=style.label_color))
 
             return group
 
-        def _make_break_wave(_section: Section, _style: Style) -> svgwrite.container.Group:
+        def _make_break_wave(_section: Section) -> svgwrite.container.Group:
             """
             Make a break representation using wave style
 
             :param _section: Section for which the break wants to be created
-            :param _style: Style to apply to the new break
             :return: SVG group container with the breaks graphics
             """
             wave_len = _section.size_x + 1
@@ -204,18 +199,17 @@ class Map:
                 )
 
                 group.add(self.dwg.polyline(points,
-                                            stroke=_style.section_stroke_color,
-                                            stroke_width=_style.section_stroke_width,
-                                            fill=_style.section_fill_color))
+                                            stroke=style.section_stroke_color,
+                                            stroke_width=style.section_stroke_width,
+                                            fill=style.section_fill_color))
 
             return group
 
-        def _make_break_double_wave(_section: Section, _style: Style) -> svgwrite.container.Group:
+        def _make_break_double_wave(_section: Section) -> svgwrite.container.Group:
             """
             Make a break representation using double wave style
 
             :param _section: Section for which the break wants to be created
-            :param _style: Style to apply to the new break
             :return: SVG group container with the breaks graphics
             """
             points_list = [[
@@ -233,14 +227,13 @@ class Map:
             ]
 
             rectangle = self.dwg.rect((_section.pos_x, _section.pos_y), (_section.size_x, _section.size_y))
-            rectangle.fill(_style.section_fill_color)
-
+            rectangle.fill(style.section_fill_color)
             group.add(rectangle)
 
             for points_set in points_list:
                 group.add(self.dwg.polyline(points_set,
-                                            stroke=_style.section_stroke_color,
-                                            stroke_width=_style.section_stroke_width,
+                                            stroke=style.section_stroke_color,
+                                            stroke_width=style.section_stroke_width,
                                             fill='none'))
             wave_length = 20
             shifts = [(0, -5),
@@ -254,18 +247,17 @@ class Map:
                           for i in range(wave_length)]
 
                 group.add(self.dwg.polyline(points,
-                                            stroke=_style.section_stroke_color,
-                                            stroke_width=_style.section_stroke_width,
+                                            stroke=style.section_stroke_color,
+                                            stroke_width=style.section_stroke_width,
                                             fill='none'))
 
             return group
 
-        def _make_break_diagonal(_section: Section, _style: Style) -> svgwrite.container.Group:
+        def _make_break_diagonal(_section: Section) -> svgwrite.container.Group:
             """
             Make a break representation using diagonal style
 
             :param _section: Section for which the break wants to be created
-            :param _style: Style to apply to the new break
             :return: SVG group container with the breaks graphics
             """
             points_list = [[(_section.pos_x, _section.pos_y),
@@ -282,20 +274,20 @@ class Map:
 
             for points_set in points_list:
                 group.add(self.dwg.polyline(points_set,
-                                            stroke=_style.section_stroke_color,
-                                            stroke_width=_style.section_stroke_width,
-                                            fill=_style.section_fill_color))
+                                            stroke=style.section_stroke_color,
+                                            stroke_width=style.section_stroke_width,
+                                            fill=style.section_fill_color))
 
             return group
 
         breaks = [('/', _make_break_diagonal),
-                ('≈', _make_break_double_wave),
-                ('~', _make_break_wave),
-                ('...', _make_break_dots),]
+                  ('≈', _make_break_double_wave),
+                  ('~', _make_break_wave),
+                  ('...', _make_break_dots), ]
 
         for _break in breaks:
             if style.break_type == _break[0]:
-                return _break[1](section, style)
+                return _break[1](section)
 
     def _make_text(self, text, pos_x, pos_y, style, anchor, baseline='middle', small=False):
         return self.dwg.text(text, insert=(pos_x, pos_y),
@@ -310,56 +302,57 @@ class Map:
                              alignment_baseline=baseline
                              )
 
-    def _make_name(self, section, style):
+    def _make_name(self, section):
         return self._make_text(section.name,
                                section.name_label_pos_x,
                                section.name_label_pos_y,
-                               style=style,
+                               style=section.style,
                                anchor='middle',
                                )
 
-    def _make_size_label(self, section, style):
+    def _make_size_label(self, section):
         return self._make_text(hex(section.size),
                                section.size_label_pos[0],
                                section.size_label_pos[1],
-                               style,
+                               section.style,
                                'start',
                                'hanging',
                                True,
                                )
 
-    def _make_address(self, section, style):
+    def _make_address(self, section):
         return self._make_text(hex(section.address),
                                section.addr_label_pos_x,
                                section.addr_label_pos_y,
                                anchor='start',
-                               style=style)
+                               style=section.style)
 
-    def _make_section(self, group, section: Section, area_view, style):
+    def _make_section(self, group, section: Section, area_view):
         section.size_x = area_view.size_x
         section.size_y = area_view.to_pixels(section.size)
         section.pos_y = area_view.to_pixels(area_view.end_address - section.size - section.address)
         section.pos_x = 0
-        overrides = getattr(style, 'overrrides', None)
-        section_style = Style()
-        section_style.override_properties_from(style)
+        section_style = copy.deepcopy(area_view.style)
+        overrides = getattr(section_style, 'overrides', None)
 
         if overrides:
             for item in overrides:
                 if section.name in item.get('sections'):
                     section_style.override_properties_from(Style(style=item))
 
+        section.style = section_style
+
         if section.is_break():
-            group.add(self._make_break(section, section_style))
+            group.add(self._make_break(section))
         else:
-            group.add(self._make_box(section, section_style))
+            group.add(self._make_box(section))
             if section.size_y > 20:
                 if not section.is_name_hidden():
-                    group.add(self._make_name(section, section_style))
+                    group.add(self._make_name(section))
                 if not section.is_address_hidden():
-                    group.add(self._make_address(section, section_style))
+                    group.add(self._make_address(section))
                 if not section.is_size_hidden():
-                    group.add(self._make_size_label(section, section_style))
+                    group.add(self._make_size_label(section))
 
         return group
 

@@ -1,3 +1,6 @@
+from style import Style
+
+
 class Section:
     size: int
     address: int
@@ -7,6 +10,7 @@ class Section:
     pos_x: int
     pos_y: int
     label_offset: int = 10
+    style: Style
 
     def __init__(self, size, address, name, type, parent):
         self.type = type

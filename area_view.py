@@ -1,5 +1,4 @@
 import copy
-from style import Style
 
 
 class AreaView:
@@ -13,20 +12,22 @@ class AreaView:
 
     def __init__(self,
                  sections,
-                 area,
+                 area_config,
+                 style,
                  **kwargs):
         self.sections = sections
         self.processed_section_views = []
-        self.config = kwargs.get('config')
-        self.area = area
-        self.style = Style(style=self.area.get('style'))
+        self.config = kwargs.get('global_config')
+        self.area = area_config
+        self.style = style
         self.start_address = self.area.get('start', self.sections.lowest_memory)
         self.end_address = self.area.get('end', self.sections.highest_memory)
-        self.pos_x = self.area.get('x', 10)
-        self.pos_y = self.area.get('y', 10)
-        self.size_x = self.area.get('size-x', 200)
-        self.size_y = self.area.get('size-y', 500)
+        self.pos_x = self.area.get('pos', 10)[0]
+        self.pos_y = self.area.get('pos', 10)[1]
+        self.size_x = self.area.get('size', 200)[0]
+        self.size_y = self.area.get('size', 500)[1]
         self.address_to_pxl = (self.end_address - self.start_address) / self.size_y
+
         if self.config is not None:
             self._process()
 
@@ -42,7 +43,7 @@ class AreaView:
 
     def _overwrite_sections_info(self):
         for section in self.sections.get_sections():
-            for element in self.config.get('map', None):
+            for element in self.config.get('map', []):
                 if element['name'] == section.name:
                     section.address = element.get('address', section.address)
                     section.type = element.get('type', section.type)
@@ -60,7 +61,7 @@ class AreaView:
 
         breaks_count = len(self.sections.filter_breaks().get_sections())
         area_has_breaks = breaks_count >= 1
-        breaks_section_size_y_px = self.config.get('style').get('break-size', 20)
+        breaks_section_size_y_px = self.style.break_size if self.style is not None else 20
 
         if area_has_breaks:
 
@@ -80,14 +81,15 @@ class AreaView:
                             total_non_breaks_size_y_px + expandable_size_px)
 
                 new_area = copy.deepcopy(self.area)
-                new_area['size-y'] = corrected_size
-                new_area['y'] = last_area_pos - corrected_size
-                last_area_pos = new_area['y']
+                new_area['size'][1] = corrected_size
+                new_area['pos'][1] = last_area_pos - corrected_size
+                last_area_pos = new_area['pos'][1]
 
                 self.processed_section_views.append(
                     AreaView(
                         sections=section_group,
-                        area=new_area))
+                        area_config=new_area,
+                        style=self.style))
 
         else:
             if len(self.sections.get_sections()) == 0:

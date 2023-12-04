@@ -26,56 +26,42 @@ areas:
     # end:   0x20004000
 
     # Specify the position of the area and its size here
-    x: 30
-    y: 30
-    size-x: 300
-    size-y: 900
-
+    pos: [30, 30]
+    size: [300, 900]
     # starting addresses of the sections to parse
-    address:
-      min: 0x0
-      max: 0x100000000
-
+    range: [0x0, 0x100000000]
     # Maximum and minimum size in bytes of the sections to parse
-    size:
-      min: 0x02F00000
+    section-size: [0x02F00000]
+
     style:
-      overrrides:
+      overrides:
       - sections: [ Peripheral ]
         section-fill-color: '#FF847C'
 
 - area:
-    x: 500
-    y: 30
-    size-x: 200
-    size-y: 200
 
-    address:
-      min: 0xE8040000
-      max: 0xE8044000
+    pos: [ 500, 30 ]
+    size: [ 200, 200 ]
+    range: [0xE8040000, 0xE8044000]
+
     style:
       link-stroke_color: 'grey'
       link-stroke_width: 0
       section-stroke_width: 1
-      overrrides: # Adding the 'regions' sub-level under 'style'
+      overrides: # Adding the 'regions' sub-level under 'style'
         - sections: [ ROM Table ]
-          section-fill_color: '#99B898'
+          section-fill-color: '#99B898'
         - sections: [ External PPB ]
-          section-fill_color: '#FECEA8'
+          section-fill-color: '#FECEA8'
         - sections: [ ETM, Peripheral ]
-          section-fill_color: '#FF847C'
+          section-fill-color: '#FF847C'
         - sections: [ TPIU ]
-          section-fill_color: '#E84A5F'
+          section-fill-color: '#E84A5F'
 
 - area:
-    x: 500
-    y: 280
-    size-x: 200
-    size-y: 400
-
-    address:
-      min: 0xE0000000
-      max: 0xE00F0000
+    pos: [ 500, 280 ]
+    size: [ 200, 400 ]
+    range: [0xE0000000, 0xE00F0000]
 
     style:
       link-stroke-color: 'grey'
@@ -83,30 +69,21 @@ areas:
       section-stroke-width: 1
 
 - area:
-    x: 500
-    y: 730
-    size-x: 200
-    size-y: 200
+    pos: [ 500, 730 ]
+    size: [ 200, 200 ]
+    range: [0x40000000, 0x43000000]
 
-    address:
-      min: 0x40000000
-      max: 0x43000000
     style:
-      overrrides: # Adding the 'regions' sub-level under 'style'
+      overrides: # Adding the 'regions' sub-level under 'style'
         - sections: [ Bit ]
           section-fill_color: '#FECEA8'
         - sections: [ Bit band region ]
           section-fill_color: '#FF847C'
 
 - area:
-    x: 500
-    y: 980
-    size-x: 200
-    size-y: 200
-
-    address:
-      min: 0x20000000
-      max: 0x23000000
+    pos: [ 500, 980 ]
+    size: [ 200, 200 ]
+    range: [0x20000000, 0x23000000]
 
 links:
   force: true
@@ -127,8 +104,7 @@ links:
     ['Bit band region', 'Bit band alias']]
 
 map:
-- address: 0xE0030000
-  name: Reserved
+- name: Reserved
   type: section
   flags: break, hide-label, hide-address
 - name: NVIC
