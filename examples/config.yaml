@@ -1,16 +1,19 @@
 style:
+  break_size: 60
+  break_type: '~'
   label_font: 'Helvetica Bold'
   label_color: 'lightgrey'
-  label_size: '16px'
-  label_stroke_width: 0px
+  label_size: '16'
+  label_stroke_width: 0
   link_stroke_color: 'grey'
   link_fill_color: 'grey'
   link_stroke_width: 1
   link_opacity: 0.5
-  area_background_color: 'lightgrey'
+  area_background_color: 'none'
   section_stroke_width: 1
   section_fill_color: '#99B898'
   section_stroke_color: '#2A363B'
+  #section_stroke_color: 'white'
   background_color: '#2A363B'
 
 areas:
@@ -122,7 +125,13 @@ links:
     ['Bit band region', 'Bit band alias'],
     ['Bit band region', 'Bit band alias']]
 
-discontinuities: [Reserved]
+map:
+- address: 0xE0030000
+  name: Reserved
+  type: section
+  flags: break, hide_label, hide_address
+- name: NVIC
+  flags: hide_address, hide_name
 
 
 

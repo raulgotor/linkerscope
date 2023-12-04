@@ -1,6 +1,10 @@
 import copy
+from math import cos
+
 import svgwrite
 from svgwrite import Drawing
+
+from area import Section
 from style import Style
 
 
@@ -8,7 +12,7 @@ class Map:
     dwg: Drawing
     pointer_y: int
 
-    def __init__(self, diagrams=[], links={}, file='map.svg', **kwargs):
+    def __init__(self, diagrams=[], links={}, file='map.svg', map=[], **kwargs):
         self.style = kwargs.get('style')
         self.type = type
         self.diagrams = diagrams
@@ -18,7 +22,8 @@ class Map:
         self.file = file
         self.dwg = svgwrite.Drawing(file,
                                     profile='full',
-                                    size=('200%', '200%'))
+                                    size=('900', '1300'))
+
 
     def _get_valid_linked_sections(self, linked_sections):
         """
@@ -128,22 +133,172 @@ class Map:
         dwg.save()
 
     def _make_main_frame(self, diagram):
-        size_x = diagram.size_x
-        size_y = diagram.size_y
-        rectangle = self.dwg.rect((0, 0), (size_x, size_y))
-        rectangle.fill(self.style.area_background_color)
-        rectangle.stroke(self.style.area_background_color, width=1)
-        return rectangle
+        return self.dwg.rect((0, 0), (diagram.size_x, diagram.size_y),
+                             fill=self.style.area_background_color,
+                             stroke=self.style.area_background_color,
+                             stroke_width=1)
 
-    def _make_box(self, section, diagram, style):
-        section.size_x = diagram.size_x
-        section.size_y = diagram.to_pixels(section.size)
-        section.pos_y = diagram.to_pixels(diagram.end_address - section.size - section.address)
-        section.pos_x = 0
-        rectangle = self.dwg.rect((section.pos_x, section.pos_y), (section.size_x, section.size_y))
-        rectangle.fill(style.section_fill_color)
-        rectangle.stroke(style.section_stroke_color, width=style.section_stroke_width)
-        return rectangle
+    def _make_box(self, section: Section, style):
+        return self.dwg.rect((section.pos_x, section.pos_y),
+                             (section.size_x, section.size_y),
+                             fill=style.section_fill_color,
+                             stroke=style.section_stroke_color,
+                             stroke_width=style.section_stroke_width)
+
+    def _make_break(self, section: Section, style: Style) -> svgwrite.container.Group:
+        """
+        Make a break representation for a given section.
+
+        Depending on the selected break type (at style/break_type), break can be wave (~), double wave(≈), diagonal(/)
+        or dots(...)
+        :param section: Section for which the break wants to be created
+        :param style: Style to apply to the new break
+        :return: SVG group container with the breaks graphics
+        """
+        group = self.dwg.g()
+        mid_point_x = (section.pos_x + section.size_x) / 2
+        mid_point_y = (section.pos_y + section.size_y) / 2
+
+        def _make_break_dots(_section: Section, _style: Style) -> svgwrite.container.Group:
+            """
+            Make a break representation using dot style
+
+            :param _section: Section for which the break wants to be created
+            :param _style: Style to apply to the new break
+            :return: SVG group container with the breaks graphics
+            """
+            rectangle = self.dwg.rect((_section.pos_x, _section.pos_y), (_section.size_x, _section.size_y))
+            rectangle.fill(_style.section_fill_color)
+            rectangle.stroke(_style.section_stroke_color, width=_style.section_stroke_width)
+
+            group.add(rectangle)
+
+            points_list = [
+                (mid_point_x, mid_point_y),
+                (mid_point_x, mid_point_y + 12),
+                (mid_point_x, mid_point_y - 12),
+            ]
+
+            for points_set in points_list:
+                group.add(self.dwg.circle(points_set, 3, fill=_style.label_color))
+
+            return group
+
+        def _make_break_wave(_section: Section, _style: Style) -> svgwrite.container.Group:
+            """
+            Make a break representation using wave style
+
+            :param _section: Section for which the break wants to be created
+            :param _style: Style to apply to the new break
+            :return: SVG group container with the breaks graphics
+            """
+            wave_len = _section.size_x + 1
+            shifts = [(-5, 2/5, 0), (5, 3 / 5, _section.size_y), ]
+
+            for shift in shifts:
+                points = [(i, mid_point_y + shift[0] + 2 * cos(i / 24)) for i in range(wave_len)]
+                points.extend(
+                    [
+                        (_section.pos_x + _section.size_x, (_section.pos_y + _section.size_y) * shift[1]),
+                        (_section.pos_x + _section.size_x, _section.pos_y + shift[2]),
+                        (_section.pos_x, _section.pos_y + shift[2]),
+                        (_section.pos_x, mid_point_y + shift[0] + 2 * cos(_section.pos_x / 24)),
+                    ]
+                )
+
+                group.add(self.dwg.polyline(points,
+                                            stroke=_style.section_stroke_color,
+                                            stroke_width=_style.section_stroke_width,
+                                            fill=_style.section_fill_color))
+
+            return group
+
+        def _make_break_double_wave(_section: Section, _style: Style) -> svgwrite.container.Group:
+            """
+            Make a break representation using double wave style
+
+            :param _section: Section for which the break wants to be created
+            :param _style: Style to apply to the new break
+            :return: SVG group container with the breaks graphics
+            """
+            points_list = [[
+                (_section.pos_x, (_section.pos_y + _section.size_y) * 2 / 5),
+                (_section.pos_x, _section.pos_y),
+                (_section.pos_x + _section.size_x, _section.pos_y),
+                (_section.pos_x + _section.size_x, (_section.pos_y + _section.size_y) * 2 / 5),
+            ],
+                [
+                    (_section.pos_x, (_section.pos_y + _section.size_y) * 3 / 5),
+                    (_section.pos_x, _section.pos_y + _section.size_y),
+                    (_section.pos_x + _section.size_x, _section.pos_y + _section.size_y),
+                    (_section.pos_x + _section.size_x, (_section.pos_y + _section.size_y) * 3 / 5),
+                ]
+            ]
+
+            rectangle = self.dwg.rect((_section.pos_x, _section.pos_y), (_section.size_x, _section.size_y))
+            rectangle.fill(_style.section_fill_color)
+
+            group.add(rectangle)
+
+            for points_set in points_list:
+                group.add(self.dwg.polyline(points_set,
+                                            stroke=_style.section_stroke_color,
+                                            stroke_width=_style.section_stroke_width,
+                                            fill='none'))
+            wave_length = 20
+            shifts = [(0, -5),
+                      (0, +5),
+                      (_section.size_x, -5),
+                      (_section.size_x, +5),
+                      ]
+
+            for shift in shifts:
+                points = [(i - wave_length / 2 + shift[0], mid_point_y + shift[1] + cos(i / 2))
+                          for i in range(wave_length)]
+
+                group.add(self.dwg.polyline(points,
+                                            stroke=_style.section_stroke_color,
+                                            stroke_width=_style.section_stroke_width,
+                                            fill='none'))
+
+            return group
+
+        def _make_break_diagonal(_section: Section, _style: Style) -> svgwrite.container.Group:
+            """
+            Make a break representation using diagonal style
+
+            :param _section: Section for which the break wants to be created
+            :param _style: Style to apply to the new break
+            :return: SVG group container with the breaks graphics
+            """
+            points_list = [[(_section.pos_x, _section.pos_y),
+                            (_section.pos_x + _section.size_x, _section.pos_y),
+                            (_section.pos_x + _section.size_x, (_section.pos_y + _section.size_y) * 3 / 10),
+                            (_section.pos_x, (_section.pos_y + _section.size_y) * 5 / 10),
+                            (_section.pos_x, _section.pos_y)
+                            ], [(_section.pos_x, _section.pos_y + _section.size_y),
+                                (_section.pos_x + _section.size_x, _section.pos_y + _section.size_y),
+                                (_section.pos_x + _section.size_x, (_section.pos_y + _section.size_y) * 5 / 10),
+                                (_section.pos_x, (_section.pos_y + _section.size_y) * 7 / 10),
+                                (_section.pos_x, _section.pos_y + _section.size_y),
+                                ]]
+
+            for points_set in points_list:
+                group.add(self.dwg.polyline(points_set,
+                                            stroke=_style.section_stroke_color,
+                                            stroke_width=_style.section_stroke_width,
+                                            fill=_style.section_fill_color))
+
+            return group
+
+        breaks = [('/', _make_break_diagonal),
+                ('≈', _make_break_double_wave),
+                ('~', _make_break_wave),
+                ('...', _make_break_dots),]
+
+        for _break in breaks:
+            if style.break_type == _break[0]:
+                return _break[1](section, style)
 
     def _make_text(self, text, pos_x, pos_y, style, anchor, baseline='middle', small=False):
         return self.dwg.text(text, insert=(pos_x, pos_y),
@@ -183,7 +338,11 @@ class Map:
                                anchor='start',
                                style=style)
 
-    def _make_section(self, group, section, diagram, style):
+    def _make_section(self, group, section: Section, diagram, style):
+        section.size_x = diagram.size_x
+        section.size_y = diagram.to_pixels(section.size)
+        section.pos_y = diagram.to_pixels(diagram.end_address - section.size - section.address)
+        section.pos_x = 0
         overrides = getattr(style, 'overrrides', None)
         section_style = Style()
         section_style.override_properties_from(style)
@@ -193,11 +352,18 @@ class Map:
                 if section.name in item.get('sections'):
                     section_style.override_properties_from(Style(style=item))
 
-        group.add(self._make_box(section, diagram, section_style))
-        if section.size_y > 20:
-            group.add(self._make_name(section, section_style))
-            group.add(self._make_address(section, section_style))
-            group.add(self._make_size_label(section, section_style))
+        if section.is_break():
+            group.add(self._make_break(section, section_style))
+        else:
+            group.add(self._make_box(section, section_style))
+            if section.size_y > 20:
+                if not section.is_name_hidden():
+                    group.add(self._make_name(section, section_style))
+                if not section.is_address_hidden():
+                    group.add(self._make_address(section, section_style))
+                if not section.is_size_hidden():
+                    group.add(self._make_size_label(section, section_style))
+
         return group
 
     def _get_points_for_address(self, address, diagram):

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
+import copy
+
 import yaml
 from map_drawer import Map
 from style import Style
@@ -23,9 +25,6 @@ parser.add_argument('--configuration',
 
 args = parser.parse_args()
 
-sections = MapFileParser(args.input).parse()
-
-config = []
 areas = []
 
 with open(args.configuration, 'r') as file:
@@ -35,37 +34,27 @@ if config['areas'] is None:
     print('No information to show on current configuration file')
     exit(-1)
 
+    # TODO: linked sections compatibility
+
 for element in config['areas']:
     area = element.get('area')
 
-    filtered_sections = (Sections(sections=sections)
-     .filter_address_min(area.get('address', {}).get('min'))
-     .filter_address_max(area.get('address', {}).get('max'))
-     .filter_size_min(area.get('size', {}).get('min'))
-     .filter_size_max(area.get('size', {}).get('max'))
-     )
-
-    if len(filtered_sections.sections) == 0:
-        print("Filtered sections produced no results")
-        continue
-
+    # TODO: SectionsView should be more of an Area
     sections_view = SectionsView(
-        sections=filtered_sections.get_sections(),
-         area=area)
-
-    if len(sections_view.sections) == 0:
-        print("Current view doesn't show any section")
-        continue
-    areas.append(sections_view)
+        sections=(Sections(sections=MapFileParser(args.input).parse())
+                  .filter_address_min(area.get('address', {}).get('min'))
+                  .filter_address_max(area.get('address', {}).get('max'))
+                  .filter_size_min(area.get('size', {}).get('min'))
+                  .filter_size_max(area.get('size', {}).get('max'))
+                  ).get_sections(),
+        # TODO: area parameter should be named as area configuration
+        area=area,
+        # TODO: Passing config looks weird since all necessary things should be in area config
+        config=config)
+    areas.extend(sections_view.get_processed_section_views())
 
 base_style = Style().get_default()
-base_style.override_properties_from(Style(style=config.get('style')))
+base_style.override_properties_from(Style(style=config.get('style', None)))
 
-a = Map(diagrams=areas,
-        links=config.get('links'),
-        style=base_style,
-        file=args.output
-        )
-
-a.draw()
+Map(diagrams=areas, links=config.get('links', None), style=base_style, file=args.output).draw()
 

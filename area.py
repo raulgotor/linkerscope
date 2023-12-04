@@ -6,7 +6,7 @@ class Section:
     size_y: int
     pos_x: int
     pos_y: int
-    label_offset = 10
+    label_offset: int = 10
 
     def __init__(self, size, address, name, type, parent):
         self.type = type
@@ -16,6 +16,19 @@ class Section:
         self.name = name
         self.size_y = 0
         self.size_x = 0
+        self.flags = []
+
+    def is_break(self):
+        return 'break' in self.flags
+
+    def is_address_hidden(self):
+        return 'hide_address' in self.flags
+
+    def is_name_hidden(self):
+        return 'hide_name' in self.flags
+
+    def is_size_hidden(self):
+        return 'hide_size' in self.flags
 
     @property
     def addr_label_pos_x(self):
@@ -23,7 +36,7 @@ class Section:
 
     @property
     def addr_label_pos_y(self):
-        return (self.pos_y + self.size_y)
+        return self.pos_y + self.size_y
 
     @property
     def name_label_pos_x(self):
