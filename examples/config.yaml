@@ -1,6 +1,6 @@
 style:
-  gaps_size: 60
-  gaps_type: '≈'
+  break_size: 60
+  break_type: '≈'
   label_font: 'Helvetica Bold'
   label_color: 'lightgrey'
   label_size: '16'
@@ -124,9 +124,6 @@ links:
     ['ITM', 'NVIC'],
     ['Bit band region', 'Bit band alias'],
     ['Bit band region', 'Bit band alias']]
-
-gaps: [Reserved, ROM Table, TPIU]
-
 
 
 

@@ -11,7 +11,7 @@ class Style:
     map_background_color: int
     background_color: int
     discontinuities_size: str
-    gaps_type: str
+    break_type: str
 
     def __init__(self, style=None):
         if style is not None:
@@ -47,5 +47,5 @@ class Style:
         default_style.map_background_color = '#CCCCFF'
         default_style.background_color = 'white'
         default_style.discontinuities_size = 20
-        default_style.gaps_type = '≈'
+        default_style.break_type = '≈'
         return default_style

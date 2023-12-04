@@ -65,49 +65,49 @@ class Sections:
         return Sections(self.sections) if parent is None \
             else Sections(list(filter(lambda item: item.parent == parent, self.sections)))
 
-    def split_sections_around_gaps(self) -> []:
+    def split_sections_around_breaks(self) -> []:
         """
-        Split a Sections object into different Sections objects having a gap section as delimiter
+        Split a Sections object into different Sections objects having a break section as delimiter
 
         :return: A list of Section objects
         """
         split_sections = []
-        previous_gap_end_address = self.lowest_memory
+        previous_break_end_address = self.lowest_memory
 
-        gaps = self.get_gap_sections()
+        breaks = self.get_break_sections()
 
-        for gap in gaps:
+        for _break in breaks:
 
-            # Section that covers from previous gap till start of this gap
-            # If it was the first gap, will cover from begining of the whole area to this gap. Only append if search
+            # Section that covers from previous break till start of this break
+            # If it was the first break, will cover from begining of the whole area to this break. Only append if search
             # returns more than 0 counts
             s = Sections(sections=self.sections)\
-                .filter_address_max(gap.address)\
-                .filter_address_min(previous_gap_end_address)
+                .filter_address_max(_break.address)\
+                .filter_address_min(previous_break_end_address)
             if len(s.sections) > 0:
                 split_sections.append(s)
 
-            # This section covers the gap itself
-            split_sections.append(Sections(sections=[gap]))
-            previous_gap_end_address = gap.address + gap.size
+            # This section covers the break itself
+            split_sections.append(Sections(sections=[_break]))
+            previous_break_end_address = _break.address + _break.size
 
-        # Section that covers from the last gap end address to the end of the whole area. Only append if search returns
+        # Section that covers from the last break end address to the end of the whole area. Only append if search returns
         # more than 0 counts
         last_group = Sections(sections=self.sections)\
             .filter_address_max(self.highest_memory)\
-            .filter_address_min(previous_gap_end_address)
+            .filter_address_min(previous_break_end_address)
 
         if len(last_group.sections) > 0:
             split_sections.append(last_group)
 
         return split_sections
 
-    def get_gap_sections(self):
-        gap_sections = []
+    def get_break_sections(self):
+        break_sections = []
         for section in self.sections:
-            if section.is_gap():
-                gap_sections.append(section)
-        return gap_sections
+            if section.is_break():
+                break_sections.append(section)
+        return break_sections
 
 class SectionsView(Sections):
     pos_y: int
@@ -125,7 +125,6 @@ class SectionsView(Sections):
         super().__init__(sections)
         self.processed_section_views = []
         self.config = kwargs.get('config')
-        self.gaps = self.config['gaps'] if self.config is not None else None
         self.area = area
         self.style = Style(style=self.area.get('style'))
         self.start_address = self.area.get('start', self.lowest_memory)
@@ -141,40 +140,35 @@ class SectionsView(Sections):
     def get_processed_section_views(self):
         return self.processed_section_views
 
-    def flag_gaps(self):
-        for section in self.sections:
-            section.is_gap = True if section.type in self.gaps else False
-
     def process(self):
 
-        #self.flag_gaps()
 
         if len(self.sections) == 0:
             print("Filtered sections produced no results")
             return
 
-        split_section_groups = self.split_sections_around_gaps()
+        split_section_groups = self.split_sections_around_breaks()
 
-        gaps_count = len(self.get_gap_sections())
-        area_has_gaps = gaps_count >= 1
-        gaps_section_size_y_px = self.config.get('style').get('gaps_size', 20)
+        breaks_count = len(self.get_break_sections())
+        area_has_breaks = breaks_count >= 1
+        breaks_section_size_y_px = self.config.get('style').get('break_size', 20)
 
-        if area_has_gaps:
+        if area_has_breaks:
 
-            total_gaps_size_y_px = self.get_gaps_total_size_px()
-            total_non_gaps_size_y_px = self.get_non_gaps_total_size_px(self.sections)
-            expandable_size_px = total_gaps_size_y_px - (gaps_section_size_y_px * gaps_count)
+            total_breaks_size_y_px = self.get_break_total_size_px()
+            total_non_breaks_size_y_px = self.get_non_breaks_total_size_px(self.sections)
+            expandable_size_px = total_breaks_size_y_px - (breaks_section_size_y_px * breaks_count)
 
             last_area_pos = self.pos_y + self.size_y
 
             for section_group in split_section_groups:
 
-                if self.is_gap_section_group(section_group):
-                    corrected_size = gaps_section_size_y_px
+                if self.is_break_section_group(section_group):
+                    corrected_size = breaks_section_size_y_px
                 else:
-                    split_section_size_px = self.get_non_gaps_total_size_px(section_group.get_sections())
-                    corrected_size = (split_section_size_px / total_non_gaps_size_y_px) * (
-                            total_non_gaps_size_y_px + expandable_size_px)
+                    split_section_size_px = self.get_non_breaks_total_size_px(section_group.get_sections())
+                    corrected_size = (split_section_size_px / total_non_breaks_size_y_px) * (
+                            total_non_breaks_size_y_px + expandable_size_px)
 
                 new_area = copy.deepcopy(self.area)
                 new_area['size_y'] = corrected_size
@@ -199,26 +193,26 @@ class SectionsView(Sections):
         a = self.size_y - ((value - self.start_address) / self.address_to_pxl)
         return a
 
-    def get_gaps_total_size_px(self):
-        total_gaps_size_px = 0
+    def get_break_total_size_px(self):
+        total_breaks_size_px = 0
 
-        for gap in self.get_gap_sections():
-            total_gaps_size_px += self.to_pixels(gap.size)
+        for _break in self.get_break_sections():
+            total_breaks_size_px += self.to_pixels(_break.size)
 
-        return total_gaps_size_px
+        return total_breaks_size_px
 
     @staticmethod
-    def is_gap_section_group(section_group):
+    def is_break_section_group(section_group):
         for section in section_group.get_sections():
-            if section.is_gap():
+            if section.is_break():
                 return True
         return False
 
-    def get_non_gaps_total_size_px(self, sections_list):
-        total_no_gaps_size_px = 0
+    def get_non_breaks_total_size_px(self, sections_list):
+        total_no_breaks_size_px = 0
 
         for section in sections_list:
-            if not section.is_gap():
-                total_no_gaps_size_px += self.to_pixels(section.size)
-        return total_no_gaps_size_px
+            if not section.is_break():
+                total_no_breaks_size_px += self.to_pixels(section.size)
+        return total_no_breaks_size_px
 

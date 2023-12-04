@@ -17,8 +17,8 @@ class Section:
         self.size_y = 0
         self.size_x = 0
 
-    def is_gap(self):
-        return self.type == 'gap'
+    def is_break(self):
+        return self.type == 'break'
 
     @property
     def addr_label_pos_x(self):

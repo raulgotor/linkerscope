@@ -144,27 +144,27 @@ class Map:
                              stroke=style.section_stroke_color,
                              stroke_width=style.section_stroke_width)
 
-    def _make_gap(self, section: Section, style: Style) -> svgwrite.container.Group:
+    def _make_break(self, section: Section, style: Style) -> svgwrite.container.Group:
         """
-        Make a gap representation for a given section.
+        Make a break representation for a given section.
 
-        Depending on the selected gap type (at style/gaps_type), gap can be wave (~), double wave(≈), diagonal(/)
+        Depending on the selected break type (at style/break_type), break can be wave (~), double wave(≈), diagonal(/)
         or dots(...)
-        :param section: Section for which the gap wants to be created
-        :param style: Style to apply to the new gap
-        :return: SVG group container with the gaps graphics
+        :param section: Section for which the break wants to be created
+        :param style: Style to apply to the new break
+        :return: SVG group container with the breaks graphics
         """
         group = self.dwg.g()
         mid_point_x = (section.pos_x + section.size_x) / 2
         mid_point_y = (section.pos_y + section.size_y) / 2
 
-        def _make_gap_dots(_section: Section, _style: Style) -> svgwrite.container.Group:
+        def _make_break_dots(_section: Section, _style: Style) -> svgwrite.container.Group:
             """
-            Make a gap representation using dot style
+            Make a break representation using dot style
 
-            :param _section: Section for which the gap wants to be created
-            :param _style: Style to apply to the new gap
-            :return: SVG group container with the gaps graphics
+            :param _section: Section for which the break wants to be created
+            :param _style: Style to apply to the new break
+            :return: SVG group container with the breaks graphics
             """
             rectangle = self.dwg.rect((_section.pos_x, _section.pos_y), (_section.size_x, _section.size_y))
             rectangle.fill(_style.section_fill_color)
@@ -183,13 +183,13 @@ class Map:
 
             return group
 
-        def _make_gap_wave(_section: Section, _style: Style) -> svgwrite.container.Group:
+        def _make_break_wave(_section: Section, _style: Style) -> svgwrite.container.Group:
             """
-            Make a gap representation using wave style
+            Make a break representation using wave style
 
-            :param _section: Section for which the gap wants to be created
-            :param _style: Style to apply to the new gap
-            :return: SVG group container with the gaps graphics
+            :param _section: Section for which the break wants to be created
+            :param _style: Style to apply to the new break
+            :return: SVG group container with the breaks graphics
             """
             wave_len = _section.size_x + 1
             shifts = [(-5, 2/5, 0), (5, 3 / 5, _section.size_y), ]
@@ -212,13 +212,13 @@ class Map:
 
             return group
 
-        def _make_gap_double_wave(_section: Section, _style: Style) -> svgwrite.container.Group:
+        def _make_break_double_wave(_section: Section, _style: Style) -> svgwrite.container.Group:
             """
-            Make a gap representation using double wave style
+            Make a break representation using double wave style
 
-            :param _section: Section for which the gap wants to be created
-            :param _style: Style to apply to the new gap
-            :return: SVG group container with the gaps graphics
+            :param _section: Section for which the break wants to be created
+            :param _style: Style to apply to the new break
+            :return: SVG group container with the breaks graphics
             """
             points_list = [[
                 (_section.pos_x, (_section.pos_y + _section.size_y) * 2 / 5),
@@ -262,13 +262,13 @@ class Map:
 
             return group
 
-        def _make_gap_diagonal(_section: Section, _style: Style) -> svgwrite.container.Group:
+        def _make_break_diagonal(_section: Section, _style: Style) -> svgwrite.container.Group:
             """
-            Make a gap representation using diagonal style
+            Make a break representation using diagonal style
 
-            :param _section: Section for which the gap wants to be created
-            :param _style: Style to apply to the new gap
-            :return: SVG group container with the gaps graphics
+            :param _section: Section for which the break wants to be created
+            :param _style: Style to apply to the new break
+            :return: SVG group container with the breaks graphics
             """
             points_list = [[(_section.pos_x, _section.pos_y),
                             (_section.pos_x + _section.size_x, _section.pos_y),
@@ -290,14 +290,14 @@ class Map:
 
             return group
 
-        gaps = [('/', _make_gap_diagonal),
-                ('≈', _make_gap_double_wave),
-                ('~', _make_gap_wave),
-                ('...', _make_gap_dots),]
+        breaks = [('/', _make_break_diagonal),
+                ('≈', _make_break_double_wave),
+                ('~', _make_break_wave),
+                ('...', _make_break_dots),]
 
-        for gap in gaps:
-            if style.gaps_type == gap[0]:
-                return gap[1](section, style)
+        for _break in breaks:
+            if style.break_type == _break[0]:
+                return _break[1](section, style)
 
     def _make_text(self, text, pos_x, pos_y, style, anchor, baseline='middle', small=False):
         return self.dwg.text(text, insert=(pos_x, pos_y),
@@ -351,8 +351,8 @@ class Map:
                 if section.name in item.get('sections'):
                     section_style.override_properties_from(Style(style=item))
 
-        if section.is_gap():
-            group.add(self._make_gap(section, section_style))
+        if section.is_break():
+            group.add(self._make_break(section, section_style))
         else:
             group.add(self._make_box(section, section_style))
             if section.size_y > 20:
