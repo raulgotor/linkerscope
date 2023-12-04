@@ -60,7 +60,7 @@ map:
 - address: 0xE0030000
   size:    0x000B0000
   name: Reserved
-  type: section
+  type: gap
 - address: 0xE00E0000
   size:    0x00010000
   name: NVIC

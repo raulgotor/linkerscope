@@ -34,7 +34,6 @@ if config['areas'] is None:
     print('No information to show on current configuration file')
     exit(-1)
 
-    # TODO: drawing of a discontinuity
     # TODO: linked sections compatibility
 
 for element in config['areas']:

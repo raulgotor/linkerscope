@@ -105,14 +105,9 @@ class Sections:
     def get_gap_sections(self):
         gap_sections = []
         for section in self.sections:
-            if self.is_gap_section(section):
+            if section.is_gap():
                 gap_sections.append(section)
         return gap_sections
-
-    @staticmethod
-    def is_gap_section(section):
-        return True if section.is_gap else False
-
 
 class SectionsView(Sections):
     pos_y: int
@@ -148,11 +143,11 @@ class SectionsView(Sections):
 
     def flag_gaps(self):
         for section in self.sections:
-            section.is_gap = True if section.name in self.gaps else False
+            section.is_gap = True if section.type in self.gaps else False
 
     def process(self):
 
-        self.flag_gaps()
+        #self.flag_gaps()
 
         if len(self.sections) == 0:
             print("Filtered sections produced no results")
@@ -215,7 +210,7 @@ class SectionsView(Sections):
     @staticmethod
     def is_gap_section_group(section_group):
         for section in section_group.get_sections():
-            if section_group.is_gap_section(section):
+            if section.is_gap():
                 return True
         return False
 
@@ -223,7 +218,7 @@ class SectionsView(Sections):
         total_no_gaps_size_px = 0
 
         for section in sections_list:
-            if not self.is_gap_section(section):
+            if not section.is_gap():
                 total_no_gaps_size_px += self.to_pixels(section.size)
         return total_no_gaps_size_px
 

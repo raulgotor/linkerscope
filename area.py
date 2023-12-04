@@ -7,7 +7,6 @@ class Section:
     pos_x: int
     pos_y: int
     label_offset: int = 10
-    is_gap: bool = False
 
     def __init__(self, size, address, name, type, parent):
         self.type = type
@@ -17,6 +16,9 @@ class Section:
         self.name = name
         self.size_y = 0
         self.size_x = 0
+
+    def is_gap(self):
+        return self.type == 'gap'
 
     @property
     def addr_label_pos_x(self):

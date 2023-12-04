@@ -337,7 +337,7 @@ class Map:
                                anchor='start',
                                style=style)
 
-    def _make_section(self, group, section, diagram, style):
+    def _make_section(self, group, section: Section, diagram, style):
         section.size_x = diagram.size_x
         section.size_y = diagram.to_pixels(section.size)
         section.pos_y = diagram.to_pixels(diagram.end_address - section.size - section.address)
@@ -351,7 +351,7 @@ class Map:
                 if section.name in item.get('sections'):
                     section_style.override_properties_from(Style(style=item))
 
-        if section.is_gap:
+        if section.is_gap():
             group.add(self._make_gap(section, section_style))
         else:
             group.add(self._make_box(section, section_style))
