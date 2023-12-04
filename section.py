@@ -22,6 +22,12 @@ class Section:
         self.size_x = 0
         self.flags = []
 
+    def is_grow_up(self):
+        return 'grow-up' in self.flags
+
+    def is_grow_down(self):
+        return 'grow-down' in self.flags
+
     def is_break(self):
         return 'break' in self.flags
 

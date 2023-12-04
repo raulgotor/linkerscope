@@ -15,6 +15,7 @@ style:
   section-stroke-color: '#2A363B'
   #section-stroke-color: 'white'
   background-color: '#2A363B'
+  grow-arrow-weight: 1
 
 areas:
 # total area area
@@ -106,9 +107,13 @@ links:
 map:
 - name: Reserved
   type: section
-  flags: break, hide-label, hide-address
+  flags: break, hide-label, hide-address,
 - name: NVIC
   flags: hide-address, hide-name
+- name: ITM
+  flags: grow-up
+- name: FPB
+  flags: grow-down
 
 
 

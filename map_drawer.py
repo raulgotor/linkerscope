@@ -94,8 +94,11 @@ class Map:
             group = dwg.add(dwg.g())
             group.add(self._make_main_frame(_area_view))
 
-            for section in _area_view.sections.sections:
+            for section in _area_view.sections.get_sections():
                 self._make_section(group, section, _area_view)
+
+            for section in _area_view.sections.get_sections():
+                self._make_grows(group, section, _area_view)
 
             group.translate(_area_view.pos_x,
                             _area_view.pos_y)
@@ -124,7 +127,39 @@ class Map:
         for area_view in self.area_views:
             _draw_area(area_view)
 
+
         dwg.save()
+
+    def _make_grows(self, group, section, _area_view):
+        multiplier = section.style.grow_arrow_weight
+        mid_point_x = (section.pos_x + section.size_x) / 2
+        arrow_head_width = 5 * multiplier
+        arrow_head_height = 10 * multiplier
+        arrow_length = 10 * multiplier
+        arrow_tail_width = 1 * multiplier
+
+        if section.is_grow_up():
+            arrow_start_y = section.pos_y
+            direction = 1
+        elif section.is_grow_down():
+            arrow_start_y = section.pos_y + section.size_y
+            direction = -1
+        else:
+            return
+
+        points_list = [(mid_point_x - arrow_tail_width, arrow_start_y),
+                       (mid_point_x - arrow_tail_width, arrow_start_y - direction*(arrow_length)),
+                       (mid_point_x - arrow_head_width, arrow_start_y - direction*(arrow_head_height)),
+                       (mid_point_x, arrow_start_y - direction*(arrow_length + arrow_head_height)),
+                       (mid_point_x + arrow_head_width, arrow_start_y - direction*(arrow_head_height)),
+                       (mid_point_x + arrow_tail_width, arrow_start_y - direction*(arrow_length)),
+                       (mid_point_x + arrow_tail_width, arrow_start_y)]
+
+        group.add(self.dwg.polyline(points_list,
+                                    stroke=section.style.section_stroke_color,
+                                    stroke_width=section.style.section_stroke_width,
+                                    fill=section.style.section_stroke_color))
+        return group
 
     def _make_main_frame(self, area_view):
         return self.dwg.rect((0, 0), (area_view.size_x, area_view.size_y),

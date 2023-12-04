@@ -13,6 +13,7 @@ class Style:
     discontinuities_size: str
     break_type: str
     break_size: int
+    grow_arrow_weight: float
 
     def __init__(self, style=None):
         if style is not None:
@@ -52,4 +53,5 @@ class Style:
         default_style.discontinuities_size = 20
         default_style.break_type = '≈'
         default_style.break_size = 20
+        default_style.grow_arrow_weight = 1
         return default_style
