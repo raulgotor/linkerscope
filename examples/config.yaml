@@ -1,5 +1,6 @@
 style:
-  gaps_size: 40
+  gaps_size: 60
+  gaps_type: '≈'
   label_font: 'Helvetica Bold'
   label_color: 'lightgrey'
   label_size: '16'
@@ -8,10 +9,11 @@ style:
   link_fill_color: 'grey'
   link_stroke_width: 1
   link_opacity: 0.5
-  area_background_color: 'lightgrey'
-  section_stroke_width: 1
+  area_background_color: 'none'
+  section_stroke_width: 2
   section_fill_color: '#99B898'
-  section_stroke_color: '#2A363B'
+  #section_stroke_color: '#2A363B'
+  section_stroke_color: 'white'
   background_color: '#2A363B'
 
 areas:
@@ -53,7 +55,7 @@ areas:
     style:
       link_stroke_color: 'grey'
       link_stroke_width: 0
-      section_stroke_width: 1
+      section_stroke_width: 2
       overrrides: # Adding the 'regions' sub-level under 'style'
         - sections: [ ROM Table ]
           section_fill_color: '#99B898'
@@ -123,7 +125,7 @@ links:
     ['Bit band region', 'Bit band alias'],
     ['Bit band region', 'Bit band alias']]
 
-gaps: [Reserved]
+gaps: [Reserved, ROM Table, TPIU]
 
 
 
