@@ -10,16 +10,17 @@ and this project adheres to
 ### Added
 * Style overriding by section: each section can have its own style
 * Added linked sections, which links a section or group of sections across areas
-* `link_fill_color` style property that controls the background color of a linked section
-* `link_opacity` style property that controls the background opacity of a linked section
-* `background_color` style property that controls the document's background
+* `link-fill-color` style property that controls the background color of a linked section
+* `link-opacity` style property that controls the background opacity of a linked section
+* `background-color` style property that controls the document's background
 * Method at `Style` class to easily override properties from another object: `override_properties_from`
 * Method at `Style` class to get a default initialized object: `get_default`
+* Property names in yaml also accept `-` instead of underscore
 * Section has style now
 
 ### Changed
 * Naming of the memory domain: Area instead of Map
-* `map_background_color` property name to `area_background_color`
+* `map-background-color` property name to `area-background-color`
 * Refactored initialization of `SectionView` to pass parameters via `kwargs`
 * Refactored out parameter `dwg` at `map_drawer.py`
 * `size-x` and `size-y` moved to `[size]`, `x` and `y` to `[pos]`, `addresses` to `[range]`
