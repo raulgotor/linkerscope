@@ -16,7 +16,7 @@ class Style:
     def __init__(self, style=None):
         if style is not None:
             for key, value in style.items():
-                setattr(self, key, style.get(key, value))
+                setattr(self, key.replace('-','_'), style.get(key, value))
 
     def override_properties_from(self, style):
         '''
