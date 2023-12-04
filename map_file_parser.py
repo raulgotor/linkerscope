@@ -1,6 +1,6 @@
 import yaml
 
-from area import Section
+from section import Section
 from map_parser import MapParser
 import os
 

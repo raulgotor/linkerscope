@@ -49,6 +49,3 @@ class Section:
     @property
     def name_label_pos_y(self):
         return self.pos_y + (self.size_y / 2)
-
-
-

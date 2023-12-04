@@ -1,10 +1,7 @@
-import copy
 from math import cos
-
 import svgwrite
 from svgwrite import Drawing
-
-from area import Section
+from section import Section
 from style import Style
 
 
@@ -12,13 +9,13 @@ class Map:
     dwg: Drawing
     pointer_y: int
 
-    def __init__(self, diagrams=[], links={}, file='map.svg', map=[], **kwargs):
+    def __init__(self, area_view=[], links={}, file='map.svg', **kwargs):
         self.style = kwargs.get('style')
         self.type = type
-        self.diagrams = diagrams
+        self.area_views = area_view
         self.current_style = Style()
-        self.links = links.get('addresses')
-        self.zooms = self._get_valid_linked_sections(links.get('sections'))
+        self.address_links = links.get('addresses')
+        self.section_links = self._get_valid_linked_sections(links.get('sections'))
         self.file = file
         self.dwg = svgwrite.Drawing(file,
                                     profile='full',
@@ -50,7 +47,7 @@ class Map:
 
             # Iterate through all available areas checking if this is a valid link: i.e, the starting and ending
             # addresses of the linked section/s is visible and available inside of a single area
-            for area in self.diagrams:
+            for area in self.area_views:
                 start = None
                 end = None
 
@@ -58,7 +55,7 @@ class Map:
                 if appended:
                     break
 
-                for section in area.sections:
+                for section in area.sections.get_sections():
                     # If single section, the start and end address of the linked section equals those of the section
                     if not multi_section:
                         if section.name == linked_section:
@@ -93,47 +90,47 @@ class Map:
 
         dwg = self.dwg
 
-        def _draw_area(diagram):
-            base_and_diagram_style = Style()
-            base_and_diagram_style.override_properties_from(self.style)
-            base_and_diagram_style.override_properties_from(diagram.style)
+        def _draw_area(area_view):
+            base_and_area_style = Style()
+            base_and_area_style.override_properties_from(self.style)
+            base_and_area_style.override_properties_from(area_view.style)
             group = dwg.add(dwg.g())
-            group.add(self._make_main_frame(diagram))
+            group.add(self._make_main_frame(area_view))
 
-            for section in diagram.sections:
-                self._make_section(group, section, diagram, base_and_diagram_style)
+            for section in area_view.sections.sections:
+                self._make_section(group, section, area_view, base_and_area_style)
 
-            group.translate(diagram.pos_x,
-                            diagram.pos_y)
+            group.translate(area_view.pos_x,
+                            area_view.pos_y)
 
         dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), rx=None, ry=None, fill=self.style.background_color))
 
         lines_group = dwg.add(dwg.g())
 
-        for address in self.links:
+        for address in self.address_links:
             lines_group.add(self._make_links(address))
             pass
 
         linked_sections_group = dwg.add(dwg.g())
-        for zoom in self.zooms:
+        for zoom in self.section_links:
             is_drawn = False
-            for diagram in self.diagrams[1:]:
-                if zoom[0] >= diagram.lowest_memory and \
-                        zoom[1] <= diagram.highest_memory and \
-                        zoom[0] >= self.diagrams[0].lowest_memory and \
-                        zoom[1] <= self.diagrams[0].highest_memory:
-                    linked_sections_group.add(self._make_poly(diagram, zoom[0], zoom[1]))
+            for area_view in self.area_views[1:]:
+                if zoom[0] >= area_view.sections.lowest_memory and \
+                        zoom[1] <= area_view.sections.highest_memory and \
+                        zoom[0] >= self.area_views[0].sections.lowest_memory and \
+                        zoom[1] <= self.area_views[0].sections.highest_memory:
+                    linked_sections_group.add(self._make_poly(area_view, zoom[0], zoom[1]))
                     is_drawn = True
             if not is_drawn:
                 print("WARNING: Starting or ending point of the zoom region is outside the shown areas")
 
-        for diagram in self.diagrams:
-            _draw_area(diagram)
+        for area_view in self.area_views:
+            _draw_area(area_view)
 
         dwg.save()
 
-    def _make_main_frame(self, diagram):
-        return self.dwg.rect((0, 0), (diagram.size_x, diagram.size_y),
+    def _make_main_frame(self, area_view):
+        return self.dwg.rect((0, 0), (area_view.size_x, area_view.size_y),
                              fill=self.style.area_background_color,
                              stroke=self.style.area_background_color,
                              stroke_width=1)
@@ -338,10 +335,10 @@ class Map:
                                anchor='start',
                                style=style)
 
-    def _make_section(self, group, section: Section, diagram, style):
-        section.size_x = diagram.size_x
-        section.size_y = diagram.to_pixels(section.size)
-        section.pos_y = diagram.to_pixels(diagram.end_address - section.size - section.address)
+    def _make_section(self, group, section: Section, area_view, style):
+        section.size_x = area_view.size_x
+        section.size_y = area_view.to_pixels(section.size)
+        section.pos_y = area_view.to_pixels(area_view.end_address - section.size - section.address)
         section.pos_x = 0
         overrides = getattr(style, 'overrrides', None)
         section_style = Style()
@@ -366,15 +363,15 @@ class Map:
 
         return group
 
-    def _get_points_for_address(self, address, diagram):
-        left_block_view = self.diagrams[0]
-        right_block_view = diagram
+    def _get_points_for_address(self, address, area_view):
+        left_block_view = self.area_views[0]
+        right_block_view = area_view
 
         left_block_x = left_block_view.size_x + left_block_view.pos_x
         left_block_x2 = left_block_x + 30
         left_block_y = left_block_view.pos_y + left_block_view.to_pixels_relative(address)
 
-        right_block_x = diagram.pos_x
+        right_block_x = area_view.pos_x
         right_block_x2 = right_block_x - 30
         right_block_y = right_block_view.pos_y + right_block_view.to_pixels_relative(address)
 
@@ -384,12 +381,12 @@ class Map:
                 (right_block_x, right_block_y),
                 ]
 
-    def _make_poly(self, diagram, start_address, end_address):
+    def _make_poly(self, area_view, start_address, end_address):
 
         points = []
-        reversed = self._get_points_for_address(end_address, diagram)
+        reversed = self._get_points_for_address(end_address, area_view)
         reversed.reverse()
-        points.extend(self._get_points_for_address(start_address, diagram))
+        points.extend(self._get_points_for_address(start_address, area_view))
         points.extend(reversed)
 
         return self.dwg.polyline(points,
@@ -401,8 +398,8 @@ class Map:
     def _make_links(self, address):
         hlines = self.dwg.g(id='hlines', stroke='grey')
 
-        for diagram in self.diagrams[1:]:
-            if not diagram.has_address(address):
+        for area_view in self.area_views[1:]:
+            if not area_view.sections.has_address(address):
                 continue
 
             def _make_line(x1, y1, x2, y2):
@@ -410,7 +407,7 @@ class Map:
                                      stroke_width=self.style.link_stroke_width,
                                      stroke=self.style.link_stroke_color)
 
-            points = self._get_points_for_address(address, diagram)
+            points = self._get_points_for_address(address, area_view)
 
             hlines.add(_make_line(x1=points[0][0], y1=points[0][1],
                                   x2=points[1][0], y2=points[1][1]))

@@ -1,6 +1,6 @@
 import re
 
-from area import Section
+from section import Section
 import yaml
 
 
@@ -41,7 +41,7 @@ class MapParser:
         for section in self.sections:
             my_dict['map'].append({
                 'type': 'section',
-                'parent': section.parent,
+                'parent': section.filter_parent,
                 'address': section.address,
                 'size': section.size,
                 'name': section.name,

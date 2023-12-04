@@ -4,10 +4,12 @@ import argparse
 import copy
 
 import yaml
+
+from area_view import AreaView
 from map_drawer import Map
 from style import Style
 from map_file_parser import MapFileParser
-from sectionsview import SectionsView, Sections
+from sections import Sections
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--output',
@@ -40,21 +42,21 @@ for element in config['areas']:
     area = element.get('area')
 
     # TODO: SectionsView should be more of an Area
-    sections_view = SectionsView(
+    area_view = AreaView(
         sections=(Sections(sections=MapFileParser(args.input).parse())
                   .filter_address_min(area.get('address', {}).get('min'))
                   .filter_address_max(area.get('address', {}).get('max'))
                   .filter_size_min(area.get('size', {}).get('min'))
                   .filter_size_max(area.get('size', {}).get('max'))
-                  ).get_sections(),
+                  ),
         # TODO: area parameter should be named as area configuration
         area=area,
         # TODO: Passing config looks weird since all necessary things should be in area config
         config=config)
-    areas.extend(sections_view.get_processed_section_views())
+    areas.extend(area_view.get_processed_section_views())
 
 base_style = Style().get_default()
 base_style.override_properties_from(Style(style=config.get('style', None)))
 
-Map(diagrams=areas, links=config.get('links', None), style=base_style, file=args.output).draw()
+Map(area_view=areas, links=config.get('links', None), style=base_style, file=args.output).draw()
 

@@ -1,20 +1,20 @@
 style:
-  break_size: 60
-  break_type: '~'
-  label_font: 'Helvetica Bold'
-  label_color: 'lightgrey'
-  label_size: '16'
-  label_stroke_width: 0
-  link_stroke_color: 'grey'
-  link_fill_color: 'grey'
-  link_stroke_width: 1
-  link_opacity: 0.5
-  area_background_color: 'none'
-  section_stroke_width: 1
-  section_fill_color: '#99B898'
-  section_stroke_color: '#2A363B'
-  #section_stroke_color: 'white'
-  background_color: '#2A363B'
+  break-size: 60
+  break-type: '~'
+  label-font: 'Helvetica Bold'
+  label-color: 'lightgrey'
+  label-size: '16'
+  label-stroke-width: 0
+  link-stroke-color: 'grey'
+  link-fill-color: 'grey'
+  link-stroke-width: 1
+  link-opacity: 0.5
+  area-background-color: 'none'
+  section-stroke-width: 1
+  section-fill-color: '#99B898'
+  section-stroke-color: '#2A363B'
+  #section-stroke-color: 'white'
+  background-color: '#2A363B'
 
 areas:
 # total area area
