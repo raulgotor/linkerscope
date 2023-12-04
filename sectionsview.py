@@ -140,8 +140,17 @@ class SectionsView(Sections):
     def get_processed_section_views(self):
         return self.processed_section_views
 
-    def process(self):
+    def _overwrite_sections_info(self):
+        for section in self.sections:
+            for element in self.config.get('map', None):
+                if element['name'] == section.name:
+                    section.address = element.get('address', section.address)
+                    section.type = element.get('type', section.type)
+                    section.size = element.get('size', section.size)
+                    section.flags = element.get('flags', section.flags)
 
+    def process(self):
+        self._overwrite_sections_info()
 
         if len(self.sections) == 0:
             print("Filtered sections produced no results")

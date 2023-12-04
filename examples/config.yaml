@@ -1,6 +1,6 @@
 style:
   break_size: 60
-  break_type: '≈'
+  break_type: '~'
   label_font: 'Helvetica Bold'
   label_color: 'lightgrey'
   label_size: '16'
@@ -10,10 +10,10 @@ style:
   link_stroke_width: 1
   link_opacity: 0.5
   area_background_color: 'none'
-  section_stroke_width: 2
+  section_stroke_width: 1
   section_fill_color: '#99B898'
-  #section_stroke_color: '#2A363B'
-  section_stroke_color: 'white'
+  section_stroke_color: '#2A363B'
+  #section_stroke_color: 'white'
   background_color: '#2A363B'
 
 areas:
@@ -55,7 +55,7 @@ areas:
     style:
       link_stroke_color: 'grey'
       link_stroke_width: 0
-      section_stroke_width: 2
+      section_stroke_width: 1
       overrrides: # Adding the 'regions' sub-level under 'style'
         - sections: [ ROM Table ]
           section_fill_color: '#99B898'
@@ -124,6 +124,15 @@ links:
     ['ITM', 'NVIC'],
     ['Bit band region', 'Bit band alias'],
     ['Bit band region', 'Bit band alias']]
+
+map:
+- address: 0xE0030000
+  name: Reserved
+  type: section
+  flags: break, hide_label, hide_address
+- name: NVIC
+  flags: hide_address, hide_name
+
 
 
 

@@ -12,7 +12,7 @@ class Map:
     dwg: Drawing
     pointer_y: int
 
-    def __init__(self, diagrams=[], links={}, file='map.svg', **kwargs):
+    def __init__(self, diagrams=[], links={}, file='map.svg', map=[], **kwargs):
         self.style = kwargs.get('style')
         self.type = type
         self.diagrams = diagrams
@@ -23,6 +23,7 @@ class Map:
         self.dwg = svgwrite.Drawing(file,
                                     profile='full',
                                     size=('900', '1300'))
+
 
     def _get_valid_linked_sections(self, linked_sections):
         """
@@ -356,9 +357,13 @@ class Map:
         else:
             group.add(self._make_box(section, section_style))
             if section.size_y > 20:
-                group.add(self._make_name(section, section_style))
-                group.add(self._make_address(section, section_style))
-                group.add(self._make_size_label(section, section_style))
+                if not section.is_name_hidden():
+                    group.add(self._make_name(section, section_style))
+                if not section.is_address_hidden():
+                    group.add(self._make_address(section, section_style))
+                if not section.is_size_hidden():
+                    group.add(self._make_size_label(section, section_style))
+
         return group
 
     def _get_points_for_address(self, address, diagram):
