@@ -2,6 +2,8 @@ import copy
 from math import cos
 import svgwrite
 from svgwrite import Drawing
+
+from area_view import AreaView
 from section import Section
 from style import Style
 
@@ -94,7 +96,7 @@ class Map:
             group = dwg.add(dwg.g())
             group.add(self._make_main_frame(_area_view))
 
-            for section in _area_view.sections.sections:
+            for section in _area_view.sections.get_sections():
                 self._make_section(group, section, _area_view)
 
             group.translate(_area_view.pos_x,
@@ -102,7 +104,8 @@ class Map:
 
         dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), rx=None, ry=None, fill=self.style.background_color))
 
-        lines_group = dwg.add(dwg.g())
+        lines_group = dwg.g()
+        growths_group = dwg.g()
 
         for address in self.address_links:
             lines_group.add(self._make_links(address))
@@ -124,7 +127,56 @@ class Map:
         for area_view in self.area_views:
             _draw_area(area_view)
 
+        # We need to do another pass once all areas are drawn in order to be able to properly draw the growth arrows
+        # without the break areas hiding them. Also, as we do stuff outside the loop where the areas are drawn, we
+        # loose the reference for translation, and we have to manually translate the grows here
+        for area_view in self.area_views:
+            area_growth = dwg.g()
+            for section in area_view.sections.get_sections():
+                area_growth.add(self._make_growth(section))
+
+            area_growth.translate(area_view.pos_x, area_view.pos_y)
+            growths_group.add(area_growth)
+
+        dwg.add(growths_group)
+        dwg.add(lines_group)
         dwg.save()
+
+    def _make_growth(self, section: Section) -> svgwrite.container.Group:
+        """
+        Make the growth arrows for the sections that have it
+        :param section: Section for which to draw the arrow
+        :return: A SVG group containing the new arrows
+        """
+        group = self.dwg.g()
+        # Why grows doesn't draw on a break section?
+        multiplier = section.style.growth_arrow_weight
+        mid_point_x = (section.pos_x + section.size_x) / 2
+        arrow_head_width = 5 * multiplier
+        arrow_head_height = 10 * multiplier
+        arrow_length = 10 * multiplier
+        arrow_tail_width = 1 * multiplier
+
+        def _make_growth_arrow_generic(arrow_start_y, direction):
+            points_list = [(mid_point_x - arrow_tail_width, arrow_start_y),
+                           (mid_point_x - arrow_tail_width, arrow_start_y - direction * arrow_length),
+                           (mid_point_x - arrow_head_width, arrow_start_y - direction * arrow_head_height),
+                           (mid_point_x, arrow_start_y - direction * (arrow_length + arrow_head_height)),
+                           (mid_point_x + arrow_head_width, arrow_start_y - direction * arrow_head_height),
+                           (mid_point_x + arrow_tail_width, arrow_start_y - direction * arrow_length),
+                           (mid_point_x + arrow_tail_width, arrow_start_y)]
+
+            group.add(self.dwg.polyline(points_list,
+                                        stroke=section.style.growth_arrow_stroke_color,
+                                        stroke_width=1,
+                                        fill=section.style.growth_arrow_fill_color))
+
+        if section.is_grow_up():
+            _make_growth_arrow_generic(section.pos_y, 1)
+        if section.is_grow_down():
+            _make_growth_arrow_generic(section.pos_y + section.size_y, -1)
+
+        return group
 
     def _make_main_frame(self, area_view):
         return self.dwg.rect((0, 0), (area_view.size_x, area_view.size_y),
