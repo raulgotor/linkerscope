@@ -17,6 +17,14 @@ class Style:
     growth_arrow_stroke_color: str
     growth_arrow_fill_color: str
 
+    fill: str
+    stroke: str
+    stroke_width: int
+    size: int
+    font_size: int
+    font_type: str
+    weight: int
+
     def __init__(self, style=None):
         if style is not None:
             for key, value in style.items():
@@ -58,4 +66,12 @@ class Style:
         default_style.growth_arrow_weight = 1
         default_style.growth_arrow_stroke_color = default_style.section_stroke_color
         default_style.growth_arrow_fill_color = default_style.section_stroke_color
+
+        default_style.fill = '#CCE5FF'
+        default_style.stroke = '#3399FF'
+        default_style.stroke_width = 2
+        default_style.size = 2
+        default_style.font_size = 2
+        default_style.font_type = '≈'
+        default_style.weight = 1
         return default_style

@@ -187,9 +187,9 @@ class Map:
     def _make_box(self, section: Section):
         return self.dwg.rect((section.pos_x, section.pos_y),
                              (section.size_x, section.size_y),
-                             fill=section.style.section_fill_color,
-                             stroke=section.style.section_stroke_color,
-                             stroke_width=section.style.section_stroke_width)
+                             fill=section.style.fill,
+                             stroke=section.style.stroke,
+                             stroke_width=section.style.stroke_width)
 
     def _make_break(self, section: Section) -> svgwrite.container.Group:
         """
@@ -213,8 +213,8 @@ class Map:
             :return: SVG group container with the breaks graphics
             """
             rectangle = self.dwg.rect((_section.pos_x, _section.pos_y), (_section.size_x, _section.size_y))
-            rectangle.fill(style.section_fill_color)
-            rectangle.stroke(style.section_stroke_color, width=style.section_stroke_width)
+            rectangle.fill(style.fill)
+            rectangle.stroke(style.stroke, width=style.stroke_width)
 
             group.add(rectangle)
 
@@ -251,9 +251,9 @@ class Map:
                 )
 
                 group.add(self.dwg.polyline(points,
-                                            stroke=style.section_stroke_color,
-                                            stroke_width=style.section_stroke_width,
-                                            fill=style.section_fill_color))
+                                            stroke=style.stroke,
+                                            stroke_width=style.stroke_width,
+                                            fill=style.fill))
 
             return group
 
@@ -284,8 +284,8 @@ class Map:
 
             for points_set in points_list:
                 group.add(self.dwg.polyline(points_set,
-                                            stroke=style.section_stroke_color,
-                                            stroke_width=style.section_stroke_width,
+                                            stroke=style.stroke,
+                                            stroke_width=style.stroke_width,
                                             fill='none'))
             wave_length = 20
             shifts = [(0, -5),
@@ -299,8 +299,8 @@ class Map:
                           for i in range(wave_length)]
 
                 group.add(self.dwg.polyline(points,
-                                            stroke=style.section_stroke_color,
-                                            stroke_width=style.section_stroke_width,
+                                            stroke=style.stroke,
+                                            stroke_width=style.stroke_width,
                                             fill='none'))
 
             return group
@@ -326,9 +326,9 @@ class Map:
 
             for points_set in points_list:
                 group.add(self.dwg.polyline(points_set,
-                                            stroke=style.section_stroke_color,
-                                            stroke_width=style.section_stroke_width,
-                                            fill=style.section_fill_color))
+                                            stroke=style.stroke,
+                                            stroke_width=style.stroke_width,
+                                            fill=style.fill))
 
             return group
 
@@ -347,9 +347,9 @@ class Map:
                              # focusable='true',
                              fill=style.label_color,
                              stroke_width=style.label_stroke_width,
-                             font_size='12px' if small else style.label_size,
+                             font_size='12px' if small else style.font_size,
                              font_weight="normal",
-                             font_family=style.label_font,
+                             font_family=style.font_type,
                              text_anchor=anchor,
                              alignment_baseline=baseline
                              )

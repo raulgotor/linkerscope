@@ -19,6 +19,14 @@ style:
   growth-arrow-stroke-color: 'black'
   growth-arrow-fill-color: 'white'
 
+  fill: '#99B898'
+  stroke: '#2A363B'
+  stroke-width: 1
+  size: '16'
+  font_size: '16'
+  font_type: 'Helvetica Bold'
+  weight: '16'
+
 areas:
 # total area area
 - area:
@@ -36,10 +44,13 @@ areas:
     # Maximum and minimum size in bytes of the sections to parse
     section-size: [0x02F00000]
 
+
     style:
+      stroke-width: 3
+
       overrides:
       - sections: [ Peripheral ]
-        section-fill-color: '#FF847C'
+        fill: '#FF847C'
 
 - area:
 
@@ -48,28 +59,23 @@ areas:
     range: [0xE8040000, 0xE8044000]
 
     style:
-      link-stroke_color: 'grey'
-      link-stroke_width: 0
-      section-stroke_width: 1
+
       overrides: # Adding the 'regions' sub-level under 'style'
         - sections: [ ROM Table ]
-          section-fill-color: '#99B898'
+          fill: '#99B898'
         - sections: [ External PPB ]
-          section-fill-color: '#FECEA8'
+          fill: '#FECEA8'
         - sections: [ ETM, Peripheral ]
-          section-fill-color: '#FF847C'
+          fill: '#FF847C'
         - sections: [ TPIU ]
-          section-fill-color: '#E84A5F'
+          fill: '#E84A5F'
 
 - area:
     pos: [ 500, 280 ]
     size: [ 200, 400 ]
     range: [0xE0000000, 0xE00F0000]
-
     style:
-      link-stroke-color: 'grey'
-      link-stroke-width: 1
-      section-stroke-width: 1
+      stroke-width: 1
 
 - area:
     pos: [ 500, 730 ]
@@ -79,9 +85,9 @@ areas:
     style:
       overrides: # Adding the 'regions' sub-level under 'style'
         - sections: [ Bit ]
-          section-fill_color: '#FECEA8'
+          fill: '#FECEA8'
         - sections: [ Bit band region ]
-          section-fill_color: '#FF847C'
+          fill: '#FF847C'
 
 - area:
     pos: [ 500, 980 ]
@@ -89,6 +95,10 @@ areas:
     range: [0x20000000, 0x23000000]
 
 links:
+  style:
+    stroke: 'blue'
+    stroke-width: 1
+
   force: true
   addresses: [ 0x20000000,
                0x23000000,
