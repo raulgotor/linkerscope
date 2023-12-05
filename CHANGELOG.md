@@ -14,7 +14,8 @@ and this project adheres to
 * `link-fill-color` style property that controls the background color of a linked section
 * `link-opacity` style property that controls the background opacity of a linked section
 * `background-color` style property that controls the document's background
-* `grow-up` and `grow-down` flags for sections that draw an arrow indicating the growth direction of the section
+* `grows-up` and `grows-down` flags for sections that draw an arrow indicating the growth direction of the section
+* `growth-arrow-weight`, `-stroke-color` and `-fill-color` style properties for the sections growth arrows
 * Method at `Style` class to easily override properties from another object: `override_properties_from`
 * Method at `Style` class to get a default initialized object: `get_default`
 * Property names in yaml also accept `-` instead of underscore

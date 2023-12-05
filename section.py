@@ -23,10 +23,10 @@ class Section:
         self.flags = []
 
     def is_grow_up(self):
-        return 'grow-up' in self.flags
+        return 'grows-up' in self.flags
 
     def is_grow_down(self):
-        return 'grow-down' in self.flags
+        return 'grows-down' in self.flags
 
     def is_break(self):
         return 'break' in self.flags

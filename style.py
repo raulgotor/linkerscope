@@ -5,15 +5,17 @@ class Style:
     link_stroke_width: int
     link_stroke_color: str
     label_font: str
-    label_color: int
+    label_color: str
     label_size: int
     label_stroke_width: int
-    map_background_color: int
-    background_color: int
+    map_background_color: str
+    background_color: str
     discontinuities_size: str
     break_type: str
     break_size: int
-    grow_arrow_weight: float
+    growth_arrow_weight: float
+    growth_arrow_stroke_color: str
+    growth_arrow_fill_color: str
 
     def __init__(self, style=None):
         if style is not None:
@@ -53,5 +55,7 @@ class Style:
         default_style.discontinuities_size = 20
         default_style.break_type = '≈'
         default_style.break_size = 20
-        default_style.grow_arrow_weight = 1
+        default_style.growth_arrow_weight = 1
+        default_style.growth_arrow_stroke_color = default_style.section_stroke_color
+        default_style.growth_arrow_fill_color = default_style.section_stroke_color
         return default_style
