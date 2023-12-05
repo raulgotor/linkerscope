@@ -1,27 +1,24 @@
+variables:
+  graphite: &graphite '#2A363B'
+  pastel_green: &pastel_green '#99B898'
+  pastel_yellow: &pastel_yellow '#FECEA8'
+  pastel_orange: &pastel_orange '#FF847C'
+  pastel_red: &pastel_red '#E84A5F'
+
 style:
+  text-fill: 'lightgrey'
   break-size: 60
   break-type: '~'
-  label-font: 'Helvetica Bold'
-  label-color: 'lightgrey'
-  label-size: '16'
-  label-stroke-width: 0
-  link-stroke-color: 'grey'
-  link-fill-color: 'grey'
-  link-stroke-width: 1
-  link-opacity: 0.5
-  area-background-color: 'none'
-  section-stroke-width: 1
-  section-fill-color: '#99B898'
-  section-stroke-color: '#2A363B'
-  #section-stroke-color: 'white'
-  background-color: '#2A363B'
-  growth-arrow-weight: 1
-  growth-arrow-stroke-color: 'black'
-  growth-arrow-fill-color: 'white'
-
+  growth-arrow-size: 2
+  growth-arrow-fill: 'white'
+  growth-arrow-stroke: 'black'
+  background: *graphite
   fill: '#99B898'
-  stroke: '#2A363B'
+
+  stroke: *graphite
   stroke-width: 1
+  text-stroke: 'black'
+  text-stroke-width: 0
   size: '16'
   font_size: '16'
   font_type: 'Helvetica Bold'
@@ -44,35 +41,33 @@ areas:
     # Maximum and minimum size in bytes of the sections to parse
     section-size: [0x02F00000]
 
-
     style:
-      stroke-width: 3
-
+      fill: *pastel_green
+      growth-arrow-fill: 'black'
+      growth-arrow-size: 0.6
+      growth-arrow-stroke: 'black'
     sections:
-    - names: [ Peripheral ]
+    - names: [ External Device ]
       fill: '#FF847C'
+      flags: grows-up
 
 - area:
-
     pos: [ 500, 30 ]
     size: [ 200, 200 ]
     range: [0xE8040000, 0xE8044000]
-
-    style:
-
     sections: # Adding the 'regions' sub-level under 'style'
     - names: [ ROM Table ]
       style:
-        fill: '#99B898'
+        fill: *pastel_green
     - names: [ External PPB ]
       style:
-        fill: '#FECEA8'
+        fill: *pastel_yellow
     - names: [ ETM, Peripheral ]
       style:
-        fill: '#FF847C'
+        fill: *pastel_orange
     - names: [ TPIU ]
       style:
-        fill: '#E84A5F'
+        fill: *pastel_red
 
 - area:
     pos: [ 500, 280 ]
@@ -88,13 +83,13 @@ areas:
     pos: [ 500, 730 ]
     size: [ 200, 200 ]
     range: [0x40000000, 0x43000000]
-
-    style:
     sections: # Adding the 'regions' sub-level under 'style'
     - names: [ Bit ]
-      fill: '#FECEA8'
+      style:
+        fill: *pastel_yellow
     - names: [ Bit band region ]
-      fill: '#FF847C'
+      style:
+        fill: *pastel_orange
     - names: [ Reserved ]
       flags: grows-down, break
 
@@ -105,10 +100,10 @@ areas:
 
 links:
   style:
-    stroke: 'blue'
+    stroke: 'lightgray'
     stroke-width: 1
+    fill: 'gray'
 
-  force: true
   addresses: [ 0x20000000,
                0x23000000,
                0x40000000,
@@ -119,6 +114,7 @@ links:
                0xE8044000,
                0xe00e0000
   ]
+
   sections: [
     ['TPIU', 'ROM Table'],
     ['ITM', 'NVIC'],

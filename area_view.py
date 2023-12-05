@@ -1,5 +1,6 @@
 import copy
 
+from helpers import safe_element_get
 from style import Style
 
 
@@ -24,10 +25,11 @@ class AreaView:
         self.style = style
         self.start_address = self.area.get('start', self.sections.lowest_memory)
         self.end_address = self.area.get('end', self.sections.highest_memory)
-        self.pos_x = self.area.get('pos', 10)[0]
-        self.pos_y = self.area.get('pos', 10)[1]
-        self.size_x = self.area.get('size', 200)[0]
-        self.size_y = self.area.get('size', 500)[1]
+        self.pos_x = safe_element_get(self.area.get('pos'), 0, default=10)
+        self.pos_y = safe_element_get(self.area.get('pos'), 1, default=10)
+        self.size_x = safe_element_get(self.area.get('size'), 0, default=200)
+        self.size_y = safe_element_get(self.area.get('size'), 1, default=500)
+
         self.address_to_pxl = (self.end_address - self.start_address) / self.size_y
 
         if self.config is not None:
@@ -91,6 +93,9 @@ class AreaView:
                             total_non_breaks_size_y_px + expandable_size_px)
 
                 new_area = copy.deepcopy(self.area)
+                new_area['size'] = [200,500]
+                if new_area.get('pos') is None:
+                    new_area['pos'] = [10,10]
                 new_area['size'][1] = corrected_size
                 new_area['pos'][1] = last_area_pos - corrected_size
                 last_area_pos = new_area['pos'][1]
