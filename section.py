@@ -20,6 +20,7 @@ class Section:
         self.name = name
         self.size_y = 0
         self.size_x = 0
+        self.style = Style()
         self.flags = []
 
     def is_grow_up(self):

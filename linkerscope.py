@@ -6,6 +6,8 @@ import copy
 import yaml
 
 from area_view import AreaView
+from helpers import safe_element_get
+from links import Links
 from map_drawer import Map
 from style import Style
 from map_file_parser import MapFileParser
@@ -38,19 +40,6 @@ if config['areas'] is None:
 
     # TODO: linked sections compatibility
 
-
-def safe_element_get(_list: [], index: int) -> int:
-    """
-    Get an element from a list checking if both the list and the element exist
-
-    :param _list: List to extract the element from
-    :param index: Index of the element in the list
-    :return: The expected element if exists, None if it doesn't
-    """
-
-    return _list[index] if _list is not None and len(_list) > index else None
-
-
 base_style = Style().get_default()
 base_style.override_properties_from(Style(style=config.get('style', None)))
 
@@ -59,10 +48,11 @@ for element in config['areas']:
 
     area = element.get('area')
     section_size = area.get('section-size', {})
+    _range = area.get('range', {})
     area_view = AreaView(
         sections=(Sections(sections=MapFileParser(args.input).parse())
-                  .filter_address_min(area.get('range', {})[0])
-                  .filter_address_max(area.get('range', {})[1])
+                  .filter_address_min(safe_element_get(_range, 0))
+                  .filter_address_max(safe_element_get(_range, 1))
                   .filter_size_min(safe_element_get(section_size, 0))
                   .filter_size_max(safe_element_get(section_size, 1))
                   ),
@@ -71,5 +61,8 @@ for element in config['areas']:
         style=area_style.override_properties_from(Style(style=area.get('style')))
     )
     areas.extend(area_view.get_processed_section_views())
+yaml_links = config.get('links', None)
 
-Map(area_view=areas, links=config.get('links', None), style=base_style, file=args.output).draw()
+links_style = copy.deepcopy(base_style)
+links = Links(config.get('links', {}), style=links_style.override_properties_from(Style(style=yaml_links.get('style') if yaml_links is not None else None)))
+Map(area_view=areas, links=links, style=base_style, file=args.output).draw()
