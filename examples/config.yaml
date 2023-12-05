@@ -48,9 +48,9 @@ areas:
     style:
       stroke-width: 3
 
-      overrides:
-      - sections: [ Peripheral ]
-        fill: '#FF847C'
+    sections:
+    - names: [ Peripheral ]
+      fill: '#FF847C'
 
 - area:
 
@@ -60,15 +60,19 @@ areas:
 
     style:
 
-      overrides: # Adding the 'regions' sub-level under 'style'
-        - sections: [ ROM Table ]
-          fill: '#99B898'
-        - sections: [ External PPB ]
-          fill: '#FECEA8'
-        - sections: [ ETM, Peripheral ]
-          fill: '#FF847C'
-        - sections: [ TPIU ]
-          fill: '#E84A5F'
+    sections: # Adding the 'regions' sub-level under 'style'
+    - names: [ ROM Table ]
+      style:
+        fill: '#99B898'
+    - names: [ External PPB ]
+      style:
+        fill: '#FECEA8'
+    - names: [ ETM, Peripheral ]
+      style:
+        fill: '#FF847C'
+    - names: [ TPIU ]
+      style:
+        fill: '#E84A5F'
 
 - area:
     pos: [ 500, 280 ]
@@ -76,6 +80,9 @@ areas:
     range: [0xE0000000, 0xE00F0000]
     style:
       stroke-width: 1
+    sections:
+    - names: [ Reserved ]
+      flags: grows-down, break
 
 - area:
     pos: [ 500, 730 ]
@@ -83,11 +90,13 @@ areas:
     range: [0x40000000, 0x43000000]
 
     style:
-      overrides: # Adding the 'regions' sub-level under 'style'
-        - sections: [ Bit ]
-          fill: '#FECEA8'
-        - sections: [ Bit band region ]
-          fill: '#FF847C'
+    sections: # Adding the 'regions' sub-level under 'style'
+    - names: [ Bit ]
+      fill: '#FECEA8'
+    - names: [ Bit band region ]
+      fill: '#FF847C'
+    - names: [ Reserved ]
+      flags: grows-down, break
 
 - area:
     pos: [ 500, 980 ]
@@ -115,10 +124,6 @@ links:
     ['ITM', 'NVIC'],
     ['Bit band region', 'Bit band alias'],
     ['Bit band region', 'Bit band alias']]
-
-map:
-- name: Reserved
-  flags: grows-down, break
 
 
 

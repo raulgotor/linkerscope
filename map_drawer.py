@@ -384,15 +384,6 @@ class Map:
         section.size_y = area_view.to_pixels(section.size)
         section.pos_y = area_view.to_pixels(area_view.end_address - section.size - section.address)
         section.pos_x = 0
-        section_style = copy.deepcopy(area_view.style)
-        overrides = getattr(section_style, 'overrides', None)
-
-        if overrides:
-            for item in overrides:
-                if section.name in item.get('sections'):
-                    section_style.override_properties_from(Style(style=item))
-
-        section.style = section_style
 
         if section.is_break():
             group.add(self._make_break(section))

@@ -1,5 +1,7 @@
 import copy
 
+from style import Style
+
 
 class AreaView:
     pos_y: int
@@ -42,13 +44,21 @@ class AreaView:
         return a
 
     def _overwrite_sections_info(self):
+
         for section in self.sections.get_sections():
-            for element in self.config.get('map', []):
-                if element['name'] == section.name:
-                    section.address = element.get('address', section.address)
-                    section.type = element.get('type', section.type)
-                    section.size = element.get('size', section.size)
-                    section.flags = element.get('flags', section.flags)
+
+            section_style = copy.deepcopy(self.style)
+            section.style = section_style
+
+            for element in self.area.get('sections', []):
+                sections = element.get('names')
+                for item in sections:
+                    if item == section.name:
+                        section_style.override_properties_from(Style(style=element.get('style')))
+                        section.address = element.get('address', section.address)
+                        section.type = element.get('type', section.type)
+                        section.size = element.get('size', section.size)
+                        section.flags = element.get('flags', section.flags)
 
     def _process(self):
         self._overwrite_sections_info()
