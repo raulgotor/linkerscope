@@ -72,4 +72,4 @@ for element in config['areas']:
     )
     areas.extend(area_view.get_processed_section_views())
 
-Map(area_view=areas, links=config.get('links', None), style=base_style, file=args.output).draw()
+Map(area_view=areas, links=config.get('links', None), labels=config.get('labels',[]), style=base_style, file=args.output).draw()

@@ -88,6 +88,12 @@ areas:
     size: [ 200, 200 ]
     range: [0x20000000, 0x23000000]
 
+labels:
+  - address: 0xe0017FFF
+    text: Cool Memory Position
+    length: 130
+  - address: 0xe8041000
+    text: Cool Memory Position
 links:
   force: true
   addresses: [ 0x20000000,

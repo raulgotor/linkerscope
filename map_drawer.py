@@ -12,12 +12,13 @@ class Map:
     dwg: Drawing
     pointer_y: int
 
-    def __init__(self, area_view=[], links={}, file='map.svg', **kwargs):
+    def __init__(self, area_view=[], links={}, labels=[], file='map.svg', **kwargs):
         self.style = kwargs.get('style')
         self.type = type
         self.area_views = area_view
         self.current_style = Style()
         self.address_links = links.get('addresses')
+        self.labels = labels
         self.section_links = self._get_valid_linked_sections(links.get('sections'))
         self.file = file
         self.dwg = svgwrite.Drawing(file,
@@ -106,10 +107,19 @@ class Map:
 
         lines_group = dwg.g()
         growths_group = dwg.g()
+        global_labels = dwg.g()
+
+        for area in self.area_views:
+            g = dwg.g()
+            for label in self.labels:
+                if area.sections.has_address(label.get('address')):
+                    g.add(self._make_label(label, area))
+
+            g.translate(area.pos_x, area.pos_y)
+            global_labels.add(g)
 
         for address in self.address_links:
             lines_group.add(self._make_links(address))
-            pass
 
         linked_sections_group = dwg.add(dwg.g())
         for zoom in self.section_links:
@@ -138,6 +148,7 @@ class Map:
             area_growth.translate(area_view.pos_x, area_view.pos_y)
             growths_group.add(area_growth)
 
+        dwg.add(global_labels)
         dwg.add(growths_group)
         dwg.add(lines_group)
         dwg.save()
@@ -439,6 +450,45 @@ class Map:
                                  stroke_width=self.style.link_stroke_width,
                                  fill=self.style.link_fill_color,
                                  opacity=self.style.link_opacity)
+
+    def _make_label(self, label, area_view):
+
+        line_label_spacer = 3
+        g = self.dwg.g()
+        side = 1
+        address = label.get('address', None)
+        text = label.get('text', 'Label')
+        label_length = label.get('length', 30)
+
+        if address is None:
+            return
+
+        if side == 1:
+            pos_x_d = area_view.size_x
+            direction = 1
+            anchor = 'start'
+
+        else:
+            pos_x_d = 0
+            direction = -1
+            anchor = 'end'
+
+        pos_y = area_view.to_pixels_relative(address)
+        points = [(0 + pos_x_d, pos_y), (direction*(label_length + pos_x_d), pos_y)]
+
+        g.add(self._make_text(text,
+                              direction*(pos_x_d + label_length + line_label_spacer),
+                              pos_y,
+                              area_view.style,
+                              anchor=anchor))
+
+        g.add(self.dwg.polyline(points,
+                                stroke='white',
+                                stroke_dasharray="20,10,5,5,5,10",
+                                stroke_width=1,
+                                opacity=self.style.link_opacity))
+        return g
+
 
     def _make_links(self, address):
         hlines = self.dwg.g(id='hlines', stroke='grey')
