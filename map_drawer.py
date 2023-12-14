@@ -94,7 +94,9 @@ class Map:
 
         def _draw_area(_area_view):
             group = dwg.add(dwg.g())
+
             group.add(self._make_main_frame(_area_view))
+            group.add(self._make_title(_area_view))
 
             for section in _area_view.sections.get_sections():
                 self._make_section(group, section, _area_view)
@@ -155,6 +157,17 @@ class Map:
         dwg.add(global_labels)
         dwg.add(growths_group)
         dwg.save()
+
+    def _make_title(self, area_view):
+        title_pos_x = area_view.size_x / 2
+        title_pos_y = -20
+        return self._make_text(area_view.area.get('title', ''),
+                               title_pos_x,
+                               title_pos_y,
+                               style=area_view.style,
+                               anchor='middle',
+                               title=True
+                               )
 
     def _make_growth(self, section: Section) -> svgwrite.container.Group:
         """
@@ -355,13 +368,20 @@ class Map:
             if style.break_type == _break[0]:
                 return _break[1](section)
 
-    def _make_text(self, text, pos_x, pos_y, style, anchor, baseline='middle', small=False):
+    def _make_text(self, text, pos_x, pos_y, style, anchor, baseline='middle', small=False, title=False):
+        if title:
+            size = '24px'
+        elif small:
+            size = '12px'
+        else:
+            size = style.font_size
+
         return self.dwg.text(text, insert=(pos_x, pos_y),
                              stroke=style.text_stroke,
                              # focusable='true',
                              fill=style.text_fill,
                              stroke_width=style.text_stroke_width,
-                             font_size='12px' if small else style.font_size,
+                             font_size=size,
                              font_weight="normal",
                              font_family=style.font_type,
                              text_anchor=anchor,
@@ -457,7 +477,6 @@ class Map:
 
         arrow_head_width = 5 * label.style.weigth
         arrow_head_height = 10 * label.style.weigth
-        print('x', arrow_head_height )
         group = self.dwg.g()
         points_list = [(0, 0 - arrow_head_height),
                        (0 - arrow_head_width, 0 - arrow_head_height),

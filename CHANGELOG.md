@@ -7,6 +7,9 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+* Title feature and property (`title`) for the different areas
+
 ## [0.2.0] - 2023-12-14
 
 ### Added

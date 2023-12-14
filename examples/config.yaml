@@ -27,6 +27,7 @@ style:
 areas:
 # total area area
 - area:
+    title: 'Full Memory Map'
     # start and end addresses are optional
     # They can be specified to force drawing a region
     # that doesn't contain any segments
@@ -34,7 +35,7 @@ areas:
     # end:   0x20004000
 
     # Specify the position of the area and its size here
-    pos: [30, 30]
+    pos: [30, 50]
     size: [300, 900]
     # starting addresses of the sections to parse
     range: [0x0, 0x100000000]
