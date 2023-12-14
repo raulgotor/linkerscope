@@ -7,6 +7,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.2.0] - 2023-12-14
+
 ### Added
 * Style overriding by section: each section can have its own style
 * Added `links/sections`, which links a section or group of between main and secondary area
