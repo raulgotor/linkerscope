@@ -106,6 +106,19 @@ class Map:
 
         lines_group = dwg.g()
         growths_group = dwg.g()
+        global_labels = dwg.g()
+
+        for area in self.area_views:
+            g = dwg.g()
+
+            if area.labels is not None:
+                for label in area.labels.labels:
+
+                    if area.sections.has_address(label.address):
+                        g.add(self._make_label(label, area))
+
+            g.translate(area.pos_x, area.pos_y)
+            global_labels.add(g)
 
         for address in self.links.addresses:
             lines_group.add(self._make_links(address, self.links.style))
@@ -139,6 +152,7 @@ class Map:
             area_growth.translate(area_view.pos_x, area_view.pos_y)
             growths_group.add(area_growth)
 
+        dwg.add(global_labels)
         dwg.add(growths_group)
         dwg.save()
 
@@ -430,6 +444,81 @@ class Map:
                                  stroke_width=style.stroke_width,
                                  fill=style.fill,
                                  opacity=style.opacity)
+
+    def _make_arrow_head(self, label, direction='down'):
+        if direction == 'left':
+            angle = 90
+        elif direction == 'right':
+            angle = 270
+        elif direction == 'up':
+            angle = 0
+        else:
+            angle = 180
+
+        arrow_head_width = 5 * label.style.weigth
+        arrow_head_height = 10 * label.style.weigth
+        print('x', arrow_head_height )
+        group = self.dwg.g()
+        points_list = [(0, 0 - arrow_head_height),
+                       (0 - arrow_head_width, 0 - arrow_head_height),
+                       (0, 0),
+                       (0 + arrow_head_width, 0 - arrow_head_height),
+                       (0, 0 - arrow_head_height),
+                       ]
+
+        poly = self.dwg.polyline(points_list,
+                          stroke=label.style.stroke,
+                          stroke_width=1,
+                          fill=label.style.stroke)
+        poly.rotate(angle, center=(0, 0))
+        group.add(poly)
+
+        return group
+
+    def _make_label(self, label, area_view):
+
+        line_label_spacer = 3
+        g = self.dwg.g()
+        side = 1
+        address = label.address
+        text = label.text
+        label_length = label.length
+
+        if address is None:
+            return
+
+        if side == 1:
+            pos_x_d = area_view.size_x
+            direction = 1
+            anchor = 'start'
+
+        else:
+            pos_x_d = 0
+            direction = -1
+            anchor = 'end'
+
+        pos_y = area_view.to_pixels_relative(address)
+        points = [(0 + pos_x_d, pos_y), (direction*(label_length + pos_x_d), pos_y)]
+
+        if 'right' in label.directions:
+            g.add(self._make_arrow_head(label, direction='right')).translate(direction*(label_length + pos_x_d), pos_y,)
+
+        if 'left' in label.directions:
+            g.add(self._make_arrow_head(label, direction='left')).translate(pos_x_d,pos_y,)
+
+        g.add(self._make_text(text,
+                              direction*(pos_x_d + label_length + line_label_spacer),
+                              pos_y,
+                              label.style,
+                              anchor=anchor))
+
+        g.add(self.dwg.polyline(points,
+                                stroke=label.style.stroke,
+                                stroke_dasharray=label.style.stroke_dasharray,
+                                stroke_width=label.style.stroke_width
+                                ))
+        return g
+
 
     def _make_links(self, address, style):
         hlines = self.dwg.g(id='hlines', stroke='grey')

@@ -170,6 +170,18 @@ links:
 
 At the folder examples, there are a series of configurations and map `.yaml` files you can use to get a preview of what LinkerScope can do.
 
+## Roadmap
+
+- [ ] Labels at specific memory addresses
+- [ ] Area titles
+- [ ] Links across specific areas
+- [ ] Choose side of the labels
+- [ ] Memory direction
+- [ ] Hide specific elements
+- [ ] Memory size in bytes
+- [ ] Sections links across breaks
+- [ ] Friendly name and identifier
+- [ ] Legend
 ## References
 
 - [YAML cheatsheet](https://quickref.me/yaml)

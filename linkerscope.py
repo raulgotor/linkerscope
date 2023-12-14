@@ -2,11 +2,11 @@
 
 import argparse
 import copy
-
 import yaml
 
 from area_view import AreaView
 from helpers import safe_element_get
+from labels import Labels
 from links import Links
 from map_drawer import Map
 from style import Style
@@ -65,4 +65,7 @@ yaml_links = config.get('links', None)
 
 links_style = copy.deepcopy(base_style)
 links = Links(config.get('links', {}), style=links_style.override_properties_from(Style(style=yaml_links.get('style') if yaml_links is not None else None)))
-Map(area_view=areas, links=links, style=base_style, file=args.output).draw()
+Map(area_view=areas,
+    links=links,
+    style=base_style,
+    file=args.output).draw()

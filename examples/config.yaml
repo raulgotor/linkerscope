@@ -78,6 +78,29 @@ areas:
     sections:
     - names: [ Reserved ]
       flags: grows-down, break
+    labels:
+      - address: 0xe0017FFF
+        text: Random name
+        length: 30
+        directions: right
+        style:
+          stroke: *pastel_green
+          stroke-width: 1
+          stroke-dasharray: '3,3'
+          weigth: 1
+          text_fill: *pastel_green
+      - address: 0xe0014FFF
+        text: Cool section
+        length: 30
+        directions: right
+        style:
+          stroke: *pastel_green
+          stroke-width: 2
+          stroke-dasharray: '2,2'
+          weigth: 1
+          text_fill: *pastel_green
+      - address: 0xe8041000
+        text: Cool Memory
 
 - area:
     pos: [ 500, 730 ]

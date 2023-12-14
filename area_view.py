@@ -1,6 +1,7 @@
 import copy
 
 from helpers import safe_element_get
+from labels import Labels
 from style import Style
 
 
@@ -29,6 +30,7 @@ class AreaView:
         self.pos_y = safe_element_get(self.area.get('pos'), 1, default=10)
         self.size_x = safe_element_get(self.area.get('size'), 0, default=200)
         self.size_y = safe_element_get(self.area.get('size'), 1, default=500)
+        self.labels = Labels(self.area.get('labels', []), style)
 
         self.address_to_pxl = (self.end_address - self.start_address) / self.size_y
 
@@ -104,6 +106,7 @@ class AreaView:
                     AreaView(
                         sections=section_group,
                         area_config=new_area,
+                        labels=self.labels,
                         style=self.style))
 
         else:

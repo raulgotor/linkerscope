@@ -20,6 +20,7 @@ and this project adheres to
 * Property names in yaml also accept `-` instead of underscore
 * `style` property to `links`, `area`, and `area/sections`
 * flags are specified per section at `area/sections/`
+* custom labels at specific memory addresses
 
 ### Changed
 * Naming of the memory domain: Area instead of Map
