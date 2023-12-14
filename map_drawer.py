@@ -12,14 +12,13 @@ class Map:
     dwg: Drawing
     pointer_y: int
 
-    def __init__(self, area_view=[], links={}, labels=[], file='map.svg', **kwargs):
+    def __init__(self, area_view=[], links={}, file='map.svg', **kwargs):
         self.style = kwargs.get('style')
         self.type = type
         self.area_views = area_view
         self.current_style = Style()
-        self.address_links = links.get('addresses')
-        self.labels = labels
-        self.section_links = self._get_valid_linked_sections(links.get('sections'))
+        self.links = links
+        self.links_sections = self._get_valid_linked_sections(links.sections)
         self.file = file
         self.dwg = svgwrite.Drawing(file,
                                     profile='full',
@@ -103,7 +102,7 @@ class Map:
             group.translate(_area_view.pos_x,
                             _area_view.pos_y)
 
-        dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), rx=None, ry=None, fill=self.style.background_color))
+        dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), rx=None, ry=None, fill=self.style.background))
 
         lines_group = dwg.g()
         growths_group = dwg.g()
@@ -111,28 +110,33 @@ class Map:
 
         for area in self.area_views:
             g = dwg.g()
-            for label in self.labels:
-                if area.sections.has_address(label.get('address')):
-                    g.add(self._make_label(label, area))
+
+            if area.labels is not None:
+                for label in area.labels.labels:
+
+                    if area.sections.has_address(label.address):
+                        g.add(self._make_label(label, area))
 
             g.translate(area.pos_x, area.pos_y)
             global_labels.add(g)
 
-        for address in self.address_links:
-            lines_group.add(self._make_links(address))
+        for address in self.links.addresses:
+            lines_group.add(self._make_links(address, self.links.style))
+        dwg.add(lines_group)
 
         linked_sections_group = dwg.add(dwg.g())
-        for zoom in self.section_links:
+        for zoom in self.links_sections:
             is_drawn = False
             for area_view in self.area_views[1:]:
                 if zoom[0] >= area_view.sections.lowest_memory and \
                         zoom[1] <= area_view.sections.highest_memory and \
                         zoom[0] >= self.area_views[0].sections.lowest_memory and \
                         zoom[1] <= self.area_views[0].sections.highest_memory:
-                    linked_sections_group.add(self._make_poly(area_view, zoom[0], zoom[1]))
+                    linked_sections_group.add(self._make_poly(area_view, zoom[0], zoom[1], self.links.style))
                     is_drawn = True
             if not is_drawn:
                 print("WARNING: Starting or ending point of the zoom region is outside the shown areas")
+
 
         for area_view in self.area_views:
             _draw_area(area_view)
@@ -150,7 +154,6 @@ class Map:
 
         dwg.add(global_labels)
         dwg.add(growths_group)
-        dwg.add(lines_group)
         dwg.save()
 
     def _make_growth(self, section: Section) -> svgwrite.container.Group:
@@ -161,7 +164,7 @@ class Map:
         """
         group = self.dwg.g()
         # Why grows doesn't draw on a break section?
-        multiplier = section.style.growth_arrow_weight
+        multiplier = section.style.growth_arrow_size
         mid_point_x = (section.pos_x + section.size_x) / 2
         arrow_head_width = 5 * multiplier
         arrow_head_height = 10 * multiplier
@@ -178,9 +181,9 @@ class Map:
                            (mid_point_x + arrow_tail_width, arrow_start_y)]
 
             group.add(self.dwg.polyline(points_list,
-                                        stroke=section.style.growth_arrow_stroke_color,
+                                        stroke=section.style.growth_arrow_stroke,
                                         stroke_width=1,
-                                        fill=section.style.growth_arrow_fill_color))
+                                        fill=section.style.growth_arrow_fill))
 
         if section.is_grow_up():
             _make_growth_arrow_generic(section.pos_y, 1)
@@ -191,16 +194,16 @@ class Map:
 
     def _make_main_frame(self, area_view):
         return self.dwg.rect((0, 0), (area_view.size_x, area_view.size_y),
-                             fill=self.style.area_background_color,
-                             stroke=self.style.area_background_color,
-                             stroke_width=1)
+                             fill=area_view.style.background,
+                             stroke=area_view.style.stroke,
+                             stroke_width=area_view.style.stroke_width)
 
     def _make_box(self, section: Section):
         return self.dwg.rect((section.pos_x, section.pos_y),
                              (section.size_x, section.size_y),
-                             fill=section.style.section_fill_color,
-                             stroke=section.style.section_stroke_color,
-                             stroke_width=section.style.section_stroke_width)
+                             fill=section.style.fill,
+                             stroke=section.style.stroke,
+                             stroke_width=section.style.stroke_width)
 
     def _make_break(self, section: Section) -> svgwrite.container.Group:
         """
@@ -224,8 +227,8 @@ class Map:
             :return: SVG group container with the breaks graphics
             """
             rectangle = self.dwg.rect((_section.pos_x, _section.pos_y), (_section.size_x, _section.size_y))
-            rectangle.fill(style.section_fill_color)
-            rectangle.stroke(style.section_stroke_color, width=style.section_stroke_width)
+            rectangle.fill(style.fill)
+            rectangle.stroke(style.stroke, width=style.stroke_width)
 
             group.add(rectangle)
 
@@ -262,9 +265,9 @@ class Map:
                 )
 
                 group.add(self.dwg.polyline(points,
-                                            stroke=style.section_stroke_color,
-                                            stroke_width=style.section_stroke_width,
-                                            fill=style.section_fill_color))
+                                            stroke=style.stroke,
+                                            stroke_width=style.stroke_width,
+                                            fill=style.fill))
 
             return group
 
@@ -290,13 +293,13 @@ class Map:
             ]
 
             rectangle = self.dwg.rect((_section.pos_x, _section.pos_y), (_section.size_x, _section.size_y))
-            rectangle.fill(style.section_fill_color)
+            rectangle.fill(section.style.fill)
             group.add(rectangle)
 
             for points_set in points_list:
                 group.add(self.dwg.polyline(points_set,
-                                            stroke=style.section_stroke_color,
-                                            stroke_width=style.section_stroke_width,
+                                            stroke=style.stroke,
+                                            stroke_width=style.stroke_width,
                                             fill='none'))
             wave_length = 20
             shifts = [(0, -5),
@@ -310,8 +313,8 @@ class Map:
                           for i in range(wave_length)]
 
                 group.add(self.dwg.polyline(points,
-                                            stroke=style.section_stroke_color,
-                                            stroke_width=style.section_stroke_width,
+                                            stroke=style.stroke,
+                                            stroke_width=style.stroke_width,
                                             fill='none'))
 
             return group
@@ -337,9 +340,9 @@ class Map:
 
             for points_set in points_list:
                 group.add(self.dwg.polyline(points_set,
-                                            stroke=style.section_stroke_color,
-                                            stroke_width=style.section_stroke_width,
-                                            fill=style.section_fill_color))
+                                            stroke=style.stroke,
+                                            stroke_width=style.stroke_width,
+                                            fill=style.fill))
 
             return group
 
@@ -354,13 +357,13 @@ class Map:
 
     def _make_text(self, text, pos_x, pos_y, style, anchor, baseline='middle', small=False):
         return self.dwg.text(text, insert=(pos_x, pos_y),
-                             stroke='white',
+                             stroke=style.text_stroke,
                              # focusable='true',
-                             fill=style.label_color,
-                             stroke_width=style.label_stroke_width,
-                             font_size='12px' if small else style.label_size,
+                             fill=style.text_fill,
+                             stroke_width=style.text_stroke_width,
+                             font_size='12px' if small else style.font_size,
                              font_weight="normal",
-                             font_family=style.label_font,
+                             font_family=style.font_type,
                              text_anchor=anchor,
                              alignment_baseline=baseline
                              )
@@ -395,15 +398,6 @@ class Map:
         section.size_y = area_view.to_pixels(section.size)
         section.pos_y = area_view.to_pixels(area_view.end_address - section.size - section.address)
         section.pos_x = 0
-        section_style = copy.deepcopy(area_view.style)
-        overrides = getattr(section_style, 'overrides', None)
-
-        if overrides:
-            for item in overrides:
-                if section.name in item.get('sections'):
-                    section_style.override_properties_from(Style(style=item))
-
-        section.style = section_style
 
         if section.is_break():
             group.add(self._make_break(section))
@@ -437,7 +431,7 @@ class Map:
                 (right_block_x, right_block_y),
                 ]
 
-    def _make_poly(self, area_view, start_address, end_address):
+    def _make_poly(self, area_view, start_address, end_address, style):
 
         points = []
         reversed = self._get_points_for_address(end_address, area_view)
@@ -446,19 +440,49 @@ class Map:
         points.extend(reversed)
 
         return self.dwg.polyline(points,
-                                 stroke=self.style.link_stroke_color,
-                                 stroke_width=self.style.link_stroke_width,
-                                 fill=self.style.link_fill_color,
-                                 opacity=self.style.link_opacity)
+                                 stroke=style.stroke,
+                                 stroke_width=style.stroke_width,
+                                 fill=style.fill,
+                                 opacity=style.opacity)
+
+    def _make_arrow_head(self, label, direction='down'):
+        if direction == 'left':
+            angle = 90
+        elif direction == 'right':
+            angle = 270
+        elif direction == 'up':
+            angle = 0
+        else:
+            angle = 180
+
+        arrow_head_width = 5 * label.style.weigth
+        arrow_head_height = 10 * label.style.weigth
+        print('x', arrow_head_height )
+        group = self.dwg.g()
+        points_list = [(0, 0 - arrow_head_height),
+                       (0 - arrow_head_width, 0 - arrow_head_height),
+                       (0, 0),
+                       (0 + arrow_head_width, 0 - arrow_head_height),
+                       (0, 0 - arrow_head_height),
+                       ]
+
+        poly = self.dwg.polyline(points_list,
+                          stroke=label.style.stroke,
+                          stroke_width=1,
+                          fill=label.style.stroke)
+        poly.rotate(angle, center=(0, 0))
+        group.add(poly)
+
+        return group
 
     def _make_label(self, label, area_view):
 
         line_label_spacer = 3
         g = self.dwg.g()
         side = 1
-        address = label.get('address', None)
-        text = label.get('text', 'Label')
-        label_length = label.get('length', 30)
+        address = label.address
+        text = label.text
+        label_length = label.length
 
         if address is None:
             return
@@ -476,21 +500,27 @@ class Map:
         pos_y = area_view.to_pixels_relative(address)
         points = [(0 + pos_x_d, pos_y), (direction*(label_length + pos_x_d), pos_y)]
 
+        if 'right' in label.directions:
+            g.add(self._make_arrow_head(label, direction='right')).translate(direction*(label_length + pos_x_d), pos_y,)
+
+        if 'left' in label.directions:
+            g.add(self._make_arrow_head(label, direction='left')).translate(pos_x_d,pos_y,)
+
         g.add(self._make_text(text,
                               direction*(pos_x_d + label_length + line_label_spacer),
                               pos_y,
-                              area_view.style,
+                              label.style,
                               anchor=anchor))
 
         g.add(self.dwg.polyline(points,
-                                stroke='white',
-                                stroke_dasharray="20,10,5,5,5,10",
-                                stroke_width=1,
-                                opacity=self.style.link_opacity))
+                                stroke=label.style.stroke,
+                                stroke_dasharray=label.style.stroke_dasharray,
+                                stroke_width=label.style.stroke_width
+                                ))
         return g
 
 
-    def _make_links(self, address):
+    def _make_links(self, address, style):
         hlines = self.dwg.g(id='hlines', stroke='grey')
 
         for area_view in self.area_views[1:]:
@@ -499,8 +529,8 @@ class Map:
 
             def _make_line(x1, y1, x2, y2):
                 return self.dwg.line(start=(x1, y1), end=(x2, y2),
-                                     stroke_width=self.style.link_stroke_width,
-                                     stroke=self.style.link_stroke_color)
+                                     stroke_width=style.stroke_width,
+                                     stroke=style.stroke)
 
             points = self._get_points_for_address(address, area_view)
 
