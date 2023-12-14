@@ -2,14 +2,10 @@
 
 ## Project summary
 
----
-
 LinkerScope is a memory map diagram generator. It can feed itself either from a GNU Linker map file or from a custom `yaml` file
 and generate beautiful and detailed diagrams of the different areas and sections found at the map files.
 
 ## Installing LinkerScope
-
----
 
 Optionally create and activate an environment for LinkerScope:
 
@@ -25,8 +21,6 @@ pip3 install -r requirements.txt
 ```
 
 ## Usage
-
----
 
 ### Execution
 
@@ -166,8 +160,6 @@ links:
 
 ## Run some examples LinkerScope
 
----
-
 At the folder examples, there are a series of configurations and map `.yaml` files you can use to get a preview of what LinkerScope can do.
 
 ## Roadmap
@@ -187,7 +179,5 @@ At the folder examples, there are a series of configurations and map `.yaml` fil
 - [YAML cheatsheet](https://quickref.me/yaml)
 
 ## License
-
----
 
 Distributed under the MIT License. See `LICENSE` for more information.
