@@ -2,6 +2,10 @@ from style import Style
 
 
 class Section:
+    """
+    Holds logical and graphical information for a given section, as well as other properties such as
+    style, visibility, type, etc...
+    """
     size: int
     address: int
     name: str
@@ -12,8 +16,8 @@ class Section:
     label_offset: int = 10
     style: Style
 
-    def __init__(self, size, address, name, type, parent):
-        self.type = type
+    def __init__(self, size, address, name, _type, parent):
+        self.type = _type
         self.parent = parent
         self.size = size
         self.address = address

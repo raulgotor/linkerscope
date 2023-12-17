@@ -2,6 +2,10 @@ from section import Section
 
 
 class Sections:
+    """
+    Provide methods and to select and filter sections according to their base address, size, parent,
+    type,...
+    """
     sections: [Section] = []
 
     def __init__(self, sections: [Section]):
@@ -53,15 +57,16 @@ class Sections:
 
     def filter_address_max(self, address_bytes: int):
         return Sections(self.sections) if address_bytes is None \
-            else Sections(list(filter(lambda item: (item.address + item.size) <= address_bytes, self.sections)))
+            else Sections(list(filter(lambda item: (item.address + item.size)
+                                                   <= address_bytes, self.sections)))
 
     def filter_address_min(self, address_bytes: int):
         return Sections(self.sections) if address_bytes is None \
             else Sections(list(filter(lambda item: item.address >= address_bytes, self.sections)))
 
-    def filter_type(self, type: str):
-        return Sections(self.sections) if type is None \
-            else Sections(list(filter(lambda item: item.filter_type == type, self.sections)))
+    def filter_type(self, _type: str):
+        return Sections(self.sections) if _type is None \
+            else Sections(list(filter(lambda item: item.filter_type == _type, self.sections)))
 
     def filter_parent(self, parent: str):
         return Sections(self.sections) if parent is None \
@@ -84,8 +89,8 @@ class Sections:
         for _break in breaks:
 
             # Section that covers from previous break till start of this break
-            # If it was the first break, will cover from begining of the whole area to this break. Only append if search
-            # returns more than 0 counts
+            # If it was the first break, will cover from begining of the whole area to this break.
+            # Only append if search returns more than 0 counts
             s = Sections(sections=self.sections)\
                 .filter_address_max(_break.address)\
                 .filter_address_min(previous_break_end_address)
@@ -96,8 +101,8 @@ class Sections:
             split_sections.append(Sections(sections=[_break]))
             previous_break_end_address = _break.address + _break.size
 
-        # Section that covers from the last break end address to the end of the whole area. Only append if search
-        # returns more than 0 counts
+        # Section that covers from the last break end address to the end of the whole area. Only
+        # append if search returns more than 0 counts
         last_group = Sections(sections=self.sections)\
             .filter_address_max(self.highest_memory)\
             .filter_address_min(previous_break_end_address)
@@ -106,6 +111,3 @@ class Sections:
             split_sections.append(last_group)
 
         return split_sections
-
-
-

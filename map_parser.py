@@ -1,10 +1,13 @@
 import re
+import yaml
 
 from section import Section
-import yaml
 
 
 class MapParser:
+    """
+    Parse a linker map file and convert it to a yaml file for further processing
+    """
     def __init__(self, input_filename, output_filename):
         self.areas = []
         self.sections = []
@@ -12,18 +15,11 @@ class MapParser:
         self.output_filename = output_filename
 
     def parse(self):
-        with open(self.input_filename, 'r') as file:
+        with open(self.input_filename, 'r', encoding='utf8') as file:
 
-            found_memory_map_section = False
             file_iterator = iter(file)
             prev_line = next(file_iterator)
             for line in file_iterator:
-                if 0:#not found_memory_map_section:
-                    if 'Linker script and memory map' in line:
-                        found_memory_map_section = True
-                    else:
-                        continue
-
                 self.process_areas(prev_line)
                 multiple_line = prev_line + line
                 self.process_sections(multiple_line)
@@ -47,12 +43,12 @@ class MapParser:
                 'name': section.name,
             })
 
-        with open(self.output_filename, 'w') as file:
+        with open(self.output_filename, 'w', encoding='utf8') as file:
             yaml_string = yaml.dump(my_dict)
             file.write(yaml_string)
 
     def process_areas(self, line):
-        pattern = ('([.][a-z]{1,})[ ]{1,}(0x[a-fA-F0-9]{1,})[ ]{1,}(0x[a-fA-F0-9]{1,})\n')
+        pattern = r'([.][a-z]{1,})[ ]{1,}(0x[a-fA-F0-9]{1,})[ ]{1,}(0x[a-fA-F0-9]{1,})\n'
 
         p = re.compile(pattern)
         result = p.search(line)
@@ -62,12 +58,13 @@ class MapParser:
                                       name=result.group(1),
                                       address=int(result.group(2), 0),
                                       size=int(result.group(3), 0),
-                                      type='area'
+                                      _type='area'
                                       )
                               )
 
     def process_sections(self, line):
-        pattern = ('\s(.[^.]+).([^. \n]+)[\n\r]\s+(0x[0-9a-fA-F]{16})\s+(0x[0-9a-fA-F]+)\s+[^\n]+[\n\r]{1}')
+        pattern = r'\s(.[^.]+).([^. \n]+)[\n\r]\s+(0x[0-9a-fA-F]{16})\s+' \
+                  r'(0x[0-9a-fA-F]+)\s+[^\n]+[\n\r]{1}'
 
         p = re.compile(pattern)
         result = p.search(line)
@@ -77,6 +74,6 @@ class MapParser:
                                          name=result.group(2),
                                          address=int(result.group(3), 0),
                                          size=int(result.group(4), 0),
-                                         type='section'
+                                         _type='section'
                                          )
                                  )
