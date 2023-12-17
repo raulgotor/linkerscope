@@ -2,15 +2,16 @@
 
 import argparse
 import copy
+import sys
+
 import yaml
 
 from area_view import AreaView
 from helpers import safe_element_get
-from labels import Labels
 from links import Links
 from map_drawer import Map
 from style import Style
-from map_file_parser import MapFileParser
+from map_file_loader import MapFileLoader
 from sections import Sections
 
 parser = argparse.ArgumentParser()
@@ -20,25 +21,25 @@ parser.add_argument('--output',
                     default='map.svg')
 parser.add_argument('--input',
                     '-i',
-                    help='Name of the map file, can be either linker .map files or .yaml descriptor',
+                    help='Name of the map file,'
+                         'can be either linker .map files or .yaml descriptor',
                     default='map.yaml')
 parser.add_argument('--configuration',
                     '-c',
-                    help='Configuration file (.yml). If not specified, will use config.yaml as default',
+                    help='Configuration file (.yml). If not specified,'
+                         'will use config.yaml as default',
                     default='config.yaml')
 
 args = parser.parse_args()
 
 areas = []
 
-with open(args.configuration, 'r') as file:
+with open(args.configuration, 'r', encoding='utf-8') as file:
     config = yaml.safe_load(file)
 
 if config['areas'] is None:
     print('No information to show on current configuration file')
-    exit(-1)
-
-    # TODO: linked sections compatibility
+    sys.exit(-1)
 
 base_style = Style().get_default()
 base_style.override_properties_from(Style(style=config.get('style', None)))
@@ -50,7 +51,7 @@ for element in config['areas']:
     section_size = area.get('section-size', {})
     _range = area.get('range', {})
     area_view = AreaView(
-        sections=(Sections(sections=MapFileParser(args.input).parse())
+        sections=(Sections(sections=MapFileLoader(args.input).parse())
                   .filter_address_min(safe_element_get(_range, 0))
                   .filter_address_max(safe_element_get(_range, 1))
                   .filter_size_min(safe_element_get(section_size, 0))
@@ -60,11 +61,13 @@ for element in config['areas']:
         global_config=config,
         style=area_style.override_properties_from(Style(style=area.get('style')))
     )
-    areas.extend(area_view.get_processed_section_views())
+    areas.extend(area_view.get_split_area_views())
 yaml_links = config.get('links', None)
 
 links_style = copy.deepcopy(base_style)
-links = Links(config.get('links', {}), style=links_style.override_properties_from(Style(style=yaml_links.get('style') if yaml_links is not None else None)))
+links = Links(config.get('links', {}),
+              style=links_style.override_properties_from(
+                  Style(style=yaml_links.get('style') if yaml_links is not None else None)))
 Map(area_view=areas,
     links=links,
     style=base_style,

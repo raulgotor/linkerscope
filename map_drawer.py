@@ -1,18 +1,21 @@
-import copy
 from math import cos
-import svgwrite
 from svgwrite import Drawing
-
-from area_view import AreaView
+import svgwrite
 from section import Section
 from style import Style
 
 
 class Map:
+    """
+    This class does the actual drawing of the map.
+
+    Takes all the graphical information stored at the different sections and areas, together
+    with their style and configuration, and convert them to SVG objects (see `draw()` function)
+    """
     dwg: Drawing
     pointer_y: int
 
-    def __init__(self, area_view=[], links={}, file='map.svg', **kwargs):
+    def __init__(self, area_view, links, file='map.svg', **kwargs):
         self.style = kwargs.get('style')
         self.type = type
         self.area_views = area_view
@@ -28,8 +31,8 @@ class Map:
         """
         Get a valid list of linked sections to draw, given a list of wished sections to be linked
 
-        For a link to be valid, the starting and ending addresses of the linked section/s must be visible and available
-        inside of at least one single area
+        For a link to be valid, the starting and ending addresses of the linked section/s must be
+        visible and available inside of at least one single area
 
         :param linked_sections: List of sections or pair of sections to be linked
         :return: List of valid (start, end) addresses for sections
@@ -42,13 +45,14 @@ class Map:
             appended = False
             multi_section = False
 
-            # Check if we are dealing with a link for a single section or for many of them. That is, user passed a
-            # string or a list of two strings
+            # Check if we are dealing with a link for a single section or for many of them.
+            # That is, user passed a string or a list of two strings
             if isinstance(linked_section, list):
                 multi_section = True
 
-            # Iterate through all available areas checking if this is a valid link: i.e, the starting and ending
-            # addresses of the linked section/s is visible and available inside of a single area
+            # Iterate through all available areas checking if this is a valid link: i.e, the
+            # starting and ending addresses of the linked section/s is visible and available
+            # inside of a single area
             for area in self.area_views:
                 start = None
                 end = None
@@ -58,32 +62,35 @@ class Map:
                     break
 
                 for section in area.sections.get_sections():
-                    # If single section, the start and end address of the linked section equals those of the section
+                    # If single section, the start and end address of the linked section equals
+                    # those of the section
                     if not multi_section:
                         if section.name == linked_section:
                             l_sections.append([section.address, section.address + section.size])
                             appended = True
                             break
-                    # If multiple section, the start and end address of the linked section are the start of the first
-                    # provided section and the end of the second provided section respectively
+                    # If multiple section, the start and end address of the linked section are the
+                    # start of the first provided section and the end of the second provided section
+                    # respectively
                     else:
                         if section.name == linked_section[0]:
                             start = section.address
                         elif section.name == linked_section[1]:
                             end = section.address + section.size
 
-                        # If before finishing the iteration on this area, we found a valid start and end address,
-                        # we can append this linked section to the list
+                        # If before finishing the iteration on this area, we found a valid start and
+                        # end address, we can append this linked section to the list
                         if start is not None and end is not None:
                             l_sections.append([start, end])
                             appended = True
                             break
 
-                # If we finish iterating the area, and we have a valid start (or end) address but the section was not
-                # appended, means that the other end of the section is at another area, and that is not valid
+                # If we finish iterating the area, and we have a valid start (or end) address but
+                # the section was not appended, means that the other end of the section is at
+                # another area, and that is not valid
                 if multi_section and not appended and (start is not None or end is not None):
-                    print("WARNING: A multisection zoom region was specified for two sections of different areas,"
-                          "which is not supported")
+                    print("WARNING: A multisection zoom region was specified for two sections"
+                          "of different areas, which is not supported")
                     break
 
         return l_sections
@@ -104,7 +111,11 @@ class Map:
             group.translate(_area_view.pos_x,
                             _area_view.pos_y)
 
-        dwg.add(dwg.rect(insert=(0, 0), size=('100%', '100%'), rx=None, ry=None, fill=self.style.background))
+        dwg.add(dwg.rect(insert=(0, 0),
+                         size=('100%', '100%'),
+                         rx=None,
+                         ry=None,
+                         fill=self.style.background))
 
         lines_group = dwg.g()
         growths_group = dwg.g()
@@ -134,18 +145,23 @@ class Map:
                         zoom[1] <= area_view.sections.highest_memory and \
                         zoom[0] >= self.area_views[0].sections.lowest_memory and \
                         zoom[1] <= self.area_views[0].sections.highest_memory:
-                    linked_sections_group.add(self._make_poly(area_view, zoom[0], zoom[1], self.links.style))
+
+                    linked_sections_group.add(self._make_poly(area_view,
+                                                              zoom[0],
+                                                              zoom[1],
+                                                              self.links.style))
                     is_drawn = True
             if not is_drawn:
-                print("WARNING: Starting or ending point of the zoom region is outside the shown areas")
-
+                print("WARNING: Starting or ending point of the zoom region is outside the shown"
+                      "areas")
 
         for area_view in self.area_views:
             _draw_area(area_view)
 
-        # We need to do another pass once all areas are drawn in order to be able to properly draw the growth arrows
-        # without the break areas hiding them. Also, as we do stuff outside the loop where the areas are drawn, we
-        # loose the reference for translation, and we have to manually translate the grows here
+        # We need to do another pass once all areas are drawn in order to be able to properly draw
+        # the growth arrows without the break areas hiding them. Also, as we do stuff outside the
+        # loop where the areas are drawn, we loose the reference for translation, and we have to
+        # manually translate the grows here
         for area_view in self.area_views:
             area_growth = dwg.g()
             for section in area_view.sections.get_sections():
@@ -162,11 +178,10 @@ class Map:
         title_pos_x = area_view.size_x / 2
         title_pos_y = -20
         return self._make_text(area_view.area.get('title', ''),
-                               title_pos_x,
-                               title_pos_y,
+                               (title_pos_x, title_pos_y),
                                style=area_view.style,
                                anchor='middle',
-                               title=True
+                               text_type='title'
                                )
 
     def _make_growth(self, section: Section) -> svgwrite.container.Group:
@@ -186,12 +201,18 @@ class Map:
 
         def _make_growth_arrow_generic(arrow_start_y, direction):
             points_list = [(mid_point_x - arrow_tail_width, arrow_start_y),
-                           (mid_point_x - arrow_tail_width, arrow_start_y - direction * arrow_length),
-                           (mid_point_x - arrow_head_width, arrow_start_y - direction * arrow_head_height),
-                           (mid_point_x, arrow_start_y - direction * (arrow_length + arrow_head_height)),
-                           (mid_point_x + arrow_head_width, arrow_start_y - direction * arrow_head_height),
-                           (mid_point_x + arrow_tail_width, arrow_start_y - direction * arrow_length),
-                           (mid_point_x + arrow_tail_width, arrow_start_y)]
+                           (mid_point_x - arrow_tail_width,
+                            arrow_start_y - direction * arrow_length),
+                           (mid_point_x - arrow_head_width,
+                            arrow_start_y - direction * arrow_head_height),
+                           (mid_point_x,
+                            arrow_start_y - direction * (arrow_length + arrow_head_height)),
+                           (mid_point_x + arrow_head_width,
+                            arrow_start_y - direction * arrow_head_height),
+                           (mid_point_x + arrow_tail_width,
+                            arrow_start_y - direction * arrow_length),
+                           (mid_point_x + arrow_tail_width,
+                            arrow_start_y)]
 
             group.add(self.dwg.polyline(points_list,
                                         stroke=section.style.growth_arrow_stroke,
@@ -222,8 +243,8 @@ class Map:
         """
         Make a break representation for a given section.
 
-        Depending on the selected break type (at style/break_type), break can be wave (~), double wave(≈), diagonal(/)
-        or dots(...)
+        Depending on the selected break type (at style/break_type), break can be wave (~), double
+        wave(≈), diagonal(/) or dots(...)
         :param section: Section for which the break wants to be created
         :return: SVG group container with the breaks graphics
         """
@@ -239,7 +260,9 @@ class Map:
             :param _section: Section for which the break wants to be created
             :return: SVG group container with the breaks graphics
             """
-            rectangle = self.dwg.rect((_section.pos_x, _section.pos_y), (_section.size_x, _section.size_y))
+            rectangle = self.dwg.rect((_section.pos_x, _section.pos_y),
+                                      (_section.size_x, _section.size_y))
+
             rectangle.fill(style.fill)
             rectangle.stroke(style.stroke, width=style.stroke_width)
 
@@ -270,7 +293,8 @@ class Map:
                 points = [(i, mid_point_y + shift[0] + 2 * cos(i / 24)) for i in range(wave_len)]
                 points.extend(
                     [
-                        (_section.pos_x + _section.size_x, (_section.pos_y + _section.size_y) * shift[1]),
+                        (_section.pos_x + _section.size_x,
+                         (_section.pos_y + _section.size_y) * shift[1]),
                         (_section.pos_x + _section.size_x, _section.pos_y + shift[2]),
                         (_section.pos_x, _section.pos_y + shift[2]),
                         (_section.pos_x, mid_point_y + shift[0] + 2 * cos(_section.pos_x / 24)),
@@ -305,7 +329,8 @@ class Map:
                 ]
             ]
 
-            rectangle = self.dwg.rect((_section.pos_x, _section.pos_y), (_section.size_x, _section.size_y))
+            rectangle = self.dwg.rect((_section.pos_x, _section.pos_y),
+                                      (_section.size_x, _section.size_y))
             rectangle.fill(section.style.fill)
             group.add(rectangle)
 
@@ -341,12 +366,15 @@ class Map:
             """
             points_list = [[(_section.pos_x, _section.pos_y),
                             (_section.pos_x + _section.size_x, _section.pos_y),
-                            (_section.pos_x + _section.size_x, (_section.pos_y + _section.size_y) * 3 / 10),
+                            (_section.pos_x + _section.size_x,
+                             (_section.pos_y + _section.size_y) * 3 / 10),
                             (_section.pos_x, (_section.pos_y + _section.size_y) * 5 / 10),
                             (_section.pos_x, _section.pos_y)
                             ], [(_section.pos_x, _section.pos_y + _section.size_y),
-                                (_section.pos_x + _section.size_x, _section.pos_y + _section.size_y),
-                                (_section.pos_x + _section.size_x, (_section.pos_y + _section.size_y) * 5 / 10),
+                                (_section.pos_x + _section.size_x,
+                                 _section.pos_y + _section.size_y),
+                                (_section.pos_x + _section.size_x,
+                                 (_section.pos_y + _section.size_y) * 5 / 10),
                                 (_section.pos_x, (_section.pos_y + _section.size_y) * 7 / 10),
                                 (_section.pos_x, _section.pos_y + _section.size_y),
                                 ]]
@@ -368,15 +396,21 @@ class Map:
             if style.break_type == _break[0]:
                 return _break[1](section)
 
-    def _make_text(self, text, pos_x, pos_y, style, anchor, baseline='middle', small=False, title=False):
-        if title:
+    def _make_text(self,
+                   text,
+                   position,
+                   style,
+                   text_type='normal',
+                   **kwargs):
+
+        if text_type == 'title':
             size = '24px'
-        elif small:
+        elif text_type == 'small':
             size = '12px'
         else:
             size = style.font_size
 
-        return self.dwg.text(text, insert=(pos_x, pos_y),
+        return self.dwg.text(text, insert=(position[0], position[1]),
                              stroke=style.text_stroke,
                              # focusable='true',
                              fill=style.text_fill,
@@ -384,32 +418,29 @@ class Map:
                              font_size=size,
                              font_weight="normal",
                              font_family=style.font_type,
-                             text_anchor=anchor,
-                             alignment_baseline=baseline
+                             text_anchor=kwargs.get('anchor', 'middle'),
+                             alignment_baseline=kwargs.get('baseline', 'middle')
                              )
 
     def _make_name(self, section):
         return self._make_text(section.name,
-                               section.name_label_pos_x,
-                               section.name_label_pos_y,
+                               (section.name_label_pos_x,section.name_label_pos_y),
                                style=section.style,
                                anchor='middle',
                                )
 
     def _make_size_label(self, section):
         return self._make_text(hex(section.size),
-                               section.size_label_pos[0],
-                               section.size_label_pos[1],
+                               (section.size_label_pos[0], section.size_label_pos[1]),
                                section.style,
-                               'start',
-                               'hanging',
-                               True,
+                               anchor='start',
+                               baseline='hanging',
+                               text_type='small'
                                )
 
     def _make_address(self, section):
         return self._make_text(hex(section.address),
-                               section.addr_label_pos_x,
-                               section.addr_label_pos_y,
+                               (section.addr_label_pos_x, section.addr_label_pos_y),
                                anchor='start',
                                style=section.style)
 
@@ -454,10 +485,10 @@ class Map:
     def _make_poly(self, area_view, start_address, end_address, style):
 
         points = []
-        reversed = self._get_points_for_address(end_address, area_view)
-        reversed.reverse()
+        _reversed = self._get_points_for_address(end_address, area_view)
+        _reversed.reverse()
         points.extend(self._get_points_for_address(start_address, area_view))
-        points.extend(reversed)
+        points.extend(_reversed)
 
         return self.dwg.polyline(points,
                                  stroke=style.stroke,
@@ -504,7 +535,7 @@ class Map:
         label_length = label.length
 
         if address is None:
-            return
+            raise KeyError("A label without address was found")
 
         if side == 1:
             pos_x_d = area_view.size_x
@@ -520,14 +551,14 @@ class Map:
         points = [(0 + pos_x_d, pos_y), (direction*(label_length + pos_x_d), pos_y)]
 
         if 'right' in label.directions:
-            g.add(self._make_arrow_head(label, direction='right')).translate(direction*(label_length + pos_x_d), pos_y,)
+            g.add(self._make_arrow_head(label, direction='right')).translate(
+                direction*(label_length + pos_x_d), pos_y,)
 
         if 'left' in label.directions:
             g.add(self._make_arrow_head(label, direction='left')).translate(pos_x_d,pos_y,)
 
         g.add(self._make_text(text,
-                              direction*(pos_x_d + label_length + line_label_spacer),
-                              pos_y,
+                              (direction*(pos_x_d + label_length + line_label_spacer), pos_y),
                               label.style,
                               anchor=anchor))
 
@@ -537,7 +568,6 @@ class Map:
                                 stroke_width=label.style.stroke_width
                                 ))
         return g
-
 
     def _make_links(self, address, style):
         hlines = self.dwg.g(id='hlines', stroke='grey')

@@ -6,6 +6,10 @@ from style import Style
 
 
 class AreaView:
+    """
+    AreaView provides the container for a given set of sections and the methods to process
+    and transform the information they contain into useful data for graphical representation
+    """
     pos_y: int
     pos_x: int
     zoom: int
@@ -37,18 +41,38 @@ class AreaView:
         if self.config is not None:
             self._process()
 
-    def get_processed_section_views(self):
+    def get_split_area_views(self):
+        """
+        Get current area view split in multiple area views around break sections
+        :return: List of AreaViews
+        """
         return self.processed_section_views
 
-    def to_pixels(self, value):
+    def to_pixels(self, value) -> float:
+        """
+        Convert a given address to pixels in an absolute manner,
+        according to the address / pixel size ratio of current area
+
+        :param value: Address to be converted to pixels
+        :return: Conversion result
+        """
         return value / self.address_to_pxl
 
-    def to_pixels_relative(self, value):
-        a = self.size_y - ((value - self.start_address) / self.address_to_pxl)
-        return a
+    def to_pixels_relative(self, value) -> float:
+        """
+        Convert a given address to pixels in a relative manner,
+        according to the address / pixel size ratio of current area
+
+        Relative in this context means relative to the start address of the Area view. If Area View
+        starts at 0x20000 and ends at 0x30000, passing these values to this function for an area
+        with a height of 1000 pixels, will result in 0 and 1000 respectively
+
+        :param value: Address to be converted to pixels
+        :return: Conversion result
+        """
+        return self.size_y - ((value - self.start_address) / self.address_to_pxl)
 
     def _overwrite_sections_info(self):
-
         for section in self.sections.get_sections():
 
             section_style = copy.deepcopy(self.style)
@@ -80,7 +104,8 @@ class AreaView:
         if area_has_breaks:
 
             total_breaks_size_y_px = self._get_break_total_size_px()
-            total_non_breaks_size_y_px = self._get_non_breaks_total_size_px(self.sections.get_sections())
+            total_non_breaks_size_y_px = self._get_non_breaks_total_size_px(
+                self.sections.get_sections())
             expandable_size_px = total_breaks_size_y_px - (breaks_section_size_y_px * breaks_count)
 
             last_area_pos = self.pos_y + self.size_y
@@ -90,7 +115,8 @@ class AreaView:
                 if section_group.is_break_section_group():
                     corrected_size = breaks_section_size_y_px
                 else:
-                    split_section_size_px = self._get_non_breaks_total_size_px(section_group.get_sections())
+                    split_section_size_px = self._get_non_breaks_total_size_px(
+                        section_group.get_sections())
                     corrected_size = (split_section_size_px / total_non_breaks_size_y_px) * (
                             total_non_breaks_size_y_px + expandable_size_px)
 

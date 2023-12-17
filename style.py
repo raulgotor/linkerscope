@@ -1,4 +1,7 @@
 class Style:
+    """
+    Holds style for different rendering objects
+    """
     # Non SVG
     background: str
     break_type: str
@@ -22,18 +25,19 @@ class Style:
     text_fill: str
 
     weigth: int
+
     def __init__(self, style=None):
         if style is not None:
             for key, value in style.items():
                 setattr(self, key.replace('-','_'), style.get(key, value))
 
     def override_properties_from(self, style):
-        '''
+        """
         Modify self by adding additional members available at the provided style
 
         :param style: Style whose members wants to be added
         :return: New merged styl
-        '''
+        """
         members = [attr for attr in dir(style) if
                    not callable(getattr(style, attr)) and not attr.startswith("__") and getattr(
                        style, attr) is not None]
@@ -46,6 +50,11 @@ class Style:
 
     @staticmethod
     def get_default():
+        """
+        Get an initialized default Style instance
+        :return: A default initialized Style instance
+        """
+
         default_style = Style()
         default_style.break_type = '≈'
         default_style.break_size = 20
