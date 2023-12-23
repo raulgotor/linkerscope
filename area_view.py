@@ -30,8 +30,8 @@ class AreaView:
         self.style = style
         self.start_address = self.area.get('start', self.sections.lowest_memory)
         self.end_address = self.area.get('end', self.sections.highest_memory)
-        self.pos_x = safe_element_get(self.area.get('pos'), 0, default=10)
-        self.pos_y = safe_element_get(self.area.get('pos'), 1, default=10)
+        self.pos_x = safe_element_get(self.area.get('pos'), 0, default=50)
+        self.pos_y = safe_element_get(self.area.get('pos'), 1, default=50)
         self.size_x = safe_element_get(self.area.get('size'), 0, default=200)
         self.size_y = safe_element_get(self.area.get('size'), 1, default=500)
         self.labels = Labels(self.area.get('labels', []), style)
@@ -81,12 +81,14 @@ class AreaView:
             for element in self.area.get('sections', []):
                 sections = element.get('names')
                 for item in sections:
-                    if item == section.name:
+                    if item == section.id:
+                        # OVERWRITE style, address, size and type if needed
                         section_style.override_properties_from(Style(style=element.get('style')))
                         section.address = element.get('address', section.address)
                         section.type = element.get('type', section.type)
                         section.size = element.get('size', section.size)
-                        section.flags = element.get('flags', section.flags)
+                        # As flags can be defined previously at map file, APPEND whatever is new
+                        section.flags += element.get('flags', section.flags)
 
     def _process(self):
         self._overwrite_sections_info()

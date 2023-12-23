@@ -40,7 +40,8 @@ class MapParser:
                 'parent': section.filter_parent,
                 'address': section.address,
                 'size': section.size,
-                'name': section.name,
+                'name': section.id,
+                'flags': section.flags
             })
 
         with open(self.output_filename, 'w', encoding='utf8') as file:
@@ -55,7 +56,7 @@ class MapParser:
 
         if result is not None:
             self.areas.append(Section(parent=None,
-                                      name=result.group(1),
+                                      id=result.group(1),
                                       address=int(result.group(2), 0),
                                       size=int(result.group(3), 0),
                                       _type='area'
@@ -71,7 +72,7 @@ class MapParser:
 
         if result is not None:
             self.sections.append(Section(parent=result.group(1),
-                                         name=result.group(2),
+                                         id=result.group(2),
                                          address=int(result.group(3), 0),
                                          size=int(result.group(4), 0),
                                          _type='section'

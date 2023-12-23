@@ -8,7 +8,7 @@ class Section:
     """
     size: int
     address: int
-    name: str
+    id: str
     size_x: int
     size_y: int
     pos_x: int
@@ -16,16 +16,16 @@ class Section:
     label_offset: int = 10
     style: Style
 
-    def __init__(self, size, address, name, _type, parent):
+    def __init__(self, size, address, id, _type, parent, flags=[]):
         self.type = _type
         self.parent = parent
         self.size = size
         self.address = address
-        self.name = name
+        self.id = id
         self.size_y = 0
         self.size_x = 0
         self.style = Style()
-        self.flags = []
+        self.flags = flags
 
     def is_grow_up(self):
         return 'grows-up' in self.flags
@@ -37,13 +37,13 @@ class Section:
         return 'break' in self.flags
 
     def is_address_hidden(self):
-        return 'hide-address' in self.flags
+        return self.style.hide_address
 
     def is_name_hidden(self):
-        return 'hide-name' in self.flags
+        return self.style.hide_name
 
     def is_size_hidden(self):
-        return 'hide-size' in self.flags
+        return self.style.hide_size
 
     @property
     def addr_label_pos_x(self):

@@ -65,7 +65,7 @@ class Map:
                     # If single section, the start and end address of the linked section equals
                     # those of the section
                     if not multi_section:
-                        if section.name == linked_section:
+                        if section.id == linked_section:
                             l_sections.append([section.address, section.address + section.size])
                             appended = True
                             break
@@ -73,9 +73,9 @@ class Map:
                     # start of the first provided section and the end of the second provided section
                     # respectively
                     else:
-                        if section.name == linked_section[0]:
+                        if section.id == linked_section[0]:
                             start = section.address
-                        elif section.name == linked_section[1]:
+                        elif section.id == linked_section[1]:
                             end = section.address + section.size
 
                         # If before finishing the iteration on this area, we found a valid start and
@@ -423,7 +423,7 @@ class Map:
                              )
 
     def _make_name(self, section):
-        return self._make_text(section.name,
+        return self._make_text(section.id,
                                (section.name_label_pos_x,section.name_label_pos_y),
                                style=section.style,
                                anchor='middle',
