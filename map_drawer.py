@@ -275,7 +275,7 @@ class Map:
             ]
 
             for points_set in points_list:
-                group.add(self.dwg.circle(points_set, 3, fill=style.label_color))
+                group.add(self.dwg.circle(points_set, 3, fill=style.text_fill))
 
             return group
 

@@ -1,0 +1,66 @@
+variables:
+  graphite: &graphite '#2A363B'
+  pastel_green: &pastel_green '#99B898'
+
+style:
+  text-fill: 'black'
+  break-size: 60
+  break-type: '~'
+  #background: *graphite
+  fill: *pastel_green
+  hide-address: true
+  hide-size: true
+  stroke: *graphite
+  stroke-width: 0
+  font_type: 'Helvetica'
+
+areas:
+- area:
+    title: 'Wave'
+    pos: [30, 50]
+    style:
+      break-type: '~'
+    sections:
+    - names: [ External RAM ]
+      flags: break
+    - names: [ External Device, Peripheral, SRAM Area, External RAM ]
+      style:
+        stroke-width: 1
+
+- area:
+    title: 'Double-wave'
+    pos: [260, 50]
+    style:
+      break-type: '≈'
+      stroke-width: 1
+    sections:
+    - names: [ External RAM ]
+      flags: break
+
+- area:
+    title: 'Diagonal'
+    pos: [490, 50]
+    style:
+      break-type: '/'
+    sections:
+    - names: [ External RAM ]
+      flags: break
+    - names: [ External Device, Peripheral, SRAM Area, External RAM ]
+      style:
+        stroke-width: 1
+- area:
+    title: 'Dots'
+    pos: [720, 50]
+    style:
+      break-type: '...'
+      stroke-width: 1
+    sections:
+    - names: [ External RAM ]
+      flags: break
+
+- area:
+    title: 'Wave break'
+    pos: [940, 50]
+    sections:
+    - names: [ External RAM ]
+      flags: break

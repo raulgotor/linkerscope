@@ -1,0 +1,17 @@
+map:
+- address: 0x20000000
+  size:    0x20000000
+  id: SRAM Area
+  type: area
+- address: 0x40000000
+  size:    0x20000000
+  id: Peripheral
+  type: area
+- address: 0x60000000
+  size:    0x40000000
+  id: External RAM
+  type: area
+- address: 0xA0000000
+  size:    0x40000000
+  id: External Device
+  type: area
