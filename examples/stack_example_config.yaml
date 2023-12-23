@@ -1,0 +1,18 @@
+variables:
+  graphite: &graphite '#2A363B'
+  pastel_green: &pastel_green '#99B898'
+  pastel_yellow: &pastel_yellow '#FECEA8'
+  pastel_orange: &pastel_orange '#FF847C'
+  pastel_red: &pastel_red '#E84A5F'
+
+style:
+
+  hide-size: true
+  hide-address: true
+  growth-arrow-size: 2
+
+areas:
+- area:
+    style:
+        background: 'grey'
+    title: 'Full Memory Map'

@@ -35,8 +35,55 @@ where:
 - `-o` specifies the path to the output file, which will be a newly generated SVG.
 - `-c` [OPTIONAL] specifies the path to the configuration file. This file contains all the custom information to tell LinkerScope what to and how to draw the memory maps. While it is optional, the default parameters will most likely not apply to a given use case.
 
-### Manually crafting input file
-TODO
+### Input files
+
+#### Manually crafted memory map files
+
+Linkerscope can use two types of input files: GNU linker map files (`.map`) or custom defined yaml files (`.yaml`).
+
+Custom memory map files can be manually crafted and can run from a couple of memory sections up to very complex memory schemes with hundreds of sections.
+Normally you would do that when representing simple memory maps.
+
+For making a memory map file, one has to specify at least a single section. Each section must include
+an `id`, an `address` and a `size`.
+
+While these three are needed, there are other possible attributes that are optional:
+
+- `name`: Friendly text name that would be used instead of the `id`
+- `type`: Section type, which can be used for different purposes. Possibilities are `section` (default) and `area`.
+
+The input file should contain the `map` keyword whose value is an array of sections. Below an example
+of how an input file should look like:
+
+```yaml
+- address: 0x80045D4
+  size:    0x0000F00
+  id:      .rodata
+  name:    Read Only Data
+  type:    area
+- address: 0x8002C3C
+  id:      SysTick_Handler
+  size:    0x0000008
+- ...
+```
+
+In order to use this file, invoke Linkerscope and specify the yaml map file as input:
+
+```bash
+./linkerscope.py -i memory_map.yaml -o memory_map.svg -c config.yaml
+```
+
+#### Automatically generated memory map files
+
+For a complex diagram that fully represents the memory map of a given program, handcrafting the memory map can be
+time-consuming. In the case that the intended diagram is related to a program, the necessary information is already
+available at the generated GNU Linker map files.
+Linkerscope conveniently provides the possibility to parse these files and generate diagram from those. For that, simply
+specify the `.map` file as an input.
+
+```bash
+./linkerscope.py -i linker.map -o map.svg -c config.yaml
+```
 
 ### Creating a configuration file
 
@@ -144,6 +191,47 @@ The following characteristics of a map can be defined
   - `min`: minimum size of a memory section to be shown
 - `style`: custom style for the given area, according to [Styles](####Styles) section.
 
+#### Section flags
+
+Section flags allows to flag specified sections with special properties. These properties are listed below:
+
+Flags are listed under property `flags` and can be specified both at the map files under each section
+
+```yaml
+map:
+- address: 0x20000000
+  id: stack
+  # ...
+  flags: grows-down, break
+```
+
+or at the configuration files, with the possibility to specify multiple sections at the same time:
+
+```yaml
+areas:
+- area:
+  # ...
+  sections:
+  - names: [ROM Table, TPIU]
+    flags: break
+```
+
+##### `grows-up` / `grows-down`
+These flags specify the section as growing section, for instance, if the section is meant to grow into one direction, such as the stack.
+When flagging a section with `grows-down`, an arrow pointing downwards will be appended to the bottom of the section indicating that the section is growing into that direction:
+
+![](examples/stack_example_map.svg)
+
+##### `break`
+
+A break or discontinuous section shortens a sized section to a fixed size by drawing a symbol representing a discontinuity across it.
+This is specially useful when wanting to include several sections of considerable different sizes in one diagram.
+Reducing the size of the biggest one helps to visually simplify the diagram and evenly distribute the space.
+
+There are four different break styles, which can be defined by the 'break-type' style property: `~`: Wave,  `≈`: Double wave, `/`: Diagonal, `...`: Dots
+
+![](examples/break_example_map.svg)
+
 #### Links
 
 A link between same sections or addresses drawn at different areas can be created for making, for instance, _zoom_ in effects.
@@ -174,6 +262,9 @@ At the folder examples, there are a series of configurations and map `.yaml` fil
 - [ ] Section links across breaks
 - [ ] Friendly name and identifier
 - [ ] Legend
+- [ ] Area representation different from section
+- [ ] Make `type` default to `section`
+- 
 ## References
 
 - [YAML cheatsheet](https://quickref.me/yaml)

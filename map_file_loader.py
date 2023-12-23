@@ -39,12 +39,12 @@ class MapFileLoader:
         for element in y['map']:
             sections.append(Section(address=element['address'],
                                     size=element['size'],
-                                    name=element['name'],
-                                    parent=element.get('parent') if element.get(
-                                        'parent') is not None else 'none',
-                                    _type=element.get('type') if element.get(
-                                        'type') is not None else 'area',
-                                    ))
+                                    id=element['id'],
+                                    parent=element.get('parent', 'none'),
+                                    _type=element.get('type', 'area'),
+                                    flags=element.get('flags', '')
+                                    )
+                            )
 
         return sections
 

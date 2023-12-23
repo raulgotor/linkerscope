@@ -1,0 +1,23 @@
+map:
+- address: 0x20000000
+  size:    0x10000000
+  id: Text
+  type: area
+- address: 0x30000000
+  size:    0x10000000
+  id: Initialized data
+  type: area
+- address: 0x40000000
+  size:    0x10000000
+  id: Uninitialized data
+  type: area
+- address: 0x50000000
+  size:    0x10000000
+  id: Heap
+  type: area
+  flags: grows-up
+- address: 0xA0000000
+  size:    0x10000000
+  id: Stack
+  type: area
+  flags: grows-down

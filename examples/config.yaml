@@ -50,7 +50,10 @@ areas:
     sections:
     - names: [ External Device ]
       fill: '#FF847C'
-      flags: grows-up
+      flags: grows-up, hide-size, hide-address
+      style:
+        hide-size: true
+        hide-address: true
 
 - area:
     pos: [ 500, 30 ]
@@ -79,6 +82,11 @@ areas:
     sections:
     - names: [ Reserved ]
       flags: grows-down, break
+    - names: [ DWT ]
+      style:
+        hide-size: true
+        hide-address: true
+        hide-name: true
     labels:
       - address: 0xe0017FFF
         text: Random name
@@ -102,6 +110,7 @@ areas:
           text_fill: *pastel_green
       - address: 0xe8041000
         text: Cool Memory
+
 
 - area:
     pos: [ 500, 730 ]

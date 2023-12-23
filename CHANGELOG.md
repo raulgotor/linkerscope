@@ -9,6 +9,8 @@ and this project adheres to
 
 ### Added
 * Title feature and property (`title`) for the different areas
+* `hide-name`, `hide-address` and `hide-size` style properties to hide specific visual elements
+* `flags` can be specified at map file as well
 
 ## [0.2.0] - 2023-12-14
 
