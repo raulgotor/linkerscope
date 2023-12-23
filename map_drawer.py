@@ -15,7 +15,7 @@ class Map:
     dwg: Drawing
     pointer_y: int
 
-    def __init__(self, area_view, links, file='map.svg', **kwargs):
+    def __init__(self, area_view, links, file='map.svg', size=(500,500), **kwargs):
         self.style = kwargs.get('style')
         self.type = type
         self.area_views = area_view
@@ -23,9 +23,12 @@ class Map:
         self.links = links
         self.links_sections = self._get_valid_linked_sections(links.sections)
         self.file = file
+        self.size = size
+        print(self.size[0])
         self.dwg = svgwrite.Drawing(file,
                                     profile='full',
-                                    size=('900', '1300'))
+                                    size=(self.size)
+                                    )
 
     def _get_valid_linked_sections(self, linked_sections):
         """

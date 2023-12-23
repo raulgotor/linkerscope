@@ -220,7 +220,7 @@ areas:
 These flags specify the section as growing section, for instance, if the section is meant to grow into one direction, such as the stack.
 When flagging a section with `grows-down`, an arrow pointing downwards will be appended to the bottom of the section indicating that the section is growing into that direction:
 
-![](examples/stack_example_map.svg)
+<img align="center" src="examples/stack_example_map.svg">
 
 ##### `break`
 
@@ -230,7 +230,7 @@ Reducing the size of the biggest one helps to visually simplify the diagram and 
 
 There are four different break styles, which can be defined by the 'break-type' style property: `~`: Wave,  `≈`: Double wave, `/`: Diagonal, `...`: Dots
 
-![](examples/break_example_map.svg)
+![](examples/break_example_map.svg#center)
 
 #### Links
 
@@ -246,7 +246,7 @@ links:
   sections: [HAL_RCC_OscConfig, __malloc_av_]
 ```
 
-## Run some examples LinkerScope
+## Run some examples with LinkerScope
 
 At the folder examples, there are a series of configurations and map `.yaml` files you can use to get a preview of what LinkerScope can do.
 
@@ -257,14 +257,15 @@ At the folder examples, there are a series of configurations and map `.yaml` fil
 - [ ] Links across specific areas
 - [ ] Choose side of the labels
 - [x] Memory direction
-- [ ] Hide specific elements
+- [x] Hide specific elements
 - [ ] Memory size in bytes
 - [ ] Section links across breaks
 - [ ] Friendly name and identifier
 - [ ] Legend
 - [ ] Area representation different from section
 - [ ] Make `type` default to `section`
-- 
+- [ ] Bug: title appears at top of each break section, if long enough
+
 ## References
 
 - [YAML cheatsheet](https://quickref.me/yaml)
