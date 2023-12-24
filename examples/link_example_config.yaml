@@ -1,0 +1,79 @@
+size: [750, 650]
+variables:
+  graphite: &graphite '#2A363B'
+  pastel_green: &pastel_green '#99B898'
+  pastel_yellow: &pastel_yellow '#FECEA8'
+  pastel_orange: &pastel_orange '#FF847C'
+  pastel_red: &pastel_red '#E84A5F'
+
+style:
+  text-fill: 'lightgrey'
+  background: *graphite
+  fill: '#99B898'
+  hide-size: true
+  stroke: *graphite
+  stroke-width: 1
+  text-stroke: 'black'
+  text-stroke-width: 0
+  font_type: 'Helvetica'
+
+areas:
+- area:
+    title: 'Full Memory Map'
+    size: [200, 500]
+    range: [0x0, 0x100000000]
+    section-size: [0x02F00000]
+    style:
+      hide-address: true
+      fill: *pastel_green
+    sections:
+    - names: [ External Device, External Ram ]
+      fill: '#FF847C'
+      style:
+        hide-size: true
+        hide-address: true
+
+- area:
+    title: 'Address Link Example'
+    pos: [ 400, 50 ]
+    size: [ 200, 200 ]
+    range: [0xE8040000, 0xE8044000]
+    sections: # Adding the 'regions' sub-level under 'style'
+    - names: [ ROM Table ]
+      style:
+        fill: *pastel_green
+    - names: [ External PPB ]
+      style:
+        fill: *pastel_yellow
+    - names: [ ETM, Peripheral ]
+      style:
+        fill: *pastel_orange
+    - names: [ TPIU ]
+      style:
+        fill: *pastel_red
+
+- area:
+    title: 'Sections Link Example'
+    pos: [ 400, 330 ]
+    size: [ 200, 300 ]
+    range: [0x40000000, 0x43000000]
+    sections: # Adding the 'regions' sub-level under 'style'
+    - names: [ Bit ]
+      style:
+        fill: *pastel_yellow
+    - names: [ Bit band region ]
+      style:
+        fill: *pastel_orange
+    - names: [ Reserved ]
+      flags: grows-down
+
+links:
+  style:
+    stroke: 'lightgray'
+    stroke-width: 1
+    fill: 'gray'
+  addresses: [ 0xe8040000 ]
+  sections: [['Bit band region', 'Bit band alias']]
+
+
+

@@ -178,18 +178,48 @@ area level, by specifying the names of the regions whose properties want to be o
 
 The diagram can have one or multiple areas. When multiple areas are declared,
 first area has a special status since all links will start on it and go to the corresponding sections on the other areas
-The following characteristics of a map can be defined
-- `x` and `y`: absolute position 
-- `size_x` and `size_y`: absolute size
-- `address`: range of addresses that must be included in the area
-    - `min`: minimum address to include
-    - `max`: maximum address to include
-- `start`: force area to start in to a given address
-- `end`: force area to end in to a given address.
-- `size`: size range for the sections to show
-  - `max`: maximum size of a memory section to be shown
-  - `min`: minimum size of a memory section to be shown
-- `style`: custom style for the given area, according to [Styles](####Styles) section.
+The areas are declared at root level under `areas`. Then each area must use the key `area`.
+For each area, the following characteristics of an area can be defined:
+- `title`:  **[Optional, none]**
+  - The title of the area, which will appear on top of it
+- `pos`:  **[Optional, (50, 50)]** **[x, y]**
+  - absolute position  of the area's top-left corner in pixels
+- `size`:  **[Optional, (300, 600)]** **[width, height]**
+  - area size in pixels
+- `range`:  **[Optional, (0, no limit)]** **[min, max]**
+  - range of addresses that will be taken into account in this area.
+  // - `start`: **[start, end]** force area to start in to a given address
+- `section-size`: **[Optional, (0, no limit)]** **[min, max]**
+  - size range of the sections that should be shown. Exclude others.
+- `style`:  **[Optional, default: parent style]**
+  - specific style for current area. See [Styles](####Styles) section.
+- `sections`: **[Optional, none]**
+  - specify or modify a section or group of sections property such as `style`, `flags`,...
+    - `names`:
+      - list of one or more sections to modify with the parameters below
+    - `flags`: **[Optional, none]**
+      - flags to append to the specified section/s. See [Flags](#### Section flags) section.
+    - `style`: **[Optional, parent style]**
+      - style properties to or modify to the specified section/s
+
+Below an example of area definition:
+
+```yaml
+areas:
+- area:
+    title: 'Full Memory Map'
+    pos: [30, 50]
+    size: [300, 900]
+    range: [0x0, 0x100000000]
+    section-size: [0x02F00000]
+    style:
+      fill: *pastel_green
+    sections:
+    - names: [ External Device ]
+      flags: grows-up
+      style:
+        hide-size: true
+```
 
 #### Section flags
 
@@ -198,6 +228,7 @@ Section flags allows to flag specified sections with special properties. These p
 Flags are listed under property `flags` and can be specified both at the map files under each section
 
 ```yaml
+# flags can be defined at map.yaml files under each section
 map:
 - address: 0x20000000
   id: stack
@@ -208,6 +239,7 @@ map:
 or at the configuration files, with the possibility to specify multiple sections at the same time:
 
 ```yaml
+# flags can be defined at config.yaml files under each section or group of sections
 areas:
 - area:
   # ...
@@ -234,17 +266,30 @@ There are four different break styles, which can be defined by the 'break-type' 
 
 #### Links
 
-A link between same sections or addresses drawn at different areas can be created for making, for instance, _zoom_ in effects.
-For creating links between addresses, add the address value within a list under the `addresses` key.
-Do the same for creating links between sections.
-When specifying a section, both links for start and end of the section will be drawn. 
-If any area doesn't have one of the listed addresses or sections, the link will not be drawn for that section.
+Links establish a connection between same addresses or sections at different areas.
+
+While address links are represented with a finite line between the addresses, section link drawing
+cover the whole region space. These can be used,for instance, to represent a _zoom_ in effects from one overview area
+to other area with more detail.
+
+> When drawing a section link, Linkerscope expects both start and end section addresses to be visible at both intended areas.
+If any of those is not present, the link will not be drawn
+
+Links are defined at root level under the `links` tag. Links must have either `addresses` or `sections` tags or both.
+Additionally, specific styles can be specified under the `style` tag.
+
 
 ```yaml
 links:
-  addresses: [ 0x80045d4, 0x20000910, 0x200004e8]
-  sections: [HAL_RCC_OscConfig, __malloc_av_]
+  style:
+    stroke: 'lightgray'
+    stroke-width: 1
+    fill: 'gray'
+  addresses: [ 0xe8040000 ]
+  sections: [['Bit band region', 'Bit band alias']]
+
 ```
+<img style="display: block; margin-left: auto; margin-right: auto;" src="examples/link_example_map.svg">
 
 #### Other properties
 
