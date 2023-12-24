@@ -71,4 +71,6 @@ links = Links(config.get('links', {}),
 Map(area_view=areas,
     links=links,
     style=base_style,
-    file=args.output).draw()
+    file=args.output,
+    size=config.get('size', (500, 500))
+    ).draw()

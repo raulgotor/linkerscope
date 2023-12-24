@@ -1,3 +1,5 @@
+size: [300, 600]
+
 variables:
   graphite: &graphite '#2A363B'
   pastel_green: &pastel_green '#99B898'

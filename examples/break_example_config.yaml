@@ -1,3 +1,5 @@
+size: [950, 570]
+
 variables:
   graphite: &graphite '#2A363B'
   pastel_green: &pastel_green '#99B898'
@@ -54,13 +56,6 @@ areas:
     style:
       break-type: '...'
       stroke-width: 1
-    sections:
-    - names: [ External RAM ]
-      flags: break
-
-- area:
-    title: 'Wave break'
-    pos: [940, 50]
     sections:
     - names: [ External RAM ]
       flags: break
