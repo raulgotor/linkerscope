@@ -11,6 +11,7 @@ and this project adheres to
 * Title feature and property (`title`) for the different areas
 * `hide-name`, `hide-address` and `hide-size` style properties to hide specific visual elements
 * `flags` can be specified at map file as well
+* `size` property at root level to modify the document size
 
 ## [0.2.0] - 2023-12-14
 

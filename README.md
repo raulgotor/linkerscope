@@ -220,7 +220,7 @@ areas:
 These flags specify the section as growing section, for instance, if the section is meant to grow into one direction, such as the stack.
 When flagging a section with `grows-down`, an arrow pointing downwards will be appended to the bottom of the section indicating that the section is growing into that direction:
 
-<img align="center" src="examples/stack_example_map.svg">
+<img style="display: block; margin-left: auto; margin-right: auto;" src="examples/stack_example_map.svg">
 
 ##### `break`
 
@@ -230,7 +230,7 @@ Reducing the size of the biggest one helps to visually simplify the diagram and 
 
 There are four different break styles, which can be defined by the 'break-type' style property: `~`: Wave,  `≈`: Double wave, `/`: Diagonal, `...`: Dots
 
-![](examples/break_example_map.svg#center)
+<img style="display: block; margin-left: auto; margin-right: auto;" src="examples/break_example_map.svg">
 
 #### Links
 
@@ -245,6 +245,13 @@ links:
   addresses: [ 0x80045d4, 0x20000910, 0x200004e8]
   sections: [HAL_RCC_OscConfig, __malloc_av_]
 ```
+
+#### Other properties
+
+##### Document size
+
+The generated SVG document has a fixed size. If you want to adjust it, use the `size` property at root level to pass
+desired document width and height in pixels.
 
 ## Run some examples with LinkerScope
 
