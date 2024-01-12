@@ -37,6 +37,11 @@ class Labels:
         return labels
 
 
+class Side:
+    RIGHT = 'right'
+    LEFT = 'left'
+
+
 @dataclass
 class Label:
     """
@@ -49,3 +54,4 @@ class Label:
         self.text = 'Label'
         self.length = 20
         self.directions = []
+        self.side = Side.RIGHT

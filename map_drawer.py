@@ -1,6 +1,8 @@
 from math import cos
 from svgwrite import Drawing
 import svgwrite
+
+from labels import Side
 from section import Section
 from style import Style
 
@@ -529,10 +531,8 @@ class Map:
         return group
 
     def _make_label(self, label, area_view):
-
         line_label_spacer = 3
         g = self.dwg.g()
-        side = 1
         address = label.address
         text = label.text
         label_length = label.length
@@ -540,7 +540,7 @@ class Map:
         if address is None:
             raise KeyError("A label without address was found")
 
-        if side == 1:
+        if label.side == Side.RIGHT:
             pos_x_d = area_view.size_x
             direction = 1
             anchor = 'start'
@@ -553,12 +553,19 @@ class Map:
         pos_y = area_view.to_pixels_relative(address)
         points = [(0 + pos_x_d, pos_y), (direction*(label_length + pos_x_d), pos_y)]
 
+        # TODO: FIX: direction is inverted if we change the label side
         if 'right' in label.directions:
-            g.add(self._make_arrow_head(label, direction='right')).translate(
+            arrow_direction = 'right'
+            if label.side == Side.LEFT:
+                arrow_direction = 'left'
+            g.add(self._make_arrow_head(label, direction=arrow_direction)).translate(
                 direction*(label_length + pos_x_d), pos_y,)
 
         if 'left' in label.directions:
-            g.add(self._make_arrow_head(label, direction='left')).translate(pos_x_d,pos_y,)
+            arrow_direction = 'right'
+            if label.side == Side.RIGHT:
+                arrow_direction = 'left'
+            g.add(self._make_arrow_head(label, direction=arrow_direction)).translate(pos_x_d,pos_y,)
 
         g.add(self._make_text(text,
                               (direction*(pos_x_d + label_length + line_label_spacer), pos_y),
