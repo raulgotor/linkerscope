@@ -426,7 +426,8 @@ class Map:
                              )
 
     def _make_name(self, section):
-        return self._make_text(section.id,
+        name = section.name if section.name is not None else section.id
+        return self._make_text(name,
                                (section.name_label_pos_x,section.name_label_pos_y),
                                style=section.style,
                                anchor='middle',

@@ -9,8 +9,8 @@ class MapParser:
     Parse a linker map file and convert it to a yaml file for further processing
     """
     def __init__(self, input_filename, output_filename):
-        self.areas = []
         self.sections = []
+        self.subsections = []
         self.input_filename = input_filename
         self.output_filename = output_filename
 
@@ -26,22 +26,23 @@ class MapParser:
                 prev_line = line
 
         my_dict = {'map': []}
-        for area in self.areas:
-            my_dict['map'].append({
-                'type': 'area',
-                'address': area.address,
-                'size': area.size,
-                'name': area.name,
-            })
-
         for section in self.sections:
             my_dict['map'].append({
-                'type': 'section',
-                'parent': section.filter_parent,
+                'type': 'area',
                 'address': section.address,
                 'size': section.size,
-                'name': section.id,
+                'id': section.id,
                 'flags': section.flags
+            })
+
+        for subsection in self.subsections:
+            my_dict['map'].append({
+                'type': 'section',
+                'parent': subsection.parent,
+                'address': subsection.address,
+                'size': subsection.size,
+                'id': subsection.id,
+                'flags': subsection.flags
             })
 
         with open(self.output_filename, 'w', encoding='utf8') as file:
@@ -55,13 +56,13 @@ class MapParser:
         result = p.search(line)
 
         if result is not None:
-            self.areas.append(Section(parent=None,
-                                      id=result.group(1),
-                                      address=int(result.group(2), 0),
-                                      size=int(result.group(3), 0),
-                                      _type='area'
-                                      )
-                              )
+            self.sections.append(Section(parent=None,
+                                         id=result.group(1),
+                                         address=int(result.group(2), 0),
+                                         size=int(result.group(3), 0),
+                                         _type='area'
+                                         )
+                                 )
 
     def process_sections(self, line):
         pattern = r'\s(.[^.]+).([^. \n]+)[\n\r]\s+(0x[0-9a-fA-F]{16})\s+' \
@@ -71,10 +72,10 @@ class MapParser:
         result = p.search(line)
 
         if result is not None:
-            self.sections.append(Section(parent=result.group(1),
-                                         id=result.group(2),
-                                         address=int(result.group(3), 0),
-                                         size=int(result.group(4), 0),
-                                         _type='section'
-                                         )
-                                 )
+            self.subsections.append(Section(parent=result.group(1),
+                                            id=result.group(2),
+                                            address=int(result.group(3), 0),
+                                            size=int(result.group(4), 0),
+                                            _type='section'
+                                            )
+                                    )
