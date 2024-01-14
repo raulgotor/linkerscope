@@ -50,7 +50,7 @@ an `id`, an `address` and a `size`.
 While these three are needed, there are other possible attributes that are optional:
 
 - `name`: Friendly text name that would be used instead of the `id`
-- `type`: Section type, which can be used for different purposes. Possibilities are `section` (default) and `area`.
+- `type`: Section type, which can be used for different purposes. Current possibilities are `section` (default) and `area`.
 
 The input file should contain the `map` keyword whose value is an array of sections. Below an example
 of how an input file should look like:
@@ -67,7 +67,7 @@ of how an input file should look like:
 - ...
 ```
 
-In order to use this file, invoke Linkerscope and specify the yaml map file as input:
+In order to use this file, invoke LinkerScope and specify the yaml map file as input:
 
 ```bash
 ./linkerscope.py -i memory_map.yaml -o memory_map.svg -c config.yaml
@@ -78,7 +78,7 @@ In order to use this file, invoke Linkerscope and specify the yaml map file as i
 For a complex diagram that fully represents the memory map of a given program, handcrafting the memory map can be
 time-consuming. In the case that the intended diagram is related to a program, the necessary information is already
 available at the generated GNU Linker map files.
-Linkerscope conveniently provides the possibility to parse these files and generate diagram from those. For that, simply
+LinkerScope conveniently provides the possibility to parse these files and generate diagram from those. For that, simply
 specify the `.map` file as an input.
 
 ```bash
@@ -261,13 +261,13 @@ At the folder examples, there are a series of configurations and map `.yaml` fil
 
 - [x] Labels at specific memory addresses
 - [x] Area titles
-- [ ] Links across specific areas
+- [x] Links across specific areas
 - [ ] Choose side of the labels
 - [x] Memory direction
 - [x] Hide specific elements
 - [ ] Memory size in bytes
 - [ ] Section links across breaks
-- [ ] Friendly name and identifier
+- [x] Friendly name and identifier
 - [ ] Legend
 - [ ] Area representation different from section
 - [ ] Make `type` default to `section`
