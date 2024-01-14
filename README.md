@@ -188,7 +188,7 @@ For each area, the following characteristics of an area can be defined:
   - area size in pixels
 - `range`:  **[Optional, (0, no limit)]** **[min, max]**
   - range of addresses that will be taken into account in this area.
-  // - `start`: **[start, end]** force area to start in to a given address
+# - `start`: **[start, end]** force area to start in to a given address
 - `section-size`: **[Optional, (0, no limit)]** **[min, max]**
   - size range of the sections that should be shown. Exclude others.
 - `style`:  **[Optional, default: parent style]**
@@ -199,6 +199,20 @@ For each area, the following characteristics of an area can be defined:
       - list of one or more sections to modify with the parameters below
     - `flags`: **[Optional, none]**
       - flags to append to the specified section/s. See [Flags](#### Section flags) section.
+    - `style`: **[Optional, parent style]**
+      - style properties to or modify to the specified section/s
+- `labels`: **[Optional, none]**
+  - Add text labels to specific memory positions of the current area
+    - `address`:
+      - Memory address where the label should be placed
+    - `text`:
+      - Text to display for this label
+    - `lenght`: **[Optional, none]**
+      - lenght of the label line in pixels
+    - `directions`: **[Optional, none]**
+      - direction or list of directions for the arrow head. Possible values are none, `in`, `out` or both.
+    - `side`: **[Optional, `right`]**
+      - Area side at which the label should be placed
     - `style`: **[Optional, parent style]**
       - style properties to or modify to the specified section/s
 
@@ -220,6 +234,27 @@ areas:
       style:
         hide-size: true
 ```
+#### Labels
+
+Labels can bind a text string with a specific memory position. This property falls inside `area`. A partial example can
+be seen below:
+
+```yaml
+areas:
+ - area:
+    labels:
+      - address: 0xe8043800
+        text: In direction
+        length: 150
+        directions: in
+        style:
+          stroke-dasharray: '5,1,3,1,3'
+     # ...
+```
+
+<img style="display: block; margin-left: auto; margin-right: auto;" src="examples/label_example_map.svg">
+
+> See `examples/label_example_config.yaml` for a full example.
 
 #### Section flags
 
@@ -306,13 +341,13 @@ At the folder examples, there are a series of configurations and map `.yaml` fil
 
 - [x] Labels at specific memory addresses
 - [x] Area titles
-- [ ] Links across specific areas
-- [ ] Choose side of the labels
+- [x] Links across specific areas
+- [x] Choose side of the labels
 - [x] Memory direction
 - [x] Hide specific elements
 - [ ] Memory size in bytes
 - [ ] Section links across breaks
-- [ ] Friendly name and identifier
+- [x] Friendly name and identifier
 - [ ] Legend
 - [ ] Area representation different from section
 - [ ] Make `type` default to `section`
