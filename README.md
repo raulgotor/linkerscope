@@ -2,8 +2,10 @@
 
 ## Project summary
 
-LinkerScope is a memory map diagram generator. It can feed itself either from a GNU Linker map file or from a custom `yaml` file
-and generate beautiful and detailed diagrams of the different areas and sections found at the map files.
+LinkerScope is a memory map diagram generator. It can be fed either with a GNU Linker map file or with a custom `yaml` file
+and generate beautiful and detailed diagrams of the different areas and sections such as the one below.
+
+<img style="display: block; margin-left: auto; margin-right: auto;" src="examples/link_example_map.svg">
 
 ## Installing LinkerScope
 
@@ -24,22 +26,22 @@ pip3 install -r requirements.txt
 
 ### Execution
 
-LinkerScope is executed by running
+LinkerScope needs two inputs: a file with memory information (.map or .yaml) and a configuration file. Provide these two files and define an output map with:
 
 ```bash
-./linkerscope.py -i linker.map -o map.svg -c config.yaml
+./linkerscope.py --input linker.map --output map.svg --config config.yaml
 ```
 
 where:
-- `-i` specifies the path to the input file, where LinkerScope should get the data to represent from. It can come from a GNU Linker map file `.map` or from an already parsed or hand-crafted `.yaml` file. Check [Manually crafting input file](#Manually crafting input file) section for learning how to do this.
-- `-o` specifies the path to the output file, which will be a newly generated SVG.
-- `-c` [OPTIONAL] specifies the path to the configuration file. This file contains all the custom information to tell LinkerScope what to and how to draw the memory maps. While it is optional, the default parameters will most likely not apply to a given use case.
+- `-i, --input` specifies the path to the input file, where LinkerScope should get the data to represent from. It can come from a GNU Linker map file `.map` or from an already parsed or hand-crafted `.yaml` file. Check [Manually crafting input file](#Manually crafting input file) section for learning how to do this.
+- `-o, --output` specifies the path to the output file, which will be a newly generated SVG.
+- `-c, --config` [OPTIONAL] specifies the path to the configuration file. This file contains all the custom information to tell LinkerScope what to and how to draw the memory maps. While it is optional, the default parameters will most likely not apply to a given use case.
 
 ### Input files
 
-#### Manually crafted memory map files
+LinkerScope can use two types of input files: GNU linker map files (`.map`) or custom defined yaml files (`.yaml`).
 
-Linkerscope can use two types of input files: GNU linker map files (`.map`) or custom defined yaml files (`.yaml`).
+#### Manually crafted memory map files
 
 Custom memory map files can be manually crafted and can run from a couple of memory sections up to very complex memory schemes with hundreds of sections.
 Normally you would do that when representing simple memory maps.
@@ -71,18 +73,6 @@ In order to use this file, invoke LinkerScope and specify the yaml map file as i
 
 ```bash
 ./linkerscope.py -i memory_map.yaml -o memory_map.svg -c config.yaml
-```
-
-#### Automatically generated memory map files
-
-For a complex diagram that fully represents the memory map of a given program, handcrafting the memory map can be
-time-consuming. In the case that the intended diagram is related to a program, the necessary information is already
-available at the generated GNU Linker map files.
-LinkerScope conveniently provides the possibility to parse these files and generate diagram from those. For that, simply
-specify the `.map` file as an input.
-
-```bash
-./linkerscope.py -i linker.map -o map.svg -c config.yaml
 ```
 
 ### Creating a configuration file
@@ -139,8 +129,8 @@ For each area, the following characteristics of an area can be defined:
 - `size`:  **[Optional, (300, 600)]** **[width, height]**
   - area size in pixels
 - `range`:  **[Optional, (0, no limit)]** **[min, max]**
-  - range of addresses that will be taken into account in this area.
-  // - `start`: **[start, end]** force area to start in to a given address
+  - range of addresses that will be taken into account in this area. 
+- `start`: **[start, end]** force area to start in to a given address
 - `section-size`: **[Optional, (0, no limit)]** **[min, max]**
   - size range of the sections that should be shown. Exclude others.
 - `style`:  **[Optional, default: parent style]**
@@ -151,6 +141,20 @@ For each area, the following characteristics of an area can be defined:
       - list of one or more sections to modify with the parameters below
     - `flags`: **[Optional, none]**
       - flags to append to the specified section/s. See [Flags](#### Section flags) section.
+    - `style`: **[Optional, parent style]**
+      - style properties to or modify to the specified section/s
+- `labels`: **[Optional, none]**
+  - Add text labels to specific memory positions of the current area
+    - `address`:
+      - Memory address where the label should be placed
+    - `text`:
+      - Text to display for this label
+    - `lenght`: **[Optional, none]**
+      - lenght of the label line in pixels
+    - `directions`: **[Optional, none]**
+      - direction or list of directions for the arrow head. Possible values are none, `in`, `out` or both.
+    - `side`: **[Optional, `right`]**
+      - Area side at which the label should be placed
     - `style`: **[Optional, parent style]**
       - style properties to or modify to the specified section/s
 
@@ -172,6 +176,27 @@ areas:
       style:
         hide-size: true
 ```
+#### Labels
+
+Labels can bind a text string with a specific memory position. This property falls inside `area`. A partial example can
+be seen below:
+
+```yaml
+areas:
+ - area:
+    labels:
+      - address: 0xe8043800
+        text: In direction
+        length: 150
+        directions: in
+        style:
+          stroke-dasharray: '5,1,3,1,3'
+     # ...
+```
+
+<img style="display: block; margin-left: auto; margin-right: auto;" src="examples/label_example_map.svg">
+
+> See `examples/label_example_config.yaml` for a full example.
 
 #### Section flags
 
@@ -306,7 +331,7 @@ At the folder examples, there are a series of configurations and map `.yaml` fil
 - [x] Labels at specific memory addresses
 - [x] Area titles
 - [x] Links across specific areas
-- [ ] Choose side of the labels
+- [x] Choose side of the labels
 - [x] Memory direction
 - [x] Hide specific elements
 - [ ] Memory size in bytes

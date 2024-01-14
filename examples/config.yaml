@@ -91,9 +91,10 @@ areas:
       - address: 0xe0017FFF
         text: Random name
         length: 30
-        directions: right
+        directions: ['in','out']
+        side: left
         style:
-          stroke: *pastel_green
+          stroke: 'black'
           stroke-width: 1
           stroke-dasharray: '3,3'
           weigth: 1
@@ -101,7 +102,7 @@ areas:
       - address: 0xe0014FFF
         text: Cool section
         length: 30
-        directions: right
+        directions: out
         style:
           stroke: *pastel_green
           stroke-width: 2
@@ -154,5 +155,6 @@ links:
     ['Bit band region', 'Bit band alias'],
     ['Bit band region', 'Bit band alias']]
 
+size: [1000, 1000]
 
 

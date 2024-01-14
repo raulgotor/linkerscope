@@ -1,0 +1,71 @@
+size: [800, 300]
+variables:
+  graphite: &graphite '#2A363B'
+  pastel_green: &pastel_green '#99B898'
+  pastel_yellow: &pastel_yellow '#FECEA8'
+  pastel_orange: &pastel_orange '#FF847C'
+  pastel_red: &pastel_red '#E84A5F'
+
+style:
+  text-fill: lightgrey
+  background: *graphite
+  hide-size: true
+
+areas:
+- area:
+    title: 'Address Link Example'
+    size: [ 200, 200 ]
+    pos: [200]
+    range: [0xE8040000, 0xE8044000]
+    style:
+      stroke: grey
+      stroke-width: 1
+      weigth: 1
+      text_fill: lightgrey
+      stroke-dasharray: '1'
+
+    labels:
+      - address: 0xe8043800
+        text: In direction
+        length: 150
+        directions: in
+        style:
+          stroke-dasharray: '5,1,3,1,3'
+      - address: 0xe8042800
+        text: No direction
+        length: 150
+        side: right
+        style:
+          stroke-dasharray: '2,2'
+      - address: 0xe8041800
+        text: Out direction
+        length: 150
+        directions: out
+      - address: 0xe8041800
+        text: Label at left side
+        length: 40
+        directions: out
+        side: left
+      - address: 0xe8040800
+        text: In and Out directions
+        length: 150
+        directions: [in, out]
+
+    sections:
+    - names: [ ROM Table ]
+      style:
+        fill: *pastel_green
+    - names: [ External PPB ]
+      style:
+        fill: *pastel_yellow
+        text_fill: grey
+    - names: [ ETM, Peripheral ]
+      style:
+        fill: *pastel_orange
+    - names: [ TPIU ]
+      style:
+        fill: *pastel_red
+
+
+
+

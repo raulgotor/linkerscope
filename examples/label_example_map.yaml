@@ -1,0 +1,17 @@
+map:
+- address: 0xE8040000
+  size:    0x00001000
+  id: TPIU
+  type: section
+- address: 0xE8041000
+  size:    0x00001000
+  id: ETM
+  type: section
+- address: 0xE8042000
+  size:    0x00001000
+  id: External PPB
+  type: section
+- address: 0xE8043000
+  size:    0x00001000
+  id: ROM Table
+  type: section

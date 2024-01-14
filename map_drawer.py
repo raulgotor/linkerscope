@@ -1,6 +1,8 @@
 from math import cos
 from svgwrite import Drawing
 import svgwrite
+
+from labels import Side
 from section import Section
 from style import Style
 
@@ -24,7 +26,6 @@ class Map:
         self.links_sections = self._get_valid_linked_sections(links.sections)
         self.file = file
         self.size = size
-        print(self.size[0])
         self.dwg = svgwrite.Drawing(file,
                                     profile='full',
                                     size=(self.size)
@@ -530,10 +531,8 @@ class Map:
         return group
 
     def _make_label(self, label, area_view):
-
         line_label_spacer = 3
         g = self.dwg.g()
-        side = 1
         address = label.address
         text = label.text
         label_length = label.length
@@ -541,7 +540,7 @@ class Map:
         if address is None:
             raise KeyError("A label without address was found")
 
-        if side == 1:
+        if label.side == Side.RIGHT:
             pos_x_d = area_view.size_x
             direction = 1
             anchor = 'start'
@@ -554,12 +553,36 @@ class Map:
         pos_y = area_view.to_pixels_relative(address)
         points = [(0 + pos_x_d, pos_y), (direction*(label_length + pos_x_d), pos_y)]
 
-        if 'right' in label.directions:
-            g.add(self._make_arrow_head(label, direction='right')).translate(
-                direction*(label_length + pos_x_d), pos_y,)
+        # TODO: FIX: direction is inverted if we change the label side
 
-        if 'left' in label.directions:
-            g.add(self._make_arrow_head(label, direction='left')).translate(pos_x_d,pos_y,)
+        def add_arrow_head(_direction):
+            if 'in' == _direction:
+                if label.side == Side.LEFT:
+                    arrow_direction = 'right'
+                elif label.side == Side.RIGHT:
+                    arrow_direction = 'left'
+
+                arrow_head_x = pos_x_d
+
+            elif 'out' == _direction:
+                if label.side == Side.LEFT:
+                    arrow_direction = 'left'
+                elif label.side == Side.RIGHT:
+                    arrow_direction = 'right'
+
+                arrow_head_x = direction * (label_length + pos_x_d)
+
+            else:
+                print(f"WARNING, invalid direction {_direction} provided")
+                return
+
+            g.add(self._make_arrow_head(label, direction=arrow_direction)).translate(arrow_head_x, pos_y)
+
+        if type(label.directions) == str:
+            add_arrow_head(label.directions)
+        elif type(label.directions) == list:
+            for head_direction in label.directions:
+                add_arrow_head(head_direction)
 
         g.add(self._make_text(text,
                               (direction*(pos_x_d + label_length + line_label_spacer), pos_y),

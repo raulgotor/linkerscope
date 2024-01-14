@@ -24,7 +24,7 @@ parser.add_argument('--input',
                     help='Name of the map file,'
                          'can be either linker .map files or .yaml descriptor',
                     default='map.yaml')
-parser.add_argument('--configuration',
+parser.add_argument('--config',
                     '-c',
                     help='Configuration file (.yml). If not specified,'
                          'will use config.yaml as default',
@@ -34,7 +34,7 @@ args = parser.parse_args()
 
 areas = []
 
-with open(args.configuration, 'r', encoding='utf-8') as file:
+with open(args.config, 'r', encoding='utf-8') as file:
     config = yaml.safe_load(file)
 
 if config['areas'] is None:
