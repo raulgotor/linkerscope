@@ -34,7 +34,7 @@ args = parser.parse_args()
 
 areas = []
 
-with open(args.configuration, 'r', encoding='utf-8') as file:
+with open(args.config, 'r', encoding='utf-8') as file:
     config = yaml.safe_load(file)
 
 if config['areas'] is None:
