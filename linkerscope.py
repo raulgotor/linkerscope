@@ -24,7 +24,7 @@ parser.add_argument('--input',
                     help='Name of the map file,'
                          'can be either linker .map files or .yaml descriptor',
                     default='map.yaml')
-parser.add_argument('--configuration',
+parser.add_argument('--config',
                     '-c',
                     help='Configuration file (.yml). If not specified,'
                          'will use config.yaml as default',
