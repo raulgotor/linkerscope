@@ -92,8 +92,9 @@ areas:
         text: Random name
         length: 30
         directions: right
+        side: left
         style:
-          stroke: *pastel_green
+          stroke: 'black'
           stroke-width: 1
           stroke-dasharray: '3,3'
           weigth: 1
@@ -101,7 +102,7 @@ areas:
       - address: 0xe0014FFF
         text: Cool section
         length: 30
-        directions: right
+        directions: left
         style:
           stroke: *pastel_green
           stroke-width: 2
