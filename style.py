@@ -66,7 +66,6 @@ class Style:
         default_style.growth_arrow_size = 1
 
         default_style.background = 'white'
-        default_style.fill = '#CCE5FF'
         default_style.stroke = 'black'
         default_style.stroke_width = 1
         default_style.size = 2
