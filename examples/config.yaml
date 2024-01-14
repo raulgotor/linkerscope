@@ -91,7 +91,7 @@ areas:
       - address: 0xe0017FFF
         text: Random name
         length: 30
-        directions: right
+        directions: ['in','out']
         side: left
         style:
           stroke: 'black'
@@ -102,7 +102,7 @@ areas:
       - address: 0xe0014FFF
         text: Cool section
         length: 30
-        directions: left
+        directions: out
         style:
           stroke: *pastel_green
           stroke-width: 2

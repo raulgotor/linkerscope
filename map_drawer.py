@@ -26,7 +26,6 @@ class Map:
         self.links_sections = self._get_valid_linked_sections(links.sections)
         self.file = file
         self.size = size
-        print(self.size[0])
         self.dwg = svgwrite.Drawing(file,
                                     profile='full',
                                     size=(self.size)
@@ -554,18 +553,35 @@ class Map:
         points = [(0 + pos_x_d, pos_y), (direction*(label_length + pos_x_d), pos_y)]
 
         # TODO: FIX: direction is inverted if we change the label side
-        if 'right' in label.directions:
-            arrow_direction = 'right'
-            if label.side == Side.LEFT:
-                arrow_direction = 'left'
-            g.add(self._make_arrow_head(label, direction=arrow_direction)).translate(
-                direction*(label_length + pos_x_d), pos_y,)
 
-        if 'left' in label.directions:
-            arrow_direction = 'right'
-            if label.side == Side.RIGHT:
-                arrow_direction = 'left'
-            g.add(self._make_arrow_head(label, direction=arrow_direction)).translate(pos_x_d,pos_y,)
+        def add_arrow_head(_direction):
+            if 'in' == _direction:
+                if label.side == Side.LEFT:
+                    arrow_direction = 'right'
+                elif label.side == Side.RIGHT:
+                    arrow_direction = 'left'
+
+                arrow_head_x = pos_x_d
+
+            elif 'out' == _direction:
+                if label.side == Side.LEFT:
+                    arrow_direction = 'left'
+                elif label.side == Side.RIGHT:
+                    arrow_direction = 'right'
+
+                arrow_head_x = direction * (label_length + pos_x_d)
+
+            else:
+                print(f"WARNING, invalid direction {_direction} provided")
+                return
+
+            g.add(self._make_arrow_head(label, direction=arrow_direction)).translate(arrow_head_x, pos_y)
+
+        if type(label.directions) == str:
+            add_arrow_head(label.directions)
+        elif type(label.directions) == list:
+            for head_direction in label.directions:
+                add_arrow_head(head_direction)
 
         g.add(self._make_text(text,
                               (direction*(pos_x_d + label_length + line_label_spacer), pos_y),
