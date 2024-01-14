@@ -33,7 +33,7 @@ class Style:
     def __init__(self, style=None):
         if style is not None:
             for key, value in style.items():
-                setattr(self, key.replace('-','_'), style.get(key, value))
+                setattr(self, key.replace('-', '_'), style.get(key, value))
 
     def override_properties_from(self, style):
         """
@@ -66,7 +66,6 @@ class Style:
         default_style.growth_arrow_size = 1
 
         default_style.background = 'white'
-        default_style.fill = '#CCE5FF'
         default_style.stroke = 'black'
         default_style.stroke_width = 1
         default_style.size = 2

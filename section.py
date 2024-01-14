@@ -16,12 +16,13 @@ class Section:
     label_offset: int = 10
     style: Style
 
-    def __init__(self, size, address, id, _type, parent, flags=[]):
+    def __init__(self, size, address, id, _type, parent, flags=[], name=None):
         self.type = _type
         self.parent = parent
         self.size = size
         self.address = address
         self.id = id
+        self.name = name
         self.size_y = 0
         self.size_x = 0
         self.style = Style()

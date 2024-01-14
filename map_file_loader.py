@@ -37,9 +37,11 @@ class MapFileLoader:
             y = yaml.safe_load(file)
 
         for element in y['map']:
+            print(element)
             sections.append(Section(address=element['address'],
                                     size=element['size'],
                                     id=element['id'],
+                                    name=element.get('name'),
                                     parent=element.get('parent', 'none'),
                                     _type=element.get('type', 'area'),
                                     flags=element.get('flags', '')

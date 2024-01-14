@@ -13,6 +13,7 @@ and this project adheres to
 * `flags` can be specified at map file as well
 * `size` property at root level to modify the document size
 * `labels` property can go on the left side as well
+* Friendly name field (`name`) for sections at the yaml map file to be used instead of ID
 
 ## [0.2.0] - 2023-12-14
 

@@ -1,0 +1,186 @@
+map:
+  - id:      none
+    address: 0x00000000
+    size:    0x20000000
+    type:    area
+  - id:      none
+    address: 0x20000000
+    size:    0x20000000
+    type:    area
+  - id:      none
+    address: 0x40000000
+    size:    0x20000000
+    type:    area
+  - id:      none
+    address: 0x60000000
+    size:    0x20000000
+    type:    area
+  - id:      none
+    address: 0x80000000
+    size:    0x20000000
+    type:    area
+  - id:      none
+    address: 0xA0000000
+    size:    0x20000000
+    type:    area
+  - id:      none
+    address: 0xC0000000
+    size:    0x20000000
+    type:    area
+
+
+
+  - id:      none
+    address: 0xE0100000
+    size:    0x0FE00000
+    type:    area
+
+  - id:      SRAM
+    address: 0x20000000
+    size:    0x08000000
+    type:    area
+
+  - id:      Peripherals
+    address: 0x40000000
+    size:    0x08000000
+    type:    area
+
+  - id:      M3 Cortex Internal Peripherals
+    address: 0xE0000000
+    size:    0x01000000
+    type:    area
+
+  - id:      TIM2
+    address: 0x40000000
+    size:    0x00000400
+    type:    area
+  - id:      TIM3
+    address: 0x40000400
+    size:    0x00000400
+    type:    area
+  - id:      TIM4
+    address: 0x40000800
+    size:    0x00000400
+    type:    area
+  - id:      RTC
+    address: 0x40002800
+    size:    0x00000400
+    type:    area
+  - id:      WWDG
+    address: 0x40002C00
+    size:    0x00000400
+    type:    area
+  - id:      IWDG
+    address: 0x40003000
+    size:    0x00000400
+    type:    area
+  - id:      SPI2
+    address: 0x40003800
+    size:    0x00000400
+    type:    area
+  - id:      USART2
+    address: 0x40004400
+    size:    0x00000400
+    type:    area
+  - id:      USART3
+    address: 0x40004800
+    size:    0x00000400
+    type:    area
+  - id:      I2C1
+    address: 0x40005400
+    size:    0x00000400
+    type:    area
+  - id:      I2C2
+    address: 0x40005800
+    size:    0x00000400
+    type:    area
+  - id:      USB Registers
+    address: 0x40005C00
+    size:    0x00000400
+    type:    area
+  - id:      USB/CAN SRAM
+    address: 0x40006000
+    size:    0x00000400
+    type:    area
+  - id:      BXCAN
+    address: 0x40006400
+    size:    0x00000400
+    type:    area
+  - id:      BKP
+    address: 0x40006C00
+    size:    0x00000400
+    type:    area
+  - id:      POWER
+    address: 0x40007000
+    size:    0x00000400
+    type:    area
+  - id:      AFIO
+    address: 0x40010000
+    size:    0x00000400
+    type:    area
+  - id:      EXTI
+    address: 0x40010400
+    size:    0x00000400
+    type:    area
+  - id:      PORT A
+    address: 0x40010800
+    size:    0x00000400
+    type:    area
+  - id:      PORT B
+    address: 0x40010C00
+    size:    0x00000400
+    type:    area
+  - id:      PORT C
+    address: 0x40011000
+    size:    0x00000400
+    type:    area
+  - id:      PORT D
+    address: 0x40011400
+    size:    0x00000400
+    type:    area
+  - id:      PORT E
+    address: 0x40011800
+    size:    0x00000400
+    type:    area
+  - id:      ADC1
+    address: 0x40012400
+    size:    0x00000400
+    type:    area
+  - id:      ADC2
+    address: 0x40012800
+    size:    0x00000400
+    type:    area
+  - id:      TIM1
+    address: 0x40012C00
+    size:    0x00000400
+    type:    area
+  - id:      SPI1
+    address: 0x40013000
+    size:    0x00000400
+    type:    area
+  - id:
+    address: 0x40010000
+    size:    0x00000400
+    type:    area
+  - id:      USART1
+    address: 0x40013800
+    size:    0x00000400
+    type:    area
+  - id:      DMA
+    address: 0x40020000
+    size:    0x00000400
+    type:    area
+  - id:      RCC
+    address: 0x40021000
+    size:    0x00000400
+    type:    area
+  - id:      Flash Interface
+    address: 0x40022000
+    size:    0x00000400
+    type:    area
+  - id:      CRC
+    address: 0x40023000
+    size:    0x00000400
+    type:    area
+
+

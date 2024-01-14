@@ -50,7 +50,7 @@ an `id`, an `address` and a `size`.
 While these three are needed, there are other possible attributes that are optional:
 
 - `name`: Friendly text name that would be used instead of the `id`
-- `type`: Section type, which can be used for different purposes. Possibilities are `section` (default) and `area`.
+- `type`: Section type, which can be used for different purposes. Current possibilities are `section` (default) and `area`.
 
 The input file should contain the `map` keyword whose value is an array of sections. Below an example
 of how an input file should look like:
@@ -67,7 +67,7 @@ of how an input file should look like:
 - ...
 ```
 
-In order to use this file, invoke Linkerscope and specify the yaml map file as input:
+In order to use this file, invoke LinkerScope and specify the yaml map file as input:
 
 ```bash
 ./linkerscope.py -i memory_map.yaml -o memory_map.svg -c config.yaml
@@ -78,7 +78,7 @@ In order to use this file, invoke Linkerscope and specify the yaml map file as i
 For a complex diagram that fully represents the memory map of a given program, handcrafting the memory map can be
 time-consuming. In the case that the intended diagram is related to a program, the necessary information is already
 available at the generated GNU Linker map files.
-Linkerscope conveniently provides the possibility to parse these files and generate diagram from those. For that, simply
+LinkerScope conveniently provides the possibility to parse these files and generate diagram from those. For that, simply
 specify the `.map` file as an input.
 
 ```bash
@@ -87,93 +87,45 @@ specify the `.map` file as an input.
 
 ### Creating a configuration file
 
-The configuration file is a `.yaml` file containing all the required information to tell LinkerScope what and how to draw the maps.
-All information there is optional.
+The configuration file is a `.yaml` file containing all the required information to tell LinkerScope what and how to draw the memory map.
+All information there is optional, including the file itself. If this information is not provided, the default values will be used.
 
-Normally, a configuration file contains style information, memory areas, and links.
+Normally, a configuration file contains **areas**, **links** and **style** information.
+
+**Areas** provides a list of memory areas to be displayed, with information regarding its position and size on the map, memory range to include or specific drawing style.
+Additionally, it can contain a **sections** sub-property where specific sections can be added to modify desired properties
+
+**Links** provides a simple way of graphically relating same memory addresses across different areas
+
+**Style** defines the parent drawing style properties that will be used at the document. Additionally, each area can override specific style properties at its style section.
+Lastly, sections can override parent (area) style as well
 
 ```yaml
 style:
-  ...
+  background: '#99B898'
+  stroke: 'black'
+  # ...
 
 areas:
 - area:
     style:
-      ...
-    
-    address:
-      lowest: 0x0
-      highest: 0x200000000
-      
-    size:
-      ...
+    # ...
+    title: Register Map
+    range: [0x0, 0x100000000]
+    sections:
+      - names: [USART1, USART2]
+        style:
+          hide-name: true
+    # ...
 - area:
-    ...
+    # ...
 
 links:
-  addresses: [ 0x80045d4, ...]
-  sections: [__malloc_av_, ...]
-
+  addresses: [0x80045d4]
+  sections: [__malloc_av_, [TIM2, TIM3]]
 
 ```
-#### Styles
 
-The style can be defined at map level, where it will be applied to all areas, but also at area or even at section level.
-Specifying a style at are level will override the specified configuration for the whole map where it was defined.
-Specifying it at section level, it will override style information from map and area. 
-
-```yaml
-style:
-  # RGB colors or english plain text color names can be used
-  box_fill_color: '#CCE5FF' 
-  label_color: 'blue'
-  box_stroke_color: '#3399FF'
-  box_stroke_width: 2
-  link_stroke_width: 2
-  link_stroke_color: 'grey'
-  label_font: 'Helvetica Bold'
-  label_size: '16px'
-  label_stroke_width: 0.5px
-  area_fill_color: 'lightgrey'
-```
-- Window:
-  - `background_color`
-- Area background
-  - `area_background_color`
-- Memory section rectangle
-  - `box_fill_color`
-  - `box_stroke_color`
-  - `box_stroke_width`
-- Section name, address and size
-  - `label_color`
-  - `label_font`
-  - `label_size`
-  - `label_stroke_width`
-- Link lines between addresses at different maps
-  - `link_stroke_width`
-  - `link_stroke_color`
-
-If the style at specific sections needs to be defined/overridden, it will be specified under `style -> overrides -> sections` property at
-area level, by specifying the names of the regions whose properties want to be overridden, followed by the properties to override:
-
-```yaml
-- area:
-    ...
-    address:
-      ...
-    style:
-      # Area style definition
-      link_stroke_color: 'grey'
-      link_stroke_width: 1
-      section_stroke_width: 0
-      section_fill_color: 'blue'
-      # Area style overrides for specified sections
-      overrrides:
-        - sections: [ ROM Table, Peripheral, External RAM ]
-          section_fill_color: '#99B898'
-        - sections: [ External PPB ]
-          section_fill_color: '#FECEA8'
-```
 #### Areas
 
 The diagram can have one or multiple areas. When multiple areas are declared,
@@ -283,7 +235,7 @@ areas:
     flags: break
 ```
 
-##### `grows-up` / `grows-down`
+##### Growths
 These flags specify the section as growing section, for instance, if the section is meant to grow into one direction, such as the stack.
 When flagging a section with `grows-down`, an arrow pointing downwards will be appended to the bottom of the section indicating that the section is growing into that direction:
 
@@ -326,9 +278,56 @@ links:
 ```
 <img style="display: block; margin-left: auto; margin-right: auto;" src="examples/link_example_map.svg">
 
+#### Styles
+
+The style can be defined at document level, where it will be applied to all areas, but also at area or even at section level.
+Specifying a style at area level will override the specified properties for the whole area where it was defined.
+Specifying it at section level, it will override style only for the specified section or group of sections. 
+
+```yaml
+style:
+  # This is a style defined at document level
+  text-fill: 'lightgrey'
+  background: 'black'
+  stroke: '#99B898'
+  stroke-width: 1
+  font-type: 'Helvetica'
+
+areas:
+- area:
+    title: 'Internal Memory'
+    pos: [30, 50]
+    style:
+      # This is a style defined at area level, which will override fill property only applied at Main Memory area
+      fill: 'blue'
+    sections:
+    - names: [ SRAM, Flash ]
+      style:
+        # This is a style defined at section level, and will be applied only to SRAM and Flash sections
+        fill: 'green'
+        hide-address: true
+- area:
+    title: 'External Memory'
+    # ...
+```
+
+Below a list of style properties with general use and specific for sections:
+##### General
+  - `background`, `fill`, `font-size`, `font-type`, `opacity`, `size`, `stroke`, `stroke_dasharray`, `stroke-width`, `text-stroke`,`text-fill`,`text-stroke-width`, `weigth`
+
+##### Section properties:
+  - `break-type`: specify memory break type. See [`break`](#break) section
+  - `break-size`: specify memory break size in pixels. See [`break`](#break) section
+  - `growth-arrow-size`: size of the direction growth arrow. See [`Growths`](#growths) section
+  - `growth-arrow-fill`: color for the direction growth arrow. See [`Growths`](#growths) section
+  - `growth-arrow-stroke`: stroke color for the direction growth arrow. See [`Growths`](#growths) section
+  - `hide-size`: hides the size label of a section
+  - `hide-name`: hides the name label of a section
+  - `hide-address`: hides the address label of a section
+
 #### Other properties
 
-##### Document size
+_Document size_
 
 The generated SVG document has a fixed size. If you want to adjust it, use the `size` property at root level to pass
 desired document width and height in pixels.
