@@ -3,7 +3,9 @@
 ## Project summary
 
 LinkerScope is a memory map diagram generator. It can be fed either with a GNU Linker map file or with a custom `yaml` file
-and generate beautiful and detailed diagrams of the different areas and sections found at the files provided.
+and generate beautiful and detailed diagrams of the different areas and sections such as the one below.
+
+<img style="display: block; margin-left: auto; margin-right: auto;" src="examples/link_example_map.svg">
 
 ## Installing LinkerScope
 
