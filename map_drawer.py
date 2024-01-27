@@ -523,17 +523,20 @@ class Map:
 
     def _make_poly(self, area_view, start_address, end_address, style):
 
-        points = []
+        def find_right_subarea_view(address, area):
+            """
+            Given an area, find the subarea where the provided address is
 
-        def find_right_subarea_view(address, areaview):
-            split_area_views = areaview.get_split_area_views()
-            if split_area_views is None:
-                return areaview
-            else:
-                for area in split_area_views:
-                    if area.start_address <= address <= area.end_address:
-                        return area
-                return areaview
+            :param address: Address to look for
+            :param area: Area that contains the subarea to be found
+            :return: Found subarea, if not found, parent area
+            """
+            for subarea in area.get_split_area_views():
+                if subarea.start_address <= address <= subarea.end_address:
+                    return subarea
+            return area
+
+        points = []
 
         end_subarea = find_right_subarea_view(end_address, area_view)
         start_subarea = find_right_subarea_view(start_address, area_view)
