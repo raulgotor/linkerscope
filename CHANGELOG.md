@@ -15,6 +15,10 @@ and this project adheres to
 * `labels` property can go on the left side as well
 * Friendly name field (`name`) for sections at the yaml map file to be used instead of ID
 
+### Fixed
+* Design issue that was hindering creating linked sections if the area contained breaks
+* Bug that repeated the title of the area if the area contained breaks
+
 ## [0.2.0] - 2023-12-14
 
 ### Added

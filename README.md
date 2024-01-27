@@ -246,13 +246,17 @@ There are four different break styles, which can be defined by the 'break-type' 
 Links establish a connection between same addresses or sections at different areas.
 
 While address links are represented with a finite line between the addresses, section link drawing
-cover the whole region space. These can be used,for instance, to represent a _zoom_ in effects from one overview area
+cover the whole region space. These can be used, for instance, to represent a _zoom_ in effects from one overview area
 to other area with more detail.
 
 > When drawing a section link, Linkerscope expects both start and end section addresses to be visible at both intended areas.
 If any of those is not present, the link will not be drawn
 
-Links are defined at root level under the `links` tag. Links must have either `addresses` or `sections` tags or both.
+Links are defined at root level of the configuration file under the `links` tag.
+Links must have either `addresses` or `sections` tags or both.
+- `addresses` is a list of integers representing memory addresses
+- `sections` is a list whose elements can be either single section id's, section id's pairs (as a sublist) or both.
+  When using pairs, the first element should be the one with the lowest memory address. 
 Additionally, specific styles can be specified under the `style` tag.
 
 
@@ -262,8 +266,8 @@ links:
     stroke: 'lightgray'
     stroke-width: 1
     fill: 'gray'
-  addresses: [ 0xe8040000 ]
-  sections: [['Bit band region', 'Bit band alias']]
+  addresses: [ 0xe8040000, 0xe8042000 ]
+  sections: [['Bit band region', 'Bit band alias'],'ITM']
 
 ```
 <img style="display: block; margin-left: auto; margin-right: auto;" src="examples/link_example_map.svg">
