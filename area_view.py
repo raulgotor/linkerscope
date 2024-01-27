@@ -157,14 +157,11 @@ class AreaView:
                 subconfig = area_config_clone(self.area, last_area_pos, corrected_size_y_px)
                 last_area_pos = subconfig['pos'][1]
 
-                area = AreaView(
+                self.processed_section_views.append(AreaView(
                     sections=section_group,
                     area_config=subconfig,
                     labels=self.labels,
                     style=self.style)
-                self.processed_section_views.append(
-
-                    area
                 )
 
         else:

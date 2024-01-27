@@ -64,11 +64,8 @@ class Map:
                 # Exit loop if we found that the link is valid
                 if appended:
                     break
-                sections = []
-                for subarea in area.get_split_area_views():
-                    sections.extend(subarea.sections.get_sections())
 
-                for section in sections:
+                for section in area.sections.get_sections():
                     # If single section, the start and end address of the linked section equals
                     # those of the section
                     if not multi_section:
@@ -106,16 +103,96 @@ class Map:
 
         dwg = self.dwg
 
-        def _draw_area(_area_view):
-            subarea_group = dwg.add(dwg.g())
+        def _draw_area(area) -> svgwrite.container.Group:
+            """
+            Draw given area
 
-            subarea_group.add(self._make_main_frame(_area_view))
+            Draw the title for the area, then, for each subarea proceed to draw
+            the different elements. Those are the frame and sections, with its
+            information such as labels, name, memory, etc...
 
-            for section in _area_view.sections.get_sections():
-                self._make_section(subarea_group, section, _area_view)
+            :param area: Area to be drawn
+            :return Container with an area to be drawn
+            """
+            area_group = dwg.g()
+            title = self._make_title(area)
+            title.translate(area.pos_x, area.pos_y)
+            area_group.add(title)
 
-            subarea_group.translate(_area_view.pos_x,
-                            _area_view.pos_y)
+            for sub_area in area.get_split_area_views():
+                subarea_group = dwg.g()
+
+                subarea_group.add(self._make_main_frame(sub_area))
+
+                for section in sub_area.sections.get_sections():
+                    self._make_section(subarea_group, section, sub_area)
+
+                subarea_group.translate(sub_area.pos_x,
+                                sub_area.pos_y)
+
+                area_group.add(subarea_group)
+
+            return area_group
+
+        def draw_section_links() -> svgwrite.container.Group:
+            linked_sections_group = dwg.g()
+            for section_link in self.links_sections:
+                is_drawn = False
+                for area_view in self.area_views[1:]:
+                    if section_link[0] >= area_view.sections.lowest_memory and \
+                            section_link[1] <= area_view.sections.highest_memory and \
+                            section_link[0] >= self.area_views[0].sections.lowest_memory and \
+                            section_link[1] <= self.area_views[0].sections.highest_memory:
+                        linked_sections_group.add(self._make_poly(area_view,
+                                                                  section_link[0],
+                                                                  section_link[1],
+                                                                  self.links.style))
+                        is_drawn = True
+                        break
+                if not is_drawn:
+                    print(f"WARNING: Starting or ending point of the zoom region is outside the \
+                          shown areas for the link with addresses {section_link[0]} \
+                          and {section_link[1]}")
+
+            return linked_sections_group
+
+        def draw_labels() -> svgwrite.container.Group:
+            global_labels = dwg.g()
+            for area in self.area_views:
+                for subarea in area.get_split_area_views():
+                    g = dwg.g()
+
+                    if subarea.labels is not None:
+                        for label in subarea.labels.labels:
+
+                            if subarea.sections.has_address(label.address):
+                                g.add(self._make_label(label, subarea))
+
+                    g.translate(subarea.pos_x, subarea.pos_y)
+                    global_labels.add(g)
+            return global_labels
+
+        def draw_growths() -> svgwrite.container.Group:
+            # We need to do another pass once all areas are drawn in order to be able to properly draw
+            # the growth arrows without the break areas hiding them. Also, as we do stuff outside the
+            # loop where the areas are drawn, we loose the reference for translation, and we have to
+            # manually translate the grows here
+            for area_view in self.area_views:
+                for subarea in area_view.get_split_area_views():
+
+                    area_growth = dwg.g()
+                    for section in subarea.sections.get_sections():
+                        area_growth.add(self._make_growth(section))
+
+                    area_growth.translate(subarea.pos_x, subarea.pos_y)
+                    growths_group.add(area_growth)
+            return growths_group
+
+        def draw_links() -> svgwrite.container.Group:
+            lines_group = dwg.g()
+            for address in self.links.addresses:
+                lines_group.add(self._make_link(address, self.links.style))
+            return lines_group
 
         dwg.add(dwg.rect(insert=(0, 0),
                          size=('100%', '100%'),
@@ -123,71 +200,16 @@ class Map:
                          ry=None,
                          fill=self.style.background))
 
-        lines_group = dwg.g()
         growths_group = dwg.g()
-        global_labels = dwg.g()
 
-        for area in self.area_views:
-            for subarea in area.get_split_area_views():
-                g = dwg.g()
-
-                if subarea.labels is not None:
-                    for label in subarea.labels.labels:
-
-                        if subarea.sections.has_address(label.address):
-                            g.add(self._make_label(label, subarea))
-
-                g.translate(subarea.pos_x, subarea.pos_y)
-                global_labels.add(g)
-
-        for address in self.links.addresses:
-            lines_group.add(self._make_links(address, self.links.style))
-        dwg.add(lines_group)
-
-        linked_sections_group = dwg.add(dwg.g())
-        for zoom in self.links_sections:
-            is_drawn = False
-            for area_view in self.area_views[1:]:
-                if zoom[0] >= area_view.sections.lowest_memory and \
-                        zoom[1] <= area_view.sections.highest_memory and \
-                        zoom[0] >= self.area_views[0].sections.lowest_memory and \
-                        zoom[1] <= self.area_views[0].sections.highest_memory:
-
-                    linked_sections_group.add(self._make_poly(area_view,
-                                                              zoom[0],
-                                                              zoom[1],
-                                                              self.links.style))
-                    is_drawn = True
-                    break
-            if not is_drawn:
-                print("WARNING: Starting or ending point of the zoom region is outside the shown"
-                      "areas")
+        dwg.add(draw_section_links())
+        dwg.add(draw_links())
 
         for area_view in self.area_views:
-            area_group = dwg.add(dwg.g())
-            area_group.add(self._make_title(area_view))
-            area_group.translate(area_view.pos_x,
-                                 area_view.pos_y)
+            dwg.add(_draw_area(area_view))
 
-            for subarea in area_view.get_split_area_views():
-                _draw_area(subarea)
-
-        # We need to do another pass once all areas are drawn in order to be able to properly draw
-        # the growth arrows without the break areas hiding them. Also, as we do stuff outside the
-        # loop where the areas are drawn, we loose the reference for translation, and we have to
-        # manually translate the grows here
-        for area_view in self.area_views:
-            for subarea in area_view.get_split_area_views():
-
-                area_growth = dwg.g()
-                for section in subarea.sections.get_sections():
-                    area_growth.add(self._make_growth(section))
-
-                area_growth.translate(subarea.pos_x, subarea.pos_y)
-                growths_group.add(area_growth)
-
-        dwg.add(global_labels)
-        dwg.add(growths_group)
+        dwg.add(draw_labels())
+        dwg.add(draw_growths())
         dwg.save()
 
     def _make_title(self, area_view):
@@ -622,7 +644,7 @@ class Map:
                                 ))
         return g
 
-    def _make_links(self, address, style):
+    def _make_link(self, address, style):
         hlines = self.dwg.g(id='hlines', stroke='grey')
 
         for area_view in self.area_views[1:]:
