@@ -73,6 +73,14 @@ class AreaView:
         return self.size_y - ((value - self.start_address) / self.address_to_pxl)
 
     def _overwrite_sections_info(self):
+        """
+        Override default style with section specific style
+
+        Overrides default style (normally style defined by the area it is at) and flags information
+        on a section given a new definition is provided for an specific section at the map or
+        configuration files
+        """
+
         for section in self.sections.get_sections():
 
             section_style = copy.deepcopy(self.style)
@@ -91,6 +99,35 @@ class AreaView:
                         section.flags += element.get('flags', section.flags)
 
     def _process(self):
+        def recalculate_section_size_y():
+            """
+            Recalculates the size of the current section given that there is at least one break
+            section in this area which will reduce its space
+
+            :return: Recalculated size for this section
+            """
+            split_section_size_px = self._get_non_breaks_total_size_px(
+                section_group.get_sections())
+            return (split_section_size_px / total_non_breaks_size_y_px) * (
+                    total_non_breaks_size_y_px + expandable_size_px)
+
+        def area_config_clone(configuration, pos_y_px, size_y_px):
+            """
+            Clones an area configuration and changes position and size
+
+            :param configuration: Area configuration to clone
+            :param pos_y_px: Position in pixels for the new cloned configuration
+            :param size_y_px: Size y in pixels of the new cloned configuration
+            :return: A new area configuration with the provided configuration and provided parameters
+            """
+            new_configuration = copy.deepcopy(configuration)
+            new_configuration['size'] = [200, 500]
+            if new_configuration.get('pos') is None:
+                new_configuration['pos'] = [10, 10]
+            new_configuration['size'][1] = size_y_px
+            new_configuration['pos'][1] = pos_y_px - size_y_px
+            return new_configuration
+
         self._overwrite_sections_info()
 
         if len(self.sections.get_sections()) == 0:
@@ -114,28 +151,21 @@ class AreaView:
 
             for section_group in split_section_groups:
 
-                if section_group.is_break_section_group():
-                    corrected_size = breaks_section_size_y_px
-                else:
-                    split_section_size_px = self._get_non_breaks_total_size_px(
-                        section_group.get_sections())
-                    corrected_size = (split_section_size_px / total_non_breaks_size_y_px) * (
-                            total_non_breaks_size_y_px + expandable_size_px)
+                corrected_size_y_px = breaks_section_size_y_px if section_group.is_break_section_group()\
+                    else recalculate_section_size_y()
 
-                new_area = copy.deepcopy(self.area)
-                new_area['size'] = [200,500]
-                if new_area.get('pos') is None:
-                    new_area['pos'] = [10,10]
-                new_area['size'][1] = corrected_size
-                new_area['pos'][1] = last_area_pos - corrected_size
-                last_area_pos = new_area['pos'][1]
+                subconfig = area_config_clone(self.area, last_area_pos, corrected_size_y_px)
+                last_area_pos = subconfig['pos'][1]
 
+                area = AreaView(
+                    sections=section_group,
+                    area_config=subconfig,
+                    labels=self.labels,
+                    style=self.style)
                 self.processed_section_views.append(
-                    AreaView(
-                        sections=section_group,
-                        area_config=new_area,
-                        labels=self.labels,
-                        style=self.style))
+
+                    area
+                )
 
         else:
             if len(self.sections.get_sections()) == 0:

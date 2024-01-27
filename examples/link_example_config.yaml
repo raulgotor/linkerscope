@@ -16,7 +16,8 @@ style:
   text-stroke: 'black'
   text-stroke-width: 0
   font-type: 'Helvetica'
-
+  break-type: '~'
+  break-size: 100
 areas:
 - area:
     title: 'Full Memory Map'
@@ -46,6 +47,7 @@ areas:
       style:
         fill: *pastel_yellow
     - names: [ ETM, Peripheral ]
+      flags: break
       style:
         fill: *pastel_orange
     - names: [ TPIU ]
@@ -59,6 +61,7 @@ areas:
     range: [0x40000000, 0x43000000]
     sections: # Adding the 'regions' sub-level under 'style'
     - names: [ Bit ]
+      flags: break
       style:
         fill: *pastel_yellow
     - names: [ Bit band region ]
@@ -73,7 +76,7 @@ links:
     stroke-width: 1
     fill: 'gray'
   addresses: [ 0xe8040000 ]
-  sections: [['Bit band region', 'Bit band alias']]
+  sections: [['Bit band region', 'Bit band alias'], ['TPIU', 'External PPB']]
 
 
 

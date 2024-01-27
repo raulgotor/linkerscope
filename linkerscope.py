@@ -61,7 +61,7 @@ for element in config['areas']:
         global_config=config,
         style=area_style.override_properties_from(Style(style=area.get('style')))
     )
-    areas.extend(area_view.get_split_area_views())
+    areas.append(area_view)
 yaml_links = config.get('links', None)
 
 links_style = copy.deepcopy(base_style)

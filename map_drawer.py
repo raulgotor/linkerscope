@@ -64,8 +64,11 @@ class Map:
                 # Exit loop if we found that the link is valid
                 if appended:
                     break
+                sections = []
+                for subarea in area.get_split_area_views():
+                    sections.extend(subarea.sections.get_sections())
 
-                for section in area.sections.get_sections():
+                for section in sections:
                     # If single section, the start and end address of the linked section equals
                     # those of the section
                     if not multi_section:
@@ -126,16 +129,17 @@ class Map:
         global_labels = dwg.g()
 
         for area in self.area_views:
-            g = dwg.g()
+            for subarea in area.get_split_area_views():
+                g = dwg.g()
 
-            if area.labels is not None:
-                for label in area.labels.labels:
+                if subarea.labels is not None:
+                    for label in subarea.labels.labels:
 
-                    if area.sections.has_address(label.address):
-                        g.add(self._make_label(label, area))
+                        if subarea.sections.has_address(label.address):
+                            g.add(self._make_label(label, subarea))
 
-            g.translate(area.pos_x, area.pos_y)
-            global_labels.add(g)
+                g.translate(subarea.pos_x, subarea.pos_y)
+                global_labels.add(g)
 
         for address in self.links.addresses:
             lines_group.add(self._make_links(address, self.links.style))
@@ -155,24 +159,28 @@ class Map:
                                                               zoom[1],
                                                               self.links.style))
                     is_drawn = True
+                    break
             if not is_drawn:
                 print("WARNING: Starting or ending point of the zoom region is outside the shown"
                       "areas")
 
         for area_view in self.area_views:
-            _draw_area(area_view)
+            for subarea in area_view.get_split_area_views():
+                _draw_area(subarea)
 
         # We need to do another pass once all areas are drawn in order to be able to properly draw
         # the growth arrows without the break areas hiding them. Also, as we do stuff outside the
         # loop where the areas are drawn, we loose the reference for translation, and we have to
         # manually translate the grows here
         for area_view in self.area_views:
-            area_growth = dwg.g()
-            for section in area_view.sections.get_sections():
-                area_growth.add(self._make_growth(section))
+            for subarea in area_view.get_split_area_views():
 
-            area_growth.translate(area_view.pos_x, area_view.pos_y)
-            growths_group.add(area_growth)
+                area_growth = dwg.g()
+                for section in subarea.sections.get_sections():
+                    area_growth.add(self._make_growth(section))
+
+                area_growth.translate(subarea.pos_x, subarea.pos_y)
+                growths_group.add(area_growth)
 
         dwg.add(global_labels)
         dwg.add(growths_group)
@@ -490,9 +498,23 @@ class Map:
     def _make_poly(self, area_view, start_address, end_address, style):
 
         points = []
-        _reversed = self._get_points_for_address(end_address, area_view)
+
+        def find_right_subarea_view(address, areaview):
+            split_area_views = areaview.get_split_area_views()
+            if split_area_views is None:
+                return areaview
+            else:
+                for area in split_area_views:
+                    if area.start_address <= address <= area.end_address:
+                        return area
+                return areaview
+
+        end_subarea = find_right_subarea_view(end_address, area_view)
+        start_subarea = find_right_subarea_view(start_address, area_view)
+
+        _reversed = self._get_points_for_address(end_address, end_subarea)
         _reversed.reverse()
-        points.extend(self._get_points_for_address(start_address, area_view))
+        points.extend(self._get_points_for_address(start_address, start_subarea))
         points.extend(_reversed)
 
         return self.dwg.polyline(points,
@@ -600,22 +622,24 @@ class Map:
         hlines = self.dwg.g(id='hlines', stroke='grey')
 
         for area_view in self.area_views[1:]:
-            if not area_view.sections.has_address(address):
-                continue
+            for subarea in area_view.get_split_area_views():
 
-            def _make_line(x1, y1, x2, y2):
-                return self.dwg.line(start=(x1, y1), end=(x2, y2),
-                                     stroke_width=style.stroke_width,
-                                     stroke=style.stroke)
+                if not subarea.sections.has_address(address):
+                    continue
 
-            points = self._get_points_for_address(address, area_view)
+                def _make_line(x1, y1, x2, y2):
+                    return self.dwg.line(start=(x1, y1), end=(x2, y2),
+                                         stroke_width=style.stroke_width,
+                                         stroke=style.stroke)
 
-            hlines.add(_make_line(x1=points[0][0], y1=points[0][1],
-                                  x2=points[1][0], y2=points[1][1]))
+                points = self._get_points_for_address(address, subarea)
 
-            hlines.add(_make_line(x1=points[1][0], y1=points[1][1],
-                                  x2=points[2][0], y2=points[2][1]))
+                hlines.add(_make_line(x1=points[0][0], y1=points[0][1],
+                                      x2=points[1][0], y2=points[1][1]))
 
-            hlines.add(_make_line(x1=points[2][0], y1=points[2][1],
-                                  x2=points[3][0], y2=points[3][1]))
+                hlines.add(_make_line(x1=points[1][0], y1=points[1][1],
+                                      x2=points[2][0], y2=points[2][1]))
+
+                hlines.add(_make_line(x1=points[2][0], y1=points[2][1],
+                                      x2=points[3][0], y2=points[3][1]))
         return hlines
