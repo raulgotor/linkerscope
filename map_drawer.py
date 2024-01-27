@@ -107,15 +107,14 @@ class Map:
         dwg = self.dwg
 
         def _draw_area(_area_view):
-            group = dwg.add(dwg.g())
+            subarea_group = dwg.add(dwg.g())
 
-            group.add(self._make_main_frame(_area_view))
-            group.add(self._make_title(_area_view))
+            subarea_group.add(self._make_main_frame(_area_view))
 
             for section in _area_view.sections.get_sections():
-                self._make_section(group, section, _area_view)
+                self._make_section(subarea_group, section, _area_view)
 
-            group.translate(_area_view.pos_x,
+            subarea_group.translate(_area_view.pos_x,
                             _area_view.pos_y)
 
         dwg.add(dwg.rect(insert=(0, 0),
@@ -165,6 +164,11 @@ class Map:
                       "areas")
 
         for area_view in self.area_views:
+            area_group = dwg.add(dwg.g())
+            area_group.add(self._make_title(area_view))
+            area_group.translate(area_view.pos_x,
+                                 area_view.pos_y)
+
             for subarea in area_view.get_split_area_views():
                 _draw_area(subarea)
 

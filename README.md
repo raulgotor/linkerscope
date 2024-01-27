@@ -335,12 +335,12 @@ At the folder examples, there are a series of configurations and map `.yaml` fil
 - [x] Memory direction
 - [x] Hide specific elements
 - [ ] Memory size in bytes
-- [ ] Section links across breaks
+- [x] Section links across breaks
 - [x] Friendly name and identifier
 - [ ] Legend
 - [ ] Area representation different from section
 - [ ] Make `type` default to `section`
-- [ ] Bug: title appears at top of each break section, if long enough
+- [x] Bug: title appears at top of each break section, if long enough
 
 ## References
 
