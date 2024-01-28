@@ -97,7 +97,7 @@ areas:
           stroke: 'black'
           stroke-width: 1
           stroke-dasharray: '3,3'
-          weigth: 1
+          weight: 1
           text_fill: *pastel_green
       - address: 0xe0014FFF
         text: Cool section
@@ -107,7 +107,7 @@ areas:
           stroke: *pastel_green
           stroke-width: 2
           stroke-dasharray: '2,2'
-          weigth: 1
+          weight: 1
           text_fill: *pastel_green
       - address: 0xe8041000
         text: Cool Memory

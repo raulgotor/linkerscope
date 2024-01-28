@@ -307,7 +307,7 @@ areas:
 
 Below a list of style properties with general use and specific for sections:
 ##### General
-  - `background`, `fill`, `font-size`, `font-type`, `opacity`, `size`, `stroke`, `stroke_dasharray`, `stroke-width`, `text-stroke`,`text-fill`,`text-stroke-width`, `weigth`
+  - `background`, `fill`, `font-size`, `font-type`, `opacity`, `size`, `stroke`, `stroke_dasharray`, `stroke-width`, `text-stroke`,`text-fill`,`text-stroke-width`, `weight`
 
 ##### Section properties:
   - `break-type`: specify memory break type. See [`break`](#break) section
@@ -349,6 +349,8 @@ At the folder examples, there are a series of configurations and map `.yaml` fil
 ## References
 
 - [YAML cheatsheet](https://quickref.me/yaml)
+- [MapViewer](https://github.com/govind-mukundan/MapViewer)
+- [LinkerMapViz](https://github.com/PromyLOPh/linkermapviz)
 
 ## License
 

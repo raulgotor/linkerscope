@@ -2,14 +2,16 @@ from math import cos
 from svgwrite import Drawing
 import svgwrite
 
+from helpers import DefaultAppValues
 from labels import Side
+from logger import logger
 from section import Section
 from style import Style
 
 
-class Map:
+class MapRender:
     """
-    This class does the actual drawing of the map.
+    This class does the actual rendering of the map.
 
     Takes all the graphical information stored at the different sections and areas, together
     with their style and configuration, and convert them to SVG objects (see `draw()` function)
@@ -17,18 +19,18 @@ class Map:
     dwg: Drawing
     pointer_y: int
 
-    def __init__(self, area_view, links, file='map.svg', size=(500,500), **kwargs):
+    def __init__(self, area_view, links, file='map.svg', size=DefaultAppValues.DOCUMENT_SIZE, **kwargs):
         self.style = kwargs.get('style')
         self.type = type
         self.area_views = area_view
         self.current_style = Style()
         self.links = links
-        self.links_sections = self._get_valid_linked_sections(links.sections)
+        self.links_sections = self._get_valid_linked_sections(links.sections) if links is not None else []
         self.file = file
         self.size = size
         self.dwg = svgwrite.Drawing(file,
                                     profile='full',
-                                    size=(self.size)
+                                    size=self.size
                                     )
 
     def _get_valid_linked_sections(self, linked_sections):
@@ -93,8 +95,9 @@ class Map:
                 # the section was not appended, means that the other end of the section is at
                 # another area, and that is not valid
                 if multi_section and not appended and (start is not None or end is not None):
-                    print("WARNING: A multisection zoom region was specified for two sections"
-                          "of different areas, which is not supported")
+                    logger.warning("A multisection zoom region was specified for two sections"
+                                   f"of different areas, which is not supported: "
+                                   f"{linked_section[0]}, {linked_section[1]}")
                     break
 
         return l_sections
@@ -150,9 +153,9 @@ class Map:
                         is_drawn = True
                         break
                 if not is_drawn:
-                    print(f"WARNING: Starting or ending point of the zoom region is outside the \
-                          shown areas for the link with addresses {section_link[0]} \
-                          and {section_link[1]}")
+                    logger.warning(f"Starting or ending point of the zoom region is outside the "
+                                   f"shown areas for the link with addresses [{hex(section_link[0])}"
+                                   f", {hex(section_link[1])}]")
 
             return linked_sections_group
 
@@ -202,8 +205,8 @@ class Map:
 
         growths_group = dwg.g()
 
-        dwg.add(draw_section_links())
-        dwg.add(draw_links())
+        dwg.add(draw_section_links()) if self.links_sections is not None else None
+        dwg.add(draw_links()) if self.links is not None else None
 
         for area_view in self.area_views:
             dwg.add(_draw_area(area_view))
@@ -215,7 +218,7 @@ class Map:
     def _make_title(self, area_view):
         title_pos_x = area_view.size_x / 2
         title_pos_y = -20
-        return self._make_text(area_view.area.get('title', ''),
+        return self._make_text(area_view.title,
                                (title_pos_x, title_pos_y),
                                style=area_view.style,
                                anchor='middle',
@@ -562,8 +565,8 @@ class Map:
         else:
             angle = 180
 
-        arrow_head_width = 5 * label.style.weigth
-        arrow_head_height = 10 * label.style.weigth
+        arrow_head_width = 5 * label.style.weight
+        arrow_head_height = 10 * label.style.weight
         group = self.dwg.g()
         points_list = [(0, 0 - arrow_head_height),
                        (0 - arrow_head_width, 0 - arrow_head_height),
@@ -604,8 +607,6 @@ class Map:
         pos_y = area_view.to_pixels_relative(address)
         points = [(0 + pos_x_d, pos_y), (direction*(label_length + pos_x_d), pos_y)]
 
-        # TODO: FIX: direction is inverted if we change the label side
-
         def add_arrow_head(_direction):
             if 'in' == _direction:
                 if label.side == Side.LEFT:
@@ -624,7 +625,7 @@ class Map:
                 arrow_head_x = direction * (label_length + pos_x_d)
 
             else:
-                print(f"WARNING, invalid direction {_direction} provided")
+                logger.warning(f"Invalid direction {_direction} provided")
                 return
 
             g.add(self._make_arrow_head(label, direction=arrow_direction)).translate(arrow_head_x, pos_y)
