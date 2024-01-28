@@ -175,12 +175,12 @@ class MapRender:
             return global_labels
 
         def draw_growths() -> svgwrite.container.Group:
-            # We need to do another pass once all areas are drawn in order to be able to properly draw
-            # the growth arrows without the break areas hiding them. Also, as we do stuff outside the
-            # loop where the areas are drawn, we loose the reference for translation, and we have to
-            # manually translate the grows here
-            for area_view in self.area_views:
-                for subarea in area_view.get_split_area_views():
+            # We need to do another pass once all areas are drawn in order to be able to properly
+            # draw the growth arrows without the break areas hiding them. Also, as we do stuff
+            # outside the loop where the areas are drawn, we loose the reference for translation,
+            # and we have to manually translate the grows here
+            for _area_view in self.area_views:
+                for subarea in _area_view.get_split_area_views():
 
                     area_growth = dwg.g()
                     for section in subarea.sections.get_sections():
@@ -575,9 +575,9 @@ class MapRender:
                        ]
 
         poly = self.dwg.polyline(points_list,
-                          stroke=label.style.stroke,
-                          stroke_width=1,
-                          fill=label.style.stroke)
+                                 stroke=label.style.stroke,
+                                 stroke_width=1,
+                                 fill=label.style.stroke)
         poly.rotate(angle, center=(0, 0))
         group.add(poly)
 

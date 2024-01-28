@@ -33,24 +33,26 @@ class Links:
 
         for address in self.addresses:
 
-            if type(address) != int:
+            if not isinstance(address, int):
                 self.addresses.remove(address)
                 logger.warning(f"Link address '{address}' is incorrect: can only be of the type "
                                f"integer. It will be ignored")
 
         for section_address in self.sections:
-            if type(section_address) != str and type(section_address) != list:
+            if not isinstance(section_address, str) and not isinstance(section_address, list):
                 self.sections.remove(section_address)
                 logger.warning(f"Section link '{section_address}' is incorrect: can only be of the "
                                f"type integer or list. It will be ignored")
 
-            elif type(section_address) == list and len(section_address) != 2:
+            elif isinstance(section_address, list) and len(section_address) != 2:
                 self.sections.remove(section_address)
                 logger.warning(f"Section link list '{section_address}' can only have exactly two "
                                f"sections. It will be ignored")
 
-            elif type(section_address) == list and \
-                    (type(section_address[0]) != str or type(section_address[1]) != str):
+            elif isinstance(section_address, list) and \
+                    (not isinstance(section_address[0], str) or
+                     not isinstance(section_address[1], str)):
+
                 self.sections.remove(section_address)
                 logger.warning(f"Section link list elements'{section_address}' must be strings. "
                                f"They will be ignored")
