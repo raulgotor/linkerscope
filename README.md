@@ -5,7 +5,7 @@
 LinkerScope is a memory map diagram generator. It can be fed either with a GNU Linker map file or with a custom `yaml` file
 and generate beautiful and detailed diagrams of the different areas and sections such as the one below.
 
-<img style="display: block; margin-left: auto; margin-right: auto;" src="examples/link_example_map.svg">
+<img style="display: block; margin-left: auto; margin-right: auto;" src="docs/assets/link_map.svg">
 
 ## Installing LinkerScope
 
@@ -26,16 +26,29 @@ pip3 install -r requirements.txt
 
 ### Execution
 
-LinkerScope needs two inputs: a file with memory information (.map or .yaml) and a configuration file. Provide these two files and define an output map with:
+LinkerScope needs a file with memory information for basic functionality:
+that could be either GNU Linker map files (`.map`) or custom structured YAML file (`.yaml`).
 
 ```bash
-./linkerscope.py --input linker.map --output map.svg --config config.yaml
+./linkerscope.py linker.map [<options>]
+```
+
+This will output memory map diagram to a default `map.svg` file. 
+While this enables a quick generation of memory map, one might want to carefully tune the
+different properties of the diagram such as visual and style properties, memory regions, names, links, ...
+
+For that, a [configuration file](#creating-a-configuration-file) with the desired characteristics has to be specified:
+
+```bash
+./linkerscope.py linker.map --config config.yaml --output map.svg
 ```
 
 where:
-- `-i, --input` specifies the path to the input file, where LinkerScope should get the data to represent from. It can come from a GNU Linker map file `.map` or from an already parsed or hand-crafted `.yaml` file. Check [Manually crafting input file](#Manually crafting input file) section for learning how to do this.
-- `-o, --output` specifies the path to the output file, which will be a newly generated SVG.
+- First parameter specifies the path to the input file, where LinkerScope should get the data to represent from. It can come from a GNU Linker map file `.map` or from an already parsed or hand-crafted `.yaml` file. Check [Manually crafting input file](#Manually crafting input file) section for learning how to do this.
 - `-c, --config` [OPTIONAL] specifies the path to the configuration file. This file contains all the custom information to tell LinkerScope what to and how to draw the memory maps. While it is optional, the default parameters will most likely not apply to a given use case.
+- `-o, --output` [OPTIONAL] specifies the path to the output file, which will be a newly generated SVG.
+
+
 
 ### Input files
 
@@ -72,22 +85,26 @@ of how an input file should look like:
 In order to use this file, invoke LinkerScope and specify the yaml map file as input:
 
 ```bash
-./linkerscope.py -i memory_map.yaml -o memory_map.svg -c config.yaml
+./linkerscope.py memory_map.yaml -o memory_map.svg -c config.yaml
 ```
 
 ### Creating a configuration file
 
-The configuration file is a `.yaml` file containing all the required information to tell LinkerScope what and how to draw the memory map.
-All information there is optional, including the file itself. If this information is not provided, the default values will be used.
+The configuration file is a `.yaml` file containing all the required information to tell
+LinkerScope what and how to draw the memory map. All information there is optional, including the
+file itself. If this information is not provided, the default values will be used.
 
 Normally, a configuration file contains **areas**, **links** and **style** information.
 
-**Areas** provides a list of memory areas to be displayed, with information regarding its position and size on the map, memory range to include or specific drawing style.
-Additionally, it can contain a **sections** sub-property where specific sections can be added to modify desired properties
+**Areas** provides a list of memory areas to be displayed, with information regarding its position
+and size on the map, memory range to include or specific drawing style.
+Additionally, it can contain a **sections** sub-property where specific sections can be added to
+modify desired properties
 
 **Links** provides a simple way of graphically relating same memory addresses across different areas
 
-**Style** defines the parent drawing style properties that will be used at the document. Additionally, each area can override specific style properties at its style section.
+**Style** defines the parent drawing style properties that will be used at the document.
+Additionally, each area can override specific style properties at its style section.
 Lastly, sections can override parent (area) style as well
 
 ```yaml
@@ -121,6 +138,11 @@ links:
 The diagram can have one or multiple areas. When multiple areas are declared,
 first area has a special status since all links will start on it and go to the corresponding sections on the other areas
 The areas are declared at root level under `areas`. Then each area must use the key `area`.
+Areas can be placed at any position in the document, and some of its properties can be tuned.elements such as labels, memory addresses,
+For instance, some elements such as the name / id, size, address, can be show or hidden, labels at
+specific memory regions can be configured, sections can be marked as break sections, and the 
+visual style of the area and its sections can be modified independently from the others.
+
 For each area, the following characteristics of an area can be defined:
 - `title`:  **[Optional, none]**
   - The title of the area, which will appear on top of it
@@ -149,8 +171,8 @@ For each area, the following characteristics of an area can be defined:
       - Memory address where the label should be placed
     - `text`:
       - Text to display for this label
-    - `lenght`: **[Optional, none]**
-      - lenght of the label line in pixels
+    - `length`: **[Optional, none]**
+      - length of the label line in pixels
     - `directions`: **[Optional, none]**
       - direction or list of directions for the arrow head. Possible values are none, `in`, `out` or both.
     - `side`: **[Optional, `right`]**
@@ -178,8 +200,8 @@ areas:
 ```
 #### Labels
 
-Labels can bind a text string with a specific memory position. This property falls inside `area`. A partial example can
-be seen below:
+Labels can bind a text string with a specific memory position. This property falls inside `area`. 
+An extract from the `labels` example can be found below:
 
 ```yaml
 areas:
@@ -194,13 +216,17 @@ areas:
      # ...
 ```
 
-<img style="display: block; margin-left: auto; margin-right: auto;" src="examples/label_example_map.svg">
+<img style="display: block; margin-left: auto; margin-right: auto;" src="docs/assets/label_map.svg">
 
-> See `examples/label_example_config.yaml` for a full example.
+> The example can be executed at the root folder by running:
+>  ```bash
+>  ./linkerscope.py examples/labels_map.yaml -c examples/labels_config.yaml
+>  ```
 
 #### Section flags
 
-Section flags allows to flag specified sections with special properties. These properties are listed below:
+Section flags allows flagging specified sections with special properties.
+These properties are `break`, `grows-up` and `grows-down`.
 
 Flags are listed under property `flags` and can be specified both at the map files under each section
 
@@ -229,7 +255,12 @@ areas:
 These flags specify the section as growing section, for instance, if the section is meant to grow into one direction, such as the stack.
 When flagging a section with `grows-down`, an arrow pointing downwards will be appended to the bottom of the section indicating that the section is growing into that direction:
 
-<img style="display: block; margin-left: auto; margin-right: auto;" src="examples/stack_example_map.svg">
+<img style="display: block; margin-left: auto; margin-right: auto;" src="docs/assets/stack_map.svg">
+
+> The example can be executed at the root folder by running:
+>  ```bash
+>  ./linkerscope.py examples/stack_map.yaml -c examples/stack_config.yaml
+>  ```
 
 ##### `break`
 
@@ -239,7 +270,12 @@ Reducing the size of the biggest one helps to visually simplify the diagram and 
 
 There are four different break styles, which can be defined by the 'break-type' style property: `~`: Wave,  `≈`: Double wave, `/`: Diagonal, `...`: Dots
 
-<img style="display: block; margin-left: auto; margin-right: auto;" src="examples/break_example_map.svg">
+<img style="display: block; margin-left: auto; margin-right: auto;" src="docs/assets/break_map.svg">
+
+> The example can be executed at the root folder by running:
+>  ```bash
+>  ./linkerscope.py examples/break_map.yaml -c examples/break_config.yaml
+>  ```
 
 #### Links
 
@@ -270,8 +306,13 @@ links:
   sections: [['Bit band region', 'Bit band alias'],'ITM']
 
 ```
-<img style="display: block; margin-left: auto; margin-right: auto;" src="examples/link_example_map.svg">
+<img style="display: block; margin-left: auto; margin-right: auto;" src="docs/assets/link_map.svg">
 
+> The example can be executed at the root folder by running:
+>  ```bash
+>  ./linkerscope.py examples/link_map.yaml -c examples/link_config.yaml
+>  ```
+> 
 #### Styles
 
 The style can be defined at document level, where it will be applied to all areas, but also at area or even at section level.
