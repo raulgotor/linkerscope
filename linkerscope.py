@@ -2,7 +2,6 @@
 
 import argparse
 import copy
-import sys
 
 import yaml
 
@@ -35,7 +34,8 @@ def parse_arguments():
 
     return parser.parse_args()
 
-def get_area_views(raw_sections, base_style, config=None):
+
+def get_area_views(_raw_sections, _base_style, config=None):
     """
     Get the area view/s with the specified style and properties (if any)
 
@@ -45,29 +45,29 @@ def get_area_views(raw_sections, base_style, config=None):
     If no configuration is passed, only one area view will be generated with the default style
     and properties
 
-    :param raw_sections: A list of unprocessed sections to be selected from and displayed
-    :param base_style: Base / default style to build child styles from
+    :param _raw_sections: A list of unprocessed sections to be selected from and displayed
+    :param _base_style: Base / default style to build child styles from
     :param config: Optional, configuration object indicating number of areas, style, properties,...
     :return: A list of configured area views
     """
-    def get_default_area_view(_raw_sections, _base_style):
+    def get_default_area_view(sections, style):
         """
         Get an area view configured with default parameters
-        :param _raw_sections: A list of unprocessed sections to be selected from and displayed
-        :param _base_style: Base / default style to build child styles from
+        :param sections: A list of unprocessed sections to be selected from and displayed
+        :param style: Base / default style to build child styles from
         :return: List of one element corresponding to a default area view
         """
         return [AreaView(
-            sections=(Sections(sections=_raw_sections)),
-            style=copy.deepcopy(_base_style)
+            sections=(Sections(sections=sections)),
+            style=copy.deepcopy(style)
         )]
 
-    def get_custom_area_views(_raw_sections, _base_style):
+    def get_custom_area_views(sections, style):
         """
         Get a list of area views configured according to passed parameters
 
-        :param _raw_sections: A list of unprocessed sections to be selected from and displayed
-        :param _base_style: Base / default style to build child styles from
+        :param sections: A list of unprocessed sections to be selected from and displayed
+        :param style: Base / default style to build child styles from
         :return: List of one or various custom area views
         """
         area_views = []
@@ -75,16 +75,17 @@ def get_area_views(raw_sections, base_style, config=None):
             area_config = safe_element_dict_get(area_element, 'area')
             section_size = safe_element_dict_get(area_config, 'section-size', None)
             memory_range = safe_element_dict_get(area_config, 'range', None)
-            area_style = copy.deepcopy(_base_style)
-            filtered_sections = (Sections(sections=_raw_sections)
-                              .filter_address_min(safe_element_list_get(memory_range, 0))
-                              .filter_address_max(safe_element_list_get(memory_range, 1))
-                              .filter_size_min(safe_element_list_get(section_size, 0))
-                              .filter_size_max(safe_element_list_get(section_size, 1))
-                              )
+            area_style = copy.deepcopy(style)
+            filtered_sections = (Sections(sections=sections)
+                                 .filter_address_min(safe_element_list_get(memory_range, 0))
+                                 .filter_address_max(safe_element_list_get(memory_range, 1))
+                                 .filter_size_min(safe_element_list_get(section_size, 0))
+                                 .filter_size_max(safe_element_list_get(section_size, 1))
+                                 )
             if len(filtered_sections.get_sections()) == 0:
-                logger.warning(f"Filter for area view with index {i} doesn't result in any section. "
-                               f"Try re-adjusting memory range, size, ... This area will be omitted")
+                logger.warning(f"Filter for area view with index {i} doesn't result in any"
+                               f"section. Try re-adjusting memory range, size, ... This area "
+                               f"will be omitted")
                 continue
 
             area_views.append(
@@ -101,9 +102,9 @@ def get_area_views(raw_sections, base_style, config=None):
     area_configurations = safe_element_dict_get(config, 'areas', []) or []
 
     if len(area_configurations) == 0:
-        return get_default_area_view(raw_sections, base_style)
+        return get_default_area_view(_raw_sections, _base_style)
     else:
-        return get_custom_area_views(raw_sections, base_style)
+        return get_custom_area_views(_raw_sections, _base_style)
 
 
 arguments = parse_arguments()
