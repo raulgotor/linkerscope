@@ -145,9 +145,9 @@ class AreaView:
             :return: A new area configuration with the provided configuration and provided parameters
             """
             new_configuration = copy.deepcopy(configuration)
-            new_configuration['size'] = [200, 500]
+            new_configuration['size'] = [DefaultAppValues.SIZE_X, DefaultAppValues.SIZE_Y]
             if new_configuration.get('pos') is None:
-                new_configuration['pos'] = [10, 10]
+                new_configuration['pos'] = [DefaultAppValues.POSITION_X, DefaultAppValues.POSITION_Y]
             new_configuration['size'][1] = size_y_px
             new_configuration['pos'][1] = pos_y_px - size_y_px
             return new_configuration

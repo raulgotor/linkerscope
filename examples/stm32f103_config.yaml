@@ -38,8 +38,8 @@ areas:
 
 - area:
     range: [0x40000000, 0x40030000]
-    pos: [500]
-    size: [200, 700]
+    pos: [ 400, 50 ]
+    size: [ 200, 700 ]
     style:
       fill: *pastel_green
       background: grey
@@ -49,6 +49,8 @@ areas:
         style:
           hide-name: true
           fill: grey
+      - names: [Reserved2]
+        flags: break
 
 links:
   style:
