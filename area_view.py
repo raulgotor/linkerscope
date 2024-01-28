@@ -1,7 +1,8 @@
 import copy
 
-from helpers import safe_element_get
+from helpers import safe_element_list_get, safe_element_dict_get, DefaultAppValues
 from labels import Labels
+from logger import logger
 from style import Style
 
 
@@ -13,32 +14,41 @@ class AreaView:
     pos_y: int
     pos_x: int
     zoom: int
-    address_to_pxl: int
+    address_to_pxl: float
     total_height_pxl: int
     start_address: int
     end_address: int
 
     def __init__(self,
                  sections,
-                 area_config,
                  style,
-                 **kwargs):
+                 area_config=[],
+                 labels=None,
+                 is_subarea = False):
         self.sections = sections
         self.processed_section_views = []
-        self.config = kwargs.get('global_config')
+        self.is_subarea = is_subarea
         self.area = area_config
         self.style = style
-        self.start_address = self.area.get('start', self.sections.lowest_memory)
-        self.end_address = self.area.get('end', self.sections.highest_memory)
-        self.pos_x = safe_element_get(self.area.get('pos'), 0, default=50)
-        self.pos_y = safe_element_get(self.area.get('pos'), 1, default=50)
-        self.size_x = safe_element_get(self.area.get('size'), 0, default=200)
-        self.size_y = safe_element_get(self.area.get('size'), 1, default=500)
-        self.labels = Labels(self.area.get('labels', []), style)
+        self.start_address = safe_element_dict_get(self.area, 'start', self.sections.lowest_memory)
+        self.end_address = safe_element_dict_get(self.area, 'end', self.sections.highest_memory)
+        self.pos_x = safe_element_list_get(
+            safe_element_dict_get(self.area, 'pos'), 0, default=DefaultAppValues.POSITION_X)
 
+        self.pos_y = safe_element_list_get(
+            safe_element_dict_get(self.area, 'pos'), 1, default=DefaultAppValues.POSITION_Y)
+
+        self.size_x = safe_element_list_get(
+            safe_element_dict_get(self.area, 'size'), 0, default=DefaultAppValues.SIZE_X)
+
+        self.size_y = safe_element_list_get(
+            safe_element_dict_get(self.area, 'size'), 1, default=DefaultAppValues.SIZE_Y)
+
+        self.labels = Labels(safe_element_dict_get(self.area, 'labels', []), style)
+        self.title = safe_element_dict_get(self.area, 'title', DefaultAppValues.TITLE)
         self.address_to_pxl = (self.end_address - self.start_address) / self.size_y
 
-        if self.config is not None:
+        if not self.is_subarea:
             self._process()
 
     def get_split_area_views(self):
@@ -86,9 +96,23 @@ class AreaView:
             section_style = copy.deepcopy(self.style)
             section.style = section_style
 
-            for element in self.area.get('sections', []):
-                sections = element.get('names')
-                for item in sections:
+            inner_sections = safe_element_dict_get(self.area, 'sections', [])
+
+            if inner_sections is None:
+                logger.warning(
+                    "'sections' property is declared but is empty. Field has been ignored")
+                inner_sections = []
+
+            for element in inner_sections:
+
+                section_names = safe_element_dict_get(element, 'names', [])
+
+                if section_names is None:
+                    logger.warning(
+                        "'sections' property is declared but is empty. Field has been ignored")
+                    section_names = []
+
+                for item in section_names:
                     if item == section.id:
                         # OVERWRITE style, address, size and type if needed
                         section_style.override_properties_from(Style(style=element.get('style')))
@@ -151,8 +175,8 @@ class AreaView:
 
             for section_group in split_section_groups:
 
-                corrected_size_y_px = breaks_section_size_y_px if section_group.is_break_section_group()\
-                    else recalculate_section_size_y()
+                corrected_size_y_px = breaks_section_size_y_px \
+                    if section_group.is_break_section_group() else recalculate_section_size_y()
 
                 subconfig = area_config_clone(self.area, last_area_pos, corrected_size_y_px)
                 last_area_pos = subconfig['pos'][1]
@@ -161,13 +185,15 @@ class AreaView:
                     sections=section_group,
                     area_config=subconfig,
                     labels=self.labels,
-                    style=self.style)
+                    style=self.style,
+                    is_subarea=True)
                 )
 
         else:
             if len(self.sections.get_sections()) == 0:
-                print("Current view doesn't show any section")
-                return
+                logger.error(f"An area view without sections made its through the process. "
+                             f"This shouldn't be happening")
+                exit(-1)
             self.processed_section_views.append(self)
 
     def _get_break_total_size_px(self):

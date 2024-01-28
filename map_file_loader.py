@@ -1,10 +1,9 @@
 import os
 import sys
-
 import yaml
-
+from logger import logger
 from section import Section
-from map_parser import MapParser
+from gnu_linker_map_parser import GNULinkerMapParser
 
 
 class MapFileLoader:
@@ -26,7 +25,7 @@ class MapFileLoader:
         if file_extension in ['.yaml', '.yml']:
             return self.parse_yaml(self.input_filename)
 
-        print("Wrong map file extension. Use .map or .yaml files")
+        logger.error(f"Wrong map file extension: '{file_extension}'. Use .map or .yaml files")
         sys.exit(-1)
 
     @staticmethod
@@ -37,7 +36,6 @@ class MapFileLoader:
             y = yaml.safe_load(file)
 
         for element in y['map']:
-            print(element)
             sections.append(Section(address=element['address'],
                                     size=element['size'],
                                     id=element['id'],
@@ -52,4 +50,4 @@ class MapFileLoader:
 
     @staticmethod
     def parse_map(input_filename):
-        MapParser(input_filename=input_filename, output_filename='examples/map.yaml').parse()
+        GNULinkerMapParser(input_filename=input_filename, output_filename='examples/map.yaml').parse()

@@ -4,9 +4,9 @@ import yaml
 from section import Section
 
 
-class MapParser:
+class GNULinkerMapParser:
     """
-    Parse a linker map file and convert it to a yaml file for further processing
+    Parse a GNU linker map file and convert it to a yaml file for further processing
     """
     def __init__(self, input_filename, output_filename):
         self.sections = []

@@ -91,8 +91,8 @@ class Sections:
             # Section that covers from previous break till start of this break
             # If it was the first break, will cover from begining of the whole area to this break.
             # Only append if search returns more than 0 counts
-            s = Sections(sections=self.sections)\
-                .filter_address_max(_break.address)\
+            s = Sections(sections=self.sections) \
+                .filter_address_max(_break.address) \
                 .filter_address_min(previous_break_end_address)
             if len(s.get_sections()) > 0:
                 split_sections.append(s)
@@ -103,8 +103,8 @@ class Sections:
 
         # Section that covers from the last break end address to the end of the whole area. Only
         # append if search returns more than 0 counts
-        last_group = Sections(sections=self.sections)\
-            .filter_address_max(self.highest_memory)\
+        last_group = Sections(sections=self.sections) \
+            .filter_address_max(self.highest_memory) \
             .filter_address_min(previous_break_end_address)
 
         if len(last_group.sections) > 0:

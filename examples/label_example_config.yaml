@@ -20,7 +20,7 @@ areas:
     style:
       stroke: grey
       stroke-width: 1
-      weigth: 1
+      weight: 1
       text_fill: lightgrey
       stroke-dasharray: '1'
 

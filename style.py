@@ -28,7 +28,7 @@ class Style:
     text_stroke_width: int
     text_fill: str
 
-    weigth: int
+    weight: int
 
     def __init__(self, style=None):
         if style is not None:
@@ -84,7 +84,7 @@ class Style:
         default_style.growth_arrow_fill = 'white'
         default_style.growth_arrow_stroke = 'black'
         default_style.stroke_dasharray = '3,2'
-        default_style.weigth = 2
+        default_style.weight = 2
         default_style.hide_size = False
         default_style.hide_name = False
         default_style.hide_address = False
