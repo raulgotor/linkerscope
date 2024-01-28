@@ -130,8 +130,7 @@ class MapRender:
                 for section in sub_area.sections.get_sections():
                     self._make_section(subarea_group, section, sub_area)
 
-                subarea_group.translate(sub_area.pos_x,
-                                sub_area.pos_y)
+                subarea_group.translate(sub_area.pos_x, sub_area.pos_y)
 
                 area_group.add(subarea_group)
 
@@ -141,12 +140,12 @@ class MapRender:
             linked_sections_group = dwg.g()
             for section_link in self.links_sections:
                 is_drawn = False
-                for area_view in self.area_views[1:]:
-                    if section_link[0] >= area_view.sections.lowest_memory and \
-                            section_link[1] <= area_view.sections.highest_memory and \
+                for _area_view in self.area_views[1:]:
+                    if section_link[0] >= _area_view.sections.lowest_memory and \
+                            section_link[1] <= _area_view.sections.highest_memory and \
                             section_link[0] >= self.area_views[0].sections.lowest_memory and \
                             section_link[1] <= self.area_views[0].sections.highest_memory:
-                        linked_sections_group.add(self._make_poly(area_view,
+                        linked_sections_group.add(self._make_poly(_area_view,
                                                                   section_link[0],
                                                                   section_link[1],
                                                                   self.links.style))
@@ -154,8 +153,8 @@ class MapRender:
                         break
                 if not is_drawn:
                     logger.warning(f"Starting or ending point of the zoom region is outside the "
-                                   f"shown areas for the link with addresses [{hex(section_link[0])}"
-                                   f", {hex(section_link[1])}]")
+                                   f"shown areas for the link with addresses "
+                                   f"[{hex(section_link[0])}, {hex(section_link[1])}]")
 
             return linked_sections_group
 
@@ -466,7 +465,7 @@ class MapRender:
     def _make_name(self, section):
         name = section.name if section.name is not None else section.id
         return self._make_text(name,
-                               (section.name_label_pos_x,section.name_label_pos_y),
+                               (section.name_label_pos_x, section.name_label_pos_y),
                                style=section.style,
                                anchor='middle',
                                )
@@ -608,6 +607,7 @@ class MapRender:
         points = [(0 + pos_x_d, pos_y), (direction*(label_length + pos_x_d), pos_y)]
 
         def add_arrow_head(_direction):
+            arrow_direction = 'right'
             if 'in' == _direction:
                 if label.side == Side.LEFT:
                     arrow_direction = 'right'
@@ -628,7 +628,8 @@ class MapRender:
                 logger.warning(f"Invalid direction {_direction} provided")
                 return
 
-            g.add(self._make_arrow_head(label, direction=arrow_direction)).translate(arrow_head_x, pos_y)
+            g.add(self._make_arrow_head(label, direction=arrow_direction))\
+                .translate(arrow_head_x, pos_y)
 
         if type(label.directions) == str:
             add_arrow_head(label.directions)

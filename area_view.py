@@ -22,9 +22,9 @@ class AreaView:
     def __init__(self,
                  sections,
                  style,
-                 area_config = [],
-                 is_subarea = False,
-                 **kwargs):
+                 area_config=[],
+                 labels=None,
+                 is_subarea = False):
         self.sections = sections
         self.processed_section_views = []
         self.is_subarea = is_subarea
@@ -32,10 +32,18 @@ class AreaView:
         self.style = style
         self.start_address = safe_element_dict_get(self.area, 'start', self.sections.lowest_memory)
         self.end_address = safe_element_dict_get(self.area, 'end', self.sections.highest_memory)
-        self.pos_x = safe_element_list_get(safe_element_dict_get(self.area, 'pos'), 0, default=DefaultAppValues.POSITION_X)
-        self.pos_y = safe_element_list_get(safe_element_dict_get(self.area, 'pos'), 1, default=DefaultAppValues.POSITION_Y)
-        self.size_x = safe_element_list_get(safe_element_dict_get(self.area, 'size'), 0, default=DefaultAppValues.SIZE_X)
-        self.size_y = safe_element_list_get(safe_element_dict_get(self.area, 'size'), 1, default=DefaultAppValues.SIZE_Y)
+        self.pos_x = safe_element_list_get(
+            safe_element_dict_get(self.area, 'pos'), 0, default=DefaultAppValues.POSITION_X)
+
+        self.pos_y = safe_element_list_get(
+            safe_element_dict_get(self.area, 'pos'), 1, default=DefaultAppValues.POSITION_Y)
+
+        self.size_x = safe_element_list_get(
+            safe_element_dict_get(self.area, 'size'), 0, default=DefaultAppValues.SIZE_X)
+
+        self.size_y = safe_element_list_get(
+            safe_element_dict_get(self.area, 'size'), 1, default=DefaultAppValues.SIZE_Y)
+
         self.labels = Labels(safe_element_dict_get(self.area, 'labels', []), style)
         self.title = safe_element_dict_get(self.area, 'title', DefaultAppValues.TITLE)
         self.address_to_pxl = (self.end_address - self.start_address) / self.size_y
@@ -167,8 +175,8 @@ class AreaView:
 
             for section_group in split_section_groups:
 
-                corrected_size_y_px = breaks_section_size_y_px if section_group.is_break_section_group()\
-                    else recalculate_section_size_y()
+                corrected_size_y_px = breaks_section_size_y_px \
+                    if section_group.is_break_section_group() else recalculate_section_size_y()
 
                 subconfig = area_config_clone(self.area, last_area_pos, corrected_size_y_px)
                 last_area_pos = subconfig['pos'][1]
