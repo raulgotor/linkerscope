@@ -18,6 +18,7 @@ and this project adheres to
 ### Fixed
 * Design issue that was hindering creating linked sections if the area contained breaks
 * Bug that repeated the title of the area if the area contained breaks
+* Breaks on areas that had empty regions would not perform correctly
 
 ## [0.2.0] - 2023-12-14
 
