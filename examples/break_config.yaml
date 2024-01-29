@@ -7,7 +7,6 @@ variables:
 style:
   text-fill: 'black'
   break-size: 60
-  break-type: '~'
   #background: *graphite
   fill: *pastel_green
   hide-address: true

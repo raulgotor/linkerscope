@@ -17,15 +17,13 @@ from sections import Sections
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
+    parser.add_argument('input',
+                        help='Name of the map file,'
+                             'can be either linker .map files or .yaml descriptor')
     parser.add_argument('--output',
                         '-o',
                         help='Name for the generated .svg file',
                         default='map.svg')
-    parser.add_argument('--input',
-                        '-i',
-                        help='Name of the map file,'
-                             'can be either linker .map files or .yaml descriptor',
-                        default='map.yaml')
     parser.add_argument('--config',
                         '-c',
                         help='Configuration file (.yml). If not specified,'
@@ -76,7 +74,7 @@ def get_area_views(_raw_sections, _base_style, config=None):
             section_size = safe_element_dict_get(area_config, 'section-size', None)
             memory_range = safe_element_dict_get(area_config, 'range', None)
             area_style = copy.deepcopy(style)
-            filtered_sections = (Sections(sections=sections)
+            filtered_sections = (Sections(sections=copy.deepcopy(sections))
                                  .filter_address_min(safe_element_list_get(memory_range, 0))
                                  .filter_address_max(safe_element_list_get(memory_range, 1))
                                  .filter_size_min(safe_element_list_get(section_size, 0))

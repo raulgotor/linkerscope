@@ -123,33 +123,41 @@ class AreaView:
                         section.flags += element.get('flags', section.flags)
 
     def _process(self):
-        def recalculate_section_size_y():
+        def recalculate_subarea_size_y(start_mem_addr, end_mem_addr):
             """
-            Recalculates the size of the current section given that there is at least one break
-            section in this area which will reduce its space
+            Recalculates the size of the current sub-area, provided the maximum and minimum
+            memory that this area has to show
 
-            :return: Recalculated size for this section
+            For that, it makes a relation between the memory that needs to be displayed and
+            the total non-break memory available
+
+            :param start_mem_addr: minimum memory address that the new sub-area must show
+            :param end_mem_addr: maximum memory address that the new sub-area must show
+            :return: Recalculated size for this area
             """
-            split_section_size_px = self._get_non_breaks_total_size_px(
-                section_group.get_sections())
-            return (split_section_size_px / total_non_breaks_size_y_px) * (
-                    total_non_breaks_size_y_px + expandable_size_px)
 
-        def area_config_clone(configuration, pos_y_px, size_y_px):
+            return (self.to_pixels(end_mem_addr - start_mem_addr) / total_non_breaks_size_y_px) * \
+                   (total_non_breaks_size_y_px + expandable_size_px)
+
+        def area_config_clone(configuration, pos_y_px, size_y_px, start_mem_addr, end_mem_addr):
             """
             Clones an area configuration and changes position and size
 
             :param configuration: Area configuration to clone
             :param pos_y_px: Position in pixels for the new cloned configuration
             :param size_y_px: Size y in pixels of the new cloned configuration
+            :param start_mem_addr: minimum memory address that the new sub-area must show
+            :param end_mem_addr: maximum memory address that the new sub-area must show
             :return: A new area configuration with the provided configuration and provided parameters
             """
             new_configuration = copy.deepcopy(configuration)
-            new_configuration['size'] = [200, 500]
+            new_configuration['size'] = [DefaultAppValues.SIZE_X, DefaultAppValues.SIZE_Y]
             if new_configuration.get('pos') is None:
-                new_configuration['pos'] = [10, 10]
+                new_configuration['pos'] = [DefaultAppValues.POSITION_X, DefaultAppValues.POSITION_Y]
             new_configuration['size'][1] = size_y_px
             new_configuration['pos'][1] = pos_y_px - size_y_px
+            new_configuration['start'] = start_mem_addr
+            new_configuration['end'] = end_mem_addr
             return new_configuration
 
         self._overwrite_sections_info()
@@ -164,39 +172,68 @@ class AreaView:
         area_has_breaks = breaks_count >= 1
         breaks_section_size_y_px = self.style.break_size if self.style is not None else 20
 
-        if area_has_breaks:
-
-            total_breaks_size_y_px = self._get_break_total_size_px()
-            total_non_breaks_size_y_px = self._get_non_breaks_total_size_px(
-                self.sections.get_sections())
-            expandable_size_px = total_breaks_size_y_px - (breaks_section_size_y_px * breaks_count)
-
-            last_area_pos = self.pos_y + self.size_y
-
-            for section_group in split_section_groups:
-
-                corrected_size_y_px = breaks_section_size_y_px \
-                    if section_group.is_break_section_group() else recalculate_section_size_y()
-
-                subconfig = area_config_clone(self.area, last_area_pos, corrected_size_y_px)
-                last_area_pos = subconfig['pos'][1]
-
-                self.processed_section_views.append(AreaView(
-                    sections=section_group,
-                    area_config=subconfig,
-                    labels=self.labels,
-                    style=self.style,
-                    is_subarea=True)
-                )
-
-        else:
+        if not area_has_breaks:
             if len(self.sections.get_sections()) == 0:
                 logger.error(f"An area view without sections made its through the process. "
                              f"This shouldn't be happening")
                 exit(-1)
             self.processed_section_views.append(self)
+            return
 
-    def _get_break_total_size_px(self):
+        total_breaks_size_y_px = self._get_break_total_size_before_transform_px()
+        total_non_breaks_size_y_px = self._get_non_breaks_total_size_px(total_breaks_size_y_px)
+
+        # Size gained at the area after flagged sections transformed to breaks
+        expandable_size_px = total_breaks_size_y_px - (breaks_section_size_y_px * breaks_count)
+
+        last_area_pos = self.pos_y + self.size_y
+
+        for i, section_group in enumerate(split_section_groups):
+
+            # TODO: ideally, instead of doing this, we should have previously obtained an array
+            #       of sub-areas with already start and end values set. That method should live
+            #       at area class and not at sections. That is, kill the
+            #       `split_sections_around_breaks` method
+            if section_group is split_section_groups[0]:
+                start_addr = self.start_address
+                end_addr = split_section_groups[1].lowest_memory
+            elif section_group is split_section_groups[-1]:
+                end_addr = self.end_address if self.end_address > section_group.highest_memory else section_group.highest_memory
+                start_addr = split_section_groups[-2].highest_memory
+            elif section_group.is_break_section_group():
+                start_addr = section_group.lowest_memory
+                end_addr = section_group.highest_memory
+            else:
+                start_addr = split_section_groups[i - 1].highest_memory
+                end_addr = split_section_groups[i + 1].lowest_memory
+
+            # Assign new calculated size y
+            corrected_size_y_px = breaks_section_size_y_px \
+                if section_group.is_break_section_group() \
+                else recalculate_subarea_size_y(start_addr, end_addr)
+
+            subconfig = area_config_clone(self.area,
+                                          last_area_pos,
+                                          corrected_size_y_px,
+                                          start_addr,
+                                          end_addr)
+
+            last_area_pos = subconfig['pos'][1]
+
+            self.processed_section_views.append(AreaView(
+                sections=section_group,
+                area_config=subconfig,
+                labels=self.labels,
+                style=self.style,
+                is_subarea=True)
+            )
+
+    def _get_break_total_size_before_transform_px(self):
+        """
+        Compute the sum of pixels that the break sections would occupy if they wouldn't be break
+        sections
+        :return: Computed size in pixels
+        """
         total_breaks_size_px = 0
 
         for _break in self.sections.filter_breaks().get_sections():
@@ -204,10 +241,17 @@ class AreaView:
 
         return total_breaks_size_px
 
-    def _get_non_breaks_total_size_px(self, sections_list):
-        total_no_breaks_size_px = 0
+    def _get_non_breaks_total_size_px(self, breaks_size_y_sum_px):
+        """
+        Get pixel count at y of displayed memory that is not break-flagged section before
+        transformation into a break section.
 
-        for section in sections_list:
-            if not section.is_break():
-                total_no_breaks_size_px += self.to_pixels(section.size)
-        return total_no_breaks_size_px
+        That takes into account both normal sections and empty memory
+
+        :param breaks_size_y_sum_px: Total pixel count at y axis occupied by break-flagged sections before transformation into break sections.
+        :return:
+        """
+
+        highest_mem = self.end_address if self.end_address > self.sections.highest_memory else self.sections.highest_memory
+        lowest_mem = self.start_address if self.start_address < self.sections.lowest_memory else self.sections.lowest_memory
+        return self.to_pixels(highest_mem - lowest_mem) - breaks_size_y_sum_px
