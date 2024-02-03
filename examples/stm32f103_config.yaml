@@ -1,4 +1,4 @@
-size: [1200,1200]
+size: [1100,1100]
 
 variables:
   graphite: &graphite '#212b38'

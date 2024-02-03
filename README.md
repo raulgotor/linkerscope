@@ -216,7 +216,7 @@ areas:
      # ...
 ```
 
-![Example of different labels](docs/assets/labels_map.svg)
+![Example of different labels](docs/assets/label_map.svg)
 
 > The example can be executed at the root folder by running:
 >  ```bash
@@ -255,7 +255,7 @@ areas:
 These flags specify the section as growing section, for instance, if the section is meant to grow into one direction, such as the stack.
 When flagging a section with `grows-down`, an arrow pointing downwards will be appended to the bottom of the section indicating that the section is growing into that direction:
 
-![Example of the different breaks](docs/assets/break_map.svg)
+![Example of the different breaks](docs/assets/stack_map.svg)
 
 > The example can be executed at the root folder by running:
 >  ```bash
