@@ -24,6 +24,12 @@ def parse_arguments():
                         '-o',
                         help='Name for the generated .svg file',
                         default='map.svg')
+    parser.add_argument('--convert',
+                        help='Performs the conversion of a .map file to .yaml if a .map file was passed without any additional step',
+                        action='store_true',
+                        default=False,
+                        required=False
+                        )
     parser.add_argument('--config',
                         '-c',
                         help='Configuration file (.yml). If not specified,'
@@ -106,7 +112,7 @@ def get_area_views(_raw_sections, _base_style, config=None):
 
 
 arguments = parse_arguments()
-raw_sections = MapFileLoader(arguments.input).parse()
+raw_sections = MapFileLoader(arguments.input, arguments.convert).parse()
 base_style = Style().get_default()
 
 

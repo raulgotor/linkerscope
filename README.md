@@ -47,12 +47,32 @@ where:
 - First parameter specifies the path to the input file, where LinkerScope should get the data to represent from. It can come from a GNU Linker map file `.map` or from an already parsed or hand-crafted `.yaml` file. Check [Manually crafting input file](#Manually crafting input file) section for learning how to do this.
 - `-c, --config` [OPTIONAL] specifies the path to the configuration file. This file contains all the custom information to tell LinkerScope what to and how to draw the memory maps. While it is optional, the default parameters will most likely not apply to a given use case.
 - `-o, --output` [OPTIONAL] specifies the path to the output file, which will be a newly generated SVG.
-
+- `--convert` [OPTIONAL] tells LinkerScope to perform a conversion from a `.map` file to `.yaml` file containing memory information. After conversion, proqram will quit.
 
 
 ### Input files
 
 LinkerScope can use two types of input files: GNU linker map files (`.map`) or custom defined yaml files (`.yaml`).
+
+#### Using .map files
+
+Under the hood, LinkerScope will convert `.map` files to custom `.yaml` ones, and will work from there.
+Since this operation is time-consuming and makes no sense to do it multiple times, two strategies can be
+performed when using `.map` files:
+- Convert `.map` files to `.yaml` file and then use the `.yaml` file as an input to LinkerScope
+  > This is specially useful if you plan to execute LinkerScope multiple times, since this conversion is time-consuming. Therefore better doing the conversion step once, right? Execute the example below:
+  > ```shell
+  >  # Conversion step
+  > ./linkerscope.py examples/sample_map.map --convert 
+  > 
+  >  # Map diagram generation. You can execute multiple times without having to do the conversion again
+  > ./linkerscope.py map.yaml -c examples/sample_config.yaml -o sample_map.svg 
+  >```
+- Directly use the `.map` files to output a memory map diagram.
+  > Use this strategy when you already have a configuration file, and you know that LinkerScope will produce the expected result. Execute the example below:
+  > ```shell
+  > ./linkerscope.py examples/sample_map.map -c examples/sample_config.yaml -o sample_map.svg 
+  > ```
 
 #### Manually crafted memory map files
 

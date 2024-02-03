@@ -1,0 +1,25 @@
+size: [500,1100]
+
+variables:
+  graphite: &graphite '#212b38'
+  cleargraphite: &cleargraphite '#37465b'
+  mydarkgreen: &mydarkgreen '#08c6ab'
+
+style:
+  text-fill: 'white'
+  background: *graphite
+  fill: *mydarkgreen
+  hide-address: false
+  stroke: *cleargraphite
+  stroke-width: 0.5
+  text-stroke-width: 0.1
+  font-size: 12
+  font_type: 'Helvetica'
+
+areas:
+- area:
+    title: ESP32 app space (extract)
+    range: [0x400d0000, 0x400da000]
+    section-size: [0x000010,0x0008000]
+    pos: [ 100, 50 ]
+    size: [200, 1000]
