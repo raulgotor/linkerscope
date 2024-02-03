@@ -7,6 +7,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.0] - 2024-02-03
+
 ### Added
 * Title feature and property (`title`) for the different areas
 * `hide-name`, `hide-address` and `hide-size` style properties to hide specific visual elements
