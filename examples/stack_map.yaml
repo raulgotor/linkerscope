@@ -15,9 +15,9 @@ map:
   size:    0x10000000
   id: Heap
   type: area
-  flags: grows-up
+  # flags: grows-up
 - address: 0xA0000000
   size:    0x10000000
   id: Stack
   type: area
-  flags: grows-down
+  #flags: grows-down

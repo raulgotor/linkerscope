@@ -5,7 +5,7 @@
 LinkerScope is a memory map diagram generator. It can be fed either with a GNU Linker map file or with a custom `yaml` file
 and generate beautiful and detailed diagrams of the different areas and sections such as the one below.
 
-<img style="display: block; margin-left: auto; margin-right: auto;" src="docs/assets/link_map.svg">
+![Example of_STM32F103 Memory Map generated with LinkerScope](docs/assets/stm32f103_map.svg)
 
 ## Installing LinkerScope
 
@@ -216,7 +216,7 @@ areas:
      # ...
 ```
 
-<img style="display: block; margin-left: auto; margin-right: auto;" src="docs/assets/label_map.svg">
+![Example of different labels](docs/assets/labels_map.svg)
 
 > The example can be executed at the root folder by running:
 >  ```bash
@@ -255,7 +255,7 @@ areas:
 These flags specify the section as growing section, for instance, if the section is meant to grow into one direction, such as the stack.
 When flagging a section with `grows-down`, an arrow pointing downwards will be appended to the bottom of the section indicating that the section is growing into that direction:
 
-<img style="display: block; margin-left: auto; margin-right: auto;" src="docs/assets/stack_map.svg">
+![Example of the different breaks](docs/assets/stack_map.svg)
 
 > The example can be executed at the root folder by running:
 >  ```bash
@@ -270,7 +270,7 @@ Reducing the size of the biggest one helps to visually simplify the diagram and 
 
 There are four different break styles, which can be defined by the 'break-type' style property: `~`: Wave,  `≈`: Double wave, `/`: Diagonal, `...`: Dots
 
-<img style="display: block; margin-left: auto; margin-right: auto;" src="docs/assets/break_map.svg">
+![Example of the different breaks](docs/assets/break_map.svg)
 
 > The example can be executed at the root folder by running:
 >  ```bash
@@ -306,7 +306,7 @@ links:
   sections: [['Bit band region', 'Bit band alias'],'ITM']
 
 ```
-<img style="display: block; margin-left: auto; margin-right: auto;" src="docs/assets/link_map.svg">
+![Example of linked sections](docs/assets/link_map.svg)
 
 > The example can be executed at the root folder by running:
 >  ```bash
