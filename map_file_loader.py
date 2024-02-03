@@ -12,17 +12,24 @@ class MapFileLoader:
     Depending on the type of file (.map or .yaml) will include an additional conversion step and
     create a temporary .yaml file
     """
-    def __init__(self, file):
+    def __init__(self, file, convert):
         self.input_filename = file
+        self.convert = convert
 
     def parse(self):
         _, file_extension = os.path.splitext(self.input_filename)
 
         if file_extension == '.map':
             self.parse_map(self.input_filename)
-            return self.parse_yaml('examples/map.yaml')
+            if self.convert:
+                logger.info(".map file converted and saved as map.yaml")
+                exit(0)
+            return self.parse_yaml('map.yaml')
 
         if file_extension in ['.yaml', '.yml']:
+            if self.convert:
+                logger.error("--convert flag requires a .map file")
+                exit(-1)
             return self.parse_yaml(self.input_filename)
 
         logger.error(f"Wrong map file extension: '{file_extension}'. Use .map or .yaml files")
@@ -50,4 +57,4 @@ class MapFileLoader:
 
     @staticmethod
     def parse_map(input_filename):
-        GNULinkerMapParser(input_filename=input_filename, output_filename='examples/map.yaml').parse()
+        GNULinkerMapParser(input_filename=input_filename, output_filename='map.yaml').parse()

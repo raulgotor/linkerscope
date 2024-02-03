@@ -7,6 +7,9 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+* `--convert` flag to simply convert `.map` files to `.yaml` files
+
 ## [0.3.0] - 2024-02-03
 
 ### Added
