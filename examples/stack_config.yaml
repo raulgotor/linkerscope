@@ -1,20 +1,41 @@
 size: [300, 600]
 
 variables:
-  graphite: &graphite '#2A363B'
-  pastel_green: &pastel_green '#99B898'
-  pastel_yellow: &pastel_yellow '#FECEA8'
-  pastel_orange: &pastel_orange '#FF847C'
-  pastel_red: &pastel_red '#E84A5F'
+  green:  &green '#47b39d'
+  yellow: &yellow '#ffc153'
+  orange: &orange '#eb6b56'
+  granat: &granat '#b05f6d'
+  purple: &purple '#462446'
+  graphite: &graphite '#313b48'
 
 style:
 
   hide-size: true
   hide-address: true
   growth-arrow-size: 2
+  stroke-width: 0
 
 areas:
 - area:
     style:
-        background: 'grey'
+        background: *graphite
     title: 'Full Memory Map'
+    sections:
+      - names: [Text]
+        style:
+          fill: *green
+      - names: [ Initialized data ]
+        style:
+          fill: *yellow
+      - names: [Uninitialized data]
+        style:
+          fill: *orange
+      - names: [ Heap ]
+        flags: grows-up
+        style:
+          fill: *granat
+      - names: [ Stack ]
+        flags: grows-down
+        style:
+          fill: *purple
+          text-fill: white

@@ -216,7 +216,7 @@ areas:
      # ...
 ```
 
-![Example of different labels](docs/assets/label_map.svg)
+![Example of different labels](docs/assets/labels_map.svg)
 
 > The example can be executed at the root folder by running:
 >  ```bash

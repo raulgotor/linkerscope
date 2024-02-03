@@ -1,28 +1,31 @@
 size: [1200,1200]
 
 variables:
+  graphite: &graphite '#212b38'
+  cleargraphite: &cleargraphite '#37465b'
+  myturqoise: &myturqoise '#4aefd7'
+  mydarkgreen: &mydarkgreen '#08c6ab'
+  mypurple: &mypurple '#726eff'
 
-  mylightblue: &mylightblue '#7bd5f5'
-  mypurple: &mypurple '#787ff6'
-  myturqoise: &myturqoise '#4adede'
-  myblue: &myblue '#1ca7ec'
-  mydarkblue: &mydarkblue '#1f2f98'
+  #mylightblue: &mylightblue '#7bd5f5'
+  #myblue: &myblue '#1ca7ec'
+  #mydarkblue: &mydarkblue '#1f2f98'
   mylightgrey: &mylightgrey '#F6F6F6'
 
 style:
-  text-fill: *mydarkblue
+  text-fill: 'white'
   break-size: 25
   break-type: '≈'
   growth-arrow-size: 2
   growth-arrow-fill: 'white'
   growth-arrow-stroke: 'black'
-  background: 'white'
-  fill: *myturqoise
+  background: *graphite
+  fill: *mydarkgreen
   hide-size: true
-  stroke: *mydarkblue
-  stroke-width: 1
+ # stroke: *mydarkblue
+  stroke-width: 0
   text-stroke: 'black'
-  text-stroke-width: 0
+  text-stroke-width: 0.1
   font-size: 12
   font_type: 'Helvetica'
 
@@ -34,40 +37,42 @@ areas:
     size: [200, 700]
     style:
       hide-size: true
-      fill: *myturqoise
 
     sections:
       - names: [none]
         style:
           hide-name: true
-          fill: *mypurple
+          fill: *cleargraphite
 
 - area:
     range: [0x08000000, 0x0801FFFF]
-    size: [200, 200]
-    pos: [450, 600]
+    size: [200, 100]
+    pos: [450, 700]
     style:
-      hide-size: true
+      hide-size: false
       fill: *myturqoise
     sections:
       - names: [Flash Memory]
         style:
-          fill: *myblue
+          fill: *mypurple
 - area:
     range: [0x1FFFF000, 0x1FFFF80F]
-    size: [200, 200]
-    pos: [450, 300]
+    size: [200, 100]
+    pos: [450, 550]
+    style:
+      hide-size: false
     sections:
       - names: [System Memory]
         style:
-          fill: *mylightblue
+          fill: *myturqoise
 - area:
     range: [0xE0000000, 0xE1000000]
     size: [200, 200]
     pos: [450, 50]
+    style:
+      hide-size: false
     sections:
       - names: [ M3 Cortex Internal Peripherals ]
-        style:
 
 - area:
     title: APB memory space
@@ -79,12 +84,15 @@ areas:
       - names: [Reserved1, Reserved2, Reserved3, Reserved4, Reserved5, Reserved6, Reserved7, Reserved8, Reserved9, Reserved10, Reserved11]
         flags: break
         style:
-          fill: *myblue
+          fill: *cleargraphite
+      - names: [AFIO, EXTI, PORT A, PORT B, PORT C, PORT D, PORT E ]
+        style:
+          fill: *mypurple
 
 
 links:
   style:
-    opacity: 0.8
+    opacity: 0.2
     fill: *mylightgrey
     stroke: lightgrey
   sections: [[TIM2, CRC], M3 Cortex Internal Peripherals, Flash Memory, System Memory]

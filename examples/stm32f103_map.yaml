@@ -12,13 +12,10 @@ map:
     address: 0x0801FFFF
     size:    0x1F7FD001
     type: area
-    #flags: break
-
   - id: System Memory
     address: 0x1FFFF000
     size:    0x00000800
     type: area
-
   - id: Option Bytes
     address: 0x1FFFF800
     size:    0x0000000F
@@ -231,34 +228,56 @@ map:
     address: 0x40013000
     size:    0x00000400
     type:    area
-  - id:
-    address: 0x40010000
+
+  - id: Reserved7
+    address: 0x40013400
     size:    0x00000400
     type:    area
+
   - id:      USART1
     address: 0x40013800
     size:    0x00000400
     type:    area
-  - id: Reserved2
+
+  - id: Reserved8
     address: 0x40013C00
-    size:    0xc400
+    size:    0x0000C400
     type:    area
-    flag:    break
+
   - id:      DMA
     address: 0x40020000
     size:    0x00000400
     type:    area
+
+  - id: Reserved9
+    address: 0x40020400
+    size:    0x00000C00
+    type:    area
+
   - id:      RCC
     address: 0x40021000
     size:    0x00000400
     type:    area
+
+  - id: Reserved10
+    address: 0x40021400
+    size:    0x00000C00
+    type:    area
+
   - id:      Flash Interface
     address: 0x40022000
     size:    0x00000400
     type:    area
+
+  - id: Reserved11
+    address: 0x40022400
+    size:    0x00000C00
+    type:    area
+
   - id:      CRC
     address: 0x40023000
     size:    0x00000400
     type:    area
+
 
 
