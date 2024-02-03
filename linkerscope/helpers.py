@@ -1,4 +1,4 @@
-from logger import logger
+from linkerscope.logger import logger
 
 
 class DefaultAppValues:

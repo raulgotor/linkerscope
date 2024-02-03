@@ -1,4 +1,4 @@
-from style import Style
+from linkerscope.style import Style
 
 
 class Section:

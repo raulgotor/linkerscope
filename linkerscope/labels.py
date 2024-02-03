@@ -1,6 +1,6 @@
 import copy
 from dataclasses import dataclass
-from style import Style
+from linkerscope.style import Style
 
 
 @dataclass

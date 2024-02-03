@@ -1,9 +1,9 @@
 import os
 import sys
 import yaml
-from logger import logger
-from section import Section
-from gnu_linker_map_parser import GNULinkerMapParser
+from linkerscope.logger import logger
+from linkerscope.section import Section
+from linkerscope.gnu_linker_map_parser import GNULinkerMapParser
 
 
 class MapFileLoader:

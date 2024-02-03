@@ -2,11 +2,11 @@ from math import cos
 from svgwrite import Drawing
 import svgwrite
 
-from helpers import DefaultAppValues
-from labels import Side
-from logger import logger
-from section import Section
-from style import Style
+from linkerscope.helpers import DefaultAppValues
+from linkerscope.labels import Side
+from linkerscope.logger import logger
+from linkerscope.section import Section
+from linkerscope.style import Style
 
 
 class MapRender:

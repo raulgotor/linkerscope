@@ -1,8 +1,6 @@
-import logging
-
-from helpers import safe_element_dict_get
-from style import Style
-from logger import CustomFormatter, logger
+from linkerscope.helpers import safe_element_dict_get
+from linkerscope.style import Style
+from linkerscope.logger import logger
 
 
 class Links:

@@ -5,14 +5,14 @@ import copy
 
 import yaml
 
-from area_view import AreaView
-from helpers import safe_element_list_get, safe_element_dict_get, DefaultAppValues
-from links import Links
-from logger import logger
-from map_render import MapRender
-from style import Style
-from map_file_loader import MapFileLoader
-from sections import Sections
+from linkerscope.area_view import AreaView
+from linkerscope.helpers import safe_element_list_get, safe_element_dict_get, DefaultAppValues
+from linkerscope.links import Links
+from linkerscope.logger import logger
+from linkerscope.map_render import MapRender
+from linkerscope.style import Style
+from linkerscope.map_file_loader import MapFileLoader
+from linkerscope.sections import Sections
 
 
 def parse_arguments():

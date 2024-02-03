@@ -1,9 +1,9 @@
 import copy
 
-from helpers import safe_element_list_get, safe_element_dict_get, DefaultAppValues
-from labels import Labels
-from logger import logger
-from style import Style
+from linkerscope.helpers import safe_element_list_get, safe_element_dict_get, DefaultAppValues
+from linkerscope.labels import Labels
+from linkerscope.logger import logger
+from linkerscope.style import Style
 
 
 class AreaView:

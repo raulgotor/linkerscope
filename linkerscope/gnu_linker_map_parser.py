@@ -1,7 +1,7 @@
 import re
 import yaml
 
-from section import Section
+from linkerscope.section import Section
 
 
 class GNULinkerMapParser:
