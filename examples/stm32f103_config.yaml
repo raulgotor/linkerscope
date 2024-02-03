@@ -1,60 +1,92 @@
-size: [800,900]
+size: [1200,1200]
+
 variables:
-  graphite: &graphite '#2A363B'
-  pastel_green: &pastel_green '#99B898'
-  pastel_yellow: &pastel_yellow '#FECEA8'
-  pastel_orange: &pastel_orange '#FF847C'
-  pastel_red: &pastel_red '#E84A5F'
+
+  mylightblue: &mylightblue '#7bd5f5'
+  mypurple: &mypurple '#787ff6'
+  myturqoise: &myturqoise '#4adede'
+  myblue: &myblue '#1ca7ec'
+  mydarkblue: &mydarkblue '#1f2f98'
+  mylightgrey: &mylightgrey '#F6F6F6'
 
 style:
-  text-fill: 'lightgrey'
-  break-size: 60
-  break-type: '~'
+  text-fill: *mydarkblue
+  break-size: 25
+  break-type: '≈'
   growth-arrow-size: 2
   growth-arrow-fill: 'white'
   growth-arrow-stroke: 'black'
-  background: *graphite
-  fill: '#99B898'
-
-  stroke: *graphite
+  background: 'white'
+  fill: *myturqoise
+  hide-size: true
+  stroke: *mydarkblue
   stroke-width: 1
   text-stroke: 'black'
   text-stroke-width: 0
+  font-size: 12
   font_type: 'Helvetica'
 
 areas:
-# total area area
 - area:
+    title: STM32F103 Memory Space
     range: [0x0, 0x100000000]
+    pos: [ 100, 50 ]
     size: [200, 700]
     style:
-      fill: *pastel_green
       hide-size: true
+      fill: *myturqoise
+
     sections:
       - names: [none]
         style:
           hide-name: true
-          fill: grey
+          fill: *mypurple
 
 - area:
-    range: [0x40000000, 0x40030000]
-    pos: [ 400, 50 ]
-    size: [ 200, 700 ]
+    range: [0x08000000, 0x0801FFFF]
+    size: [200, 200]
+    pos: [450, 600]
     style:
-      fill: *pastel_green
-      background: grey
       hide-size: true
+      fill: *myturqoise
     sections:
-      - names: [none]
+      - names: [Flash Memory]
         style:
-          hide-name: true
-          fill: grey
-      - names: [Reserved2]
+          fill: *myblue
+- area:
+    range: [0x1FFFF000, 0x1FFFF80F]
+    size: [200, 200]
+    pos: [450, 300]
+    sections:
+      - names: [System Memory]
+        style:
+          fill: *mylightblue
+- area:
+    range: [0xE0000000, 0xE1000000]
+    size: [200, 200]
+    pos: [450, 50]
+    sections:
+      - names: [ M3 Cortex Internal Peripherals ]
+        style:
+
+- area:
+    title: APB memory space
+    range: [0x40000000, 0x40030000]
+    pos: [ 750, 50 ]
+    size: [ 200, 1000 ]
+
+    sections:
+      - names: [Reserved1, Reserved2, Reserved3, Reserved4, Reserved5, Reserved6, Reserved7, Reserved8, Reserved9, Reserved10, Reserved11]
         flags: break
+        style:
+          fill: *myblue
+
 
 links:
   style:
-    fill: grey
-  sections: [[TIM2, CRC]]
+    opacity: 0.8
+    fill: *mylightgrey
+    stroke: lightgrey
+  sections: [[TIM2, CRC], M3 Cortex Internal Peripherals, Flash Memory, System Memory]
 
 
