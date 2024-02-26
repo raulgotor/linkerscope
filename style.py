@@ -10,9 +10,9 @@ class Style:
     growth_arrow_stroke: str
     growth_arrow_fill: str
     stroke_dasharray: str
-    hide_size: bool
-    hide_name: bool
-    hide_address: bool
+    hide_size: str
+    hide_name: str
+    hide_address: str
 
     # SVG
     fill: str
@@ -85,8 +85,8 @@ class Style:
         default_style.growth_arrow_stroke = 'black'
         default_style.stroke_dasharray = '3,2'
         default_style.weight = 2
-        default_style.hide_size = False
-        default_style.hide_name = False
-        default_style.hide_address = False
+        default_style.hide_size = 'auto'
+        default_style.hide_name = 'auto'
+        default_style.hide_address = 'auto'
 
         return default_style
