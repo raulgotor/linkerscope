@@ -37,6 +37,9 @@ class Section:
     def is_break(self):
         return 'break' in self.flags
 
+    def is_hidden(self):
+        return 'hidden' in self.flags
+
     def is_address_hidden(self):
         return self.style.hide_address
 
