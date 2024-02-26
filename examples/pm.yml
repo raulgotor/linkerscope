@@ -1,0 +1,24 @@
+partition_name:
+  address: 0xab00
+  size: 0x1000
+  span: [example]
+partition_name1:
+  address: 0xbb00
+  size: 0x1000
+  span: [example]
+partition_name2:
+  address: 0xcb00
+  size: 0x1000
+  span: [example]
+partition_name3:
+  address: 0xdb00
+  size: 0x1000
+  span: [example]
+partition_name4:
+  address: 0xeb00
+  size: 0x1000
+  span: [example]
+partition_name5:
+  address: 0xfb00
+  size: 0x1000
+  span: [example]

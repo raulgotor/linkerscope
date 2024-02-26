@@ -1,6 +1,8 @@
 import os
 import sys
 import yaml
+
+from file_converter import NordicPartitionsFileConverter
 from logger import logger
 from section import Section
 from gnu_linker_map_parser import GNULinkerMapParser
@@ -12,12 +14,17 @@ class MapFileLoader:
     Depending on the type of file (.map or .yaml) will include an additional conversion step and
     create a temporary .yaml file
     """
-    def __init__(self, file, convert):
+    def __init__(self, file, convert, file_type):
         self.input_filename = file
         self.convert = convert
+        self.file_type = file_type
 
     def parse(self):
         _, file_extension = os.path.splitext(self.input_filename)
+
+        if self.file_type == 'nordic':
+            NordicPartitionsFileConverter(self.input_filename, 'map.yaml').save()
+            return self.parse_yaml('map.yaml')
 
         if file_extension == '.map':
             self.parse_map(self.input_filename)

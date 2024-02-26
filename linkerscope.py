@@ -35,6 +35,11 @@ def parse_arguments():
                         help='Configuration file (.yml). If not specified,'
                              'will use config.yaml as default',
                         )
+    parser.add_argument('--zephyr',
+                        help='Performs the conversion of a .map file to .yaml if a .map file was passed without any additional step',
+                        action='store_true',
+                        default=False,
+                        required=False)
 
     return parser.parse_args()
 
@@ -112,7 +117,12 @@ def get_area_views(_raw_sections, _base_style, config=None):
 
 
 arguments = parse_arguments()
-raw_sections = MapFileLoader(arguments.input, arguments.convert).parse()
+
+file_type = ''
+if arguments.zephyr:
+    file_type = 'nordic'
+
+raw_sections = MapFileLoader(arguments.input, arguments.convert, file_type).parse()
 base_style = Style().get_default()
 
 
