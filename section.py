@@ -41,13 +41,13 @@ class Section:
         return 'hidden' in self.flags
 
     def is_address_hidden(self):
-        return self.style.hide_address
+        return self._should_element_be_hidden(self.style.hide_address)
 
     def is_name_hidden(self):
-        return self.style.hide_name
+        return self._should_element_be_hidden(self.style.hide_name)
 
     def is_size_hidden(self):
-        return self.style.hide_size
+        return self._should_element_be_hidden(self.style.hide_size)
 
     @property
     def addr_label_pos_x(self):

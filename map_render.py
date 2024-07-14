@@ -499,13 +499,12 @@ class MapRender:
             group.add(self._make_break(section))
         else:
             group.add(self._make_box(section))
-            if section.size_y > 20:
-                if not section.is_name_hidden():
-                    group.add(self._make_name(section))
-                if not section.is_address_hidden():
-                    group.add(self._make_address(section))
-                if not section.is_size_hidden():
-                    group.add(self._make_size_label(section))
+            if not section.is_name_hidden():
+                group.add(self._make_name(section))
+            if not section.is_address_hidden():
+                group.add(self._make_address(section))
+            if not section.is_size_hidden():
+                group.add(self._make_size_label(section))
 
         return group
 
