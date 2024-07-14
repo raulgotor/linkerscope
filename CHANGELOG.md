@@ -7,6 +7,9 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+* `auto` property to `hide-*` attributes so LinkerScope can explicitly decide whether the attribute should be hidden due to overlapping issues 
+
 ## [0.3.1] - 2024-02-03
 
 ### Added

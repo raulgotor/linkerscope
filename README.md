@@ -376,9 +376,9 @@ Below a list of style properties with general use and specific for sections:
   - `growth-arrow-size`: size of the direction growth arrow. See [`Growths`](#growths) section
   - `growth-arrow-fill`: color for the direction growth arrow. See [`Growths`](#growths) section
   - `growth-arrow-stroke`: stroke color for the direction growth arrow. See [`Growths`](#growths) section
-  - `hide-size`: hides the size label of a section
-  - `hide-name`: hides the name label of a section
-  - `hide-address`: hides the address label of a section
+  - `hide-size`: hides the size label of a section [`true | auto | false` ]
+  - `hide-name`: hides the name label of a section [`true | auto | false` ]
+  - `hide-address`: hides the address label of a section [`true | auto | false` ]
 
 #### Other properties
 
