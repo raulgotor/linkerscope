@@ -37,6 +37,9 @@ class Section:
     def is_break(self):
         return 'break' in self.flags
 
+    def is_hidden(self):
+        return 'hidden' in self.flags
+
     def _should_element_be_hidden(self, attribute):
         return True if str(attribute) in ['True', 'yes'] \
             else False if str(attribute) in ['False', 'no'] \

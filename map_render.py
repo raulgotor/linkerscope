@@ -128,6 +128,8 @@ class MapRender:
                 subarea_group.add(self._make_main_frame(sub_area))
 
                 for section in sub_area.sections.get_sections():
+                    if section.is_hidden():
+                        continue
                     self._make_section(subarea_group, section, sub_area)
 
                 subarea_group.translate(sub_area.pos_x, sub_area.pos_y)
@@ -184,6 +186,8 @@ class MapRender:
 
                     area_growth = dwg.g()
                     for section in subarea.sections.get_sections():
+                        if section.is_hidden():
+                            continue
                         area_growth.add(self._make_growth(section))
 
                     area_growth.translate(subarea.pos_x, subarea.pos_y)

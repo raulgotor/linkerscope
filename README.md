@@ -246,7 +246,7 @@ areas:
 #### Section flags
 
 Section flags allows flagging specified sections with special properties.
-These properties are `break`, `grows-up` and `grows-down`.
+These properties are `hidden`, `break`, `grows-up` and `grows-down`.
 
 Flags are listed under property `flags` and can be specified both at the map files under each section
 
@@ -270,6 +270,20 @@ areas:
   - names: [ROM Table, TPIU]
     flags: break
 ```
+
+##### `hidden`
+
+This flag marks a section or sections to be hidden. Its properties are still computed, the space
+that occupies in the graph is still accounted for, but it is not shown. This could be useful, for
+instance, to remove irrelevant sections while to some other more important. Another quite useful
+use case is doing side by side memory maps:
+
+![Example for side by side maps](docs/assets/side_by_side_map.svg)
+
+> The example can be executed at the root folder by running:
+>  ```bash
+>  ./linkerscope.py examples/side_by_side_map.yaml  -c examples/side_by_side_config.yaml
+>  ```
 
 ##### Growths
 These flags specify the section as growing section, for instance, if the section is meant to grow into one direction, such as the stack.
