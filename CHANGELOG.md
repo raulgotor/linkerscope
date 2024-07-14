@@ -9,6 +9,7 @@ and this project adheres to
 
 ### Added
 * `auto` property to `hide-*` attributes so LinkerScope can explicitly decide whether the attribute should be hidden due to overlapping issues 
+* `hidden` property to sections to allow hiding one section while still computing its properties 
 
 ## [0.3.1] - 2024-02-03
 
