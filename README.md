@@ -7,6 +7,10 @@ and generate beautiful and detailed diagrams of the different areas and sections
 
 ![Example of_STM32F103 Memory Map generated with LinkerScope](docs/assets/stm32f103_map.svg)
 
+<a href="https://ko-fi.com/K3K010I5L1">
+  <img src=".github/kofi_button_blue.png" alt="ko-fi" width="230"/>
+</a>
+
 ## Installing LinkerScope
 
 Optionally create and activate an environment for LinkerScope:
