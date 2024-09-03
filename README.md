@@ -1,7 +1,7 @@
 # LinkerScope
 
 <a href="https://ko-fi.com/K3K010I5L1">
-  <img src="https://github.com/raulgotor/repository/blob/feat/kofi/.github/kofi_button_blue.png" alt="ko-fi" width="150"/>
+  <img src="https://github.com/raulgotor/linkerscope/blob/feat/kofi/.github/kofi_button_blue.png" alt="ko-fi" width="150"/>
 </a>
 
 ## Project summary
