@@ -1,15 +1,15 @@
 # LinkerScope
 
-<a href="https://ko-fi.com/K3K010I5L1">
-  <img src="https://github.com/raulgotor/linkerscope/blob/feat/kofi/.github/kofi_button_blue.png" alt="ko-fi" width="150"/>
-</a>
-
 ## Project summary
 
 LinkerScope is a memory map diagram generator. It can be fed either with a GNU Linker map file or with a custom `yaml` file
 and generate beautiful and detailed diagrams of the different areas and sections such as the one below.
 
 ![Example of_STM32F103 Memory Map generated with LinkerScope](docs/assets/stm32f103_map.svg)
+
+<a href="https://ko-fi.com/K3K010I5L1">
+  <img src="https://github.com/raulgotor/linkerscope/blob/feat/kofi/.github/kofi_button_blue.png" alt="ko-fi" width="150"/>
+</a>
 
 ## Installing LinkerScope
 
