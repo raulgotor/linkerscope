@@ -1,5 +1,9 @@
 # LinkerScope
 
+<div>
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support Me on Ko-fi', '#29abe0', 'K3K010I5L1');kofiwidget2.draw();</script> 
+</div>
+
 ## Project summary
 
 LinkerScope is a memory map diagram generator. It can be fed either with a GNU Linker map file or with a custom `yaml` file
